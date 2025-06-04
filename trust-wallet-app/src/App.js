@@ -402,9 +402,6 @@ function App() {
               {isRegister ? 'Login' : 'Register'}
             </button>
           </p>
-          <div className="demo-credentials">
-            <p><strong>Demo Admin:</strong> admin@elontrustwall.com / admin123</p>
-          </div>
         </div>
       </div>
     );
