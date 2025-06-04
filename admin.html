@@ -216,7 +216,7 @@
 
         async function loadInvestments() {
             try {
-                const response = await fetch('http://localhost:5000/api/admin/investments');
+                const response = await fetch(`${window.location.origin}/api/admin/investments`);
                 const data = await response.json();
                 
                 investments = data.investments;
@@ -275,7 +275,7 @@
             const profitAmount = document.getElementById('profitAmount').value;
 
             try {
-                const response = await fetch(`http://localhost:5000/api/admin/update-profit/${currentInvestmentId}`, {
+                const response = await fetch(`${window.location.origin}/api/admin/update-profit/${currentInvestmentId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
