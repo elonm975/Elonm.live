@@ -2,20 +2,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const Register = () => {
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
-    console.log('Registration attempt:', { email, password });
-    // Add your registration logic here
+    console.log('Login attempt:', { email, password });
+    // Add your authentication logic here
     navigate('/dashboard');
   };
 
@@ -25,7 +20,7 @@ const Register = () => {
         <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-2xl p-8 shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">CryptoTrade</h1>
-            <p className="text-gray-400">Create your account</p>
+            <p className="text-gray-400">Sign in to your account</p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -53,21 +48,7 @@ const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                placeholder="Create a password"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-                placeholder="Confirm your password"
+                placeholder="Enter your password"
               />
             </div>
             
@@ -75,15 +56,15 @@ const Register = () => {
               type="submit"
               className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"
             >
-              Create Account
+              Sign In
             </button>
           </form>
           
           <div className="mt-6 text-center">
             <p className="text-gray-400 text-sm">
-              Already have an account?{' '}
-              <Link to="/" className="text-yellow-400 hover:text-yellow-300 font-medium">
-                Sign in
+              Don't have an account?{' '}
+              <Link to="/register" className="text-yellow-400 hover:text-yellow-300 font-medium">
+                Create one
               </Link>
             </p>
           </div>
@@ -93,4 +74,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

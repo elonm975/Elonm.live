@@ -21,3 +21,15 @@ externalPort = 3000
 [[ports]]
 localPort = 5173
 externalPort = 80
+
+[workflows]
+runButton = "Run Crypto Stimulator"
+
+[[workflows.workflow]]
+name = "Run Crypto Stimulator"
+author = 43448675
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-stimulator && npm start"
