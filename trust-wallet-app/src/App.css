@@ -1,38 +1,268 @@
-.App {
+
+.trust-wallet {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.wallet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.balance {
+  font-size: 1.4rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.wallet-nav {
+  display: flex;
+  gap: 0;
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.wallet-nav button {
+  flex: 1;
+  padding: 15px 25px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  color: #6c757d;
+}
+
+.wallet-nav button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.wallet-nav button:hover:not(.active) {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.wallet-content {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.market-view h2, .portfolio-view h2, .trade-view h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #2d3748;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.crypto-list {
+  display: grid;
+  gap: 15px;
+}
+
+.crypto-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.crypto-item:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.crypto-info strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #2d3748;
+  margin-bottom: 5px;
+}
+
+.crypto-price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.crypto-change {
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 8px 15px;
+  border-radius: 20px;
+  min-width: 80px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.crypto-change.positive {
+  background: #d4edda;
+  color: #155724;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.crypto-change.negative {
+  background: #f8d7da;
+  color: #721c24;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.portfolio-list {
+  display: grid;
+  gap: 15px;
+}
+
+.portfolio-item {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.holding-info strong {
+  display: block;
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.holding-info div {
+  color: #6c757d;
+  margin-bottom: 3px;
+}
+
+.holding-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.trade-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.crypto-select, .amount-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: border-color 0.3s ease;
+  background: #fafafa;
+}
+
+.crypto-select:focus, .amount-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.trade-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.buy-btn, .sell-btn {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.buy-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.buy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.sell-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+  color: white;
+}
+
+.sell-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+}
+
+.trade-summary {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #667eea;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+@media (max-width: 768px) {
+  .trust-wallet {
+    padding: 10px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .wallet-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .wallet-nav {
+    flex-direction: column;
+  }
+  
+  .trade-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .crypto-item, .portfolio-item {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
   }
 }
