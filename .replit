@@ -1,7 +1,7 @@
-run = "npm run dev"
+run = "cd crypto-stimulator && npm start"
 modules = ["nodejs-20"]
 hidden = [".config", "package-lock.json"]
-entrypoint = "index.html"
+entrypoint = "crypto-stimulator/src/App.js"
 
 [nix]
 channel = "stable-24_05"
@@ -11,28 +11,15 @@ language = "nodejs"
 
 [deployment]
 deploymentTarget = "static"
-build = ["npm", "run", "build"]
-publicDir = "dist"
+build = ["cd crypto-stimulator && npm run build"]
+publicDir = "crypto-stimulator/build"
 
 [[ports]]
 localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 5173
 externalPort = 80
 
 [workflows]
 runButton = "Crypto Stimulator"
-
-[[workflows.workflow]]
-name = "Run Crypto Stimulator"
-author = 43448675
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd crypto-stimulator && npm start"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
