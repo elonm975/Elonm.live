@@ -1,15 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import Auth from './components/Auth';
+import InvestmentModal from './components/InvestmentModal';
 
 function App() {
+  const [user, setUser] = useState(null);
   const [cryptoData, setCryptoData] = useState([]);
-  const [portfolio, setPortfolio] = useState([]);
+  const [userInvestments, setUserInvestments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('market');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
+  const [selectedCrypto, setSelectedCrypto] = useState(null);
+  const [showInvestmentModal, setShowInvestmentModal] = useState(false);
 
   const mockCryptoData = [
     { id: 1, name: 'Bitcoin', symbol: 'BTC', price: 65432.10, change: 2.34, marketCap: '1.2T', volume: '28.5B' },
@@ -18,9 +22,20 @@ function App() {
     { id: 4, name: 'Solana', symbol: 'SOL', price: 156.89, change: 3.45, marketCap: '73.2B', volume: '3.1B' },
     { id: 5, name: 'Polkadot', symbol: 'DOT', price: 23.45, change: -2.87, marketCap: '25.4B', volume: '1.2B' },
     { id: 6, name: 'Chainlink', symbol: 'LINK', price: 28.91, change: 4.12, marketCap: '17.8B', volume: '890M' },
+    { id: 7, name: 'Ripple', symbol: 'XRP', price: 1.15, change: 3.21, marketCap: '62.1B', volume: '2.3B' },
+    { id: 8, name: 'Litecoin', symbol: 'LTC', price: 185.67, change: -0.89, marketCap: '13.8B', volume: '1.1B' },
   ];
 
   useEffect(() => {
+    // Check for existing user session
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+      fetchUserInvestments();
+    }
+
     const fetchCryptoData = () => {
       try {
         setTimeout(() => {
@@ -47,33 +62,55 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const total = portfolio.reduce((sum, item) => sum + (item.amount * item.price), 0);
-    setTotalPortfolioValue(total);
-  }, [portfolio]);
-
-  const addToPortfolio = (crypto) => {
-    const amount = prompt(`How much ${crypto.symbol} do you want to add?`);
-    if (amount && !isNaN(amount)) {
-      const existing = portfolio.find(item => item.id === crypto.id);
-      if (existing) {
-        setPortfolio(prev => prev.map(item => 
-          item.id === crypto.id 
-            ? { ...item, amount: item.amount + parseFloat(amount) }
-            : item
-        ));
-      } else {
-        setPortfolio(prev => [...prev, {
-          ...crypto,
-          amount: parseFloat(amount),
-          buyPrice: crypto.price
-        }]);
+  const fetchUserInvestments = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/investments', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUserInvestments(data.investments);
+        
+        // Update user data with latest investment info
+        const updatedUser = {
+          ...user,
+          totalInvested: data.totalInvested,
+          totalProfit: data.totalProfit,
+          walletBalance: data.walletBalance
+        };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       }
+    } catch (error) {
+      console.error('Failed to fetch investments:', error);
     }
   };
 
-  const removeFromPortfolio = (cryptoId) => {
-    setPortfolio(prev => prev.filter(item => item.id !== cryptoId));
+  const handleAuthSuccess = (userData) => {
+    setUser(userData);
+    fetchUserInvestments();
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setUserInvestments([]);
+    setActiveTab('market');
+  };
+
+  const handleInvestClick = (crypto) => {
+    setSelectedCrypto(crypto);
+    setShowInvestmentModal(true);
+  };
+
+  const handleInvestmentSuccess = (investment) => {
+    setUserInvestments(prev => [...prev, investment]);
+    fetchUserInvestments(); // Refresh user data
   };
 
   const filteredCrypto = cryptoData.filter(crypto =>
@@ -81,11 +118,16 @@ function App() {
     crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Show authentication if user is not logged in
+  if (!user) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   if (loading) {
     return (
       <div className="App">
         <header className="App-header">
-          <h1>Progressive Crypto Tracker</h1>
+          <h1>Crypto Exchange</h1>
           <div className="loading-spinner"></div>
           <p>Loading crypto data...</p>
         </header>
@@ -97,7 +139,7 @@ function App() {
     return (
       <div className="App">
         <header className="App-header">
-          <h1>Progressive Crypto Tracker</h1>
+          <h1>Crypto Exchange</h1>
           <p style={{ color: 'red' }}>{error}</p>
         </header>
       </div>
@@ -107,8 +149,30 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Progressive Crypto Tracker</h1>
-        <p>Real-time cryptocurrency prices & portfolio management</p>
+        <div className="header-top">
+          <h1>Crypto Exchange</h1>
+          <div className="user-info">
+            <span>Welcome, {user.username}!</span>
+            <button onClick={handleLogout} className="logout-button">Logout</button>
+          </div>
+        </div>
+        
+        <div className="wallet-summary">
+          <div className="wallet-item">
+            <span>Total Invested</span>
+            <strong>${user.totalInvested?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</strong>
+          </div>
+          <div className="wallet-item">
+            <span>Current Profit</span>
+            <strong className={user.totalProfit >= 0 ? 'positive' : 'negative'}>
+              ${user.totalProfit?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+            </strong>
+          </div>
+          <div className="wallet-item">
+            <span>Wallet Balance</span>
+            <strong>${user.walletBalance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</strong>
+          </div>
+        </div>
         
         <div className="search-container">
           <input
@@ -131,7 +195,7 @@ function App() {
             className={`tab ${activeTab === 'portfolio' ? 'active' : ''}`}
             onClick={() => setActiveTab('portfolio')}
           >
-            Portfolio ({portfolio.length})
+            My Investments ({userInvestments.length})
           </button>
         </div>
       </header>
@@ -151,10 +215,10 @@ function App() {
                   <small>Volume: {crypto.volume}</small>
                 </div>
                 <button 
-                  className="add-to-portfolio-btn"
-                  onClick={() => addToPortfolio(crypto)}
+                  className="invest-button"
+                  onClick={() => handleInvestClick(crypto)}
                 >
-                  Add to Portfolio
+                  Invest Now
                 </button>
               </div>
             </div>
@@ -164,38 +228,29 @@ function App() {
 
       {activeTab === 'portfolio' && (
         <main className="portfolio-section">
-          <div className="portfolio-summary">
-            <h2>Portfolio Value: ${totalPortfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
-          </div>
-          
-          {portfolio.length === 0 ? (
+          {userInvestments.length === 0 ? (
             <div className="empty-portfolio">
-              <p>Your portfolio is empty. Add some cryptocurrencies from the Market tab!</p>
+              <p>You haven't made any investments yet. Start investing from the Market tab!</p>
             </div>
           ) : (
             <div className="crypto-list">
-              {portfolio.map(item => {
-                const currentValue = item.amount * item.price;
-                const buyValue = item.amount * item.buyPrice;
-                const profit = currentValue - buyValue;
-                const profitPercentage = ((profit / buyValue) * 100);
+              {userInvestments.map(investment => {
+                const currentValue = investment.amount * investment.currentPrice;
+                const profitLoss = investment.profit || 0;
+                const profitPercentage = investment.profitPercentage || 0;
 
                 return (
-                  <div key={item.id} className="crypto-card portfolio-card">
+                  <div key={investment.id} className="crypto-card portfolio-card">
                     <div className="crypto-info">
-                      <h3>{item.name} ({item.symbol})</h3>
-                      <p className="amount">Amount: {item.amount}</p>
-                      <p className="price">Current: ${item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                      <h3>{investment.cryptoName} ({investment.cryptoSymbol})</h3>
+                      <p className="amount">Amount: {investment.amount.toFixed(6)} {investment.cryptoSymbol}</p>
+                      <p className="price">Entry: ${investment.investmentPrice.toFixed(2)}</p>
+                      <p className="price">Current: ${investment.currentPrice.toFixed(2)}</p>
                       <p className="value">Value: ${currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                      <p className={`profit ${profit >= 0 ? 'positive' : 'negative'}`}>
-                        P&L: {profit >= 0 ? '+' : ''}${profit.toFixed(2)} ({profitPercentage.toFixed(2)}%)
+                      <p className={`profit ${profitLoss >= 0 ? 'positive' : 'negative'}`}>
+                        P&L: {profitLoss >= 0 ? '+' : ''}${profitLoss.toFixed(2)} ({profitPercentage.toFixed(2)}%)
                       </p>
-                      <button 
-                        className="remove-btn"
-                        onClick={() => removeFromPortfolio(item.id)}
-                      >
-                        Remove
-                      </button>
+                      <small>Invested: {new Date(investment.createdAt).toLocaleDateString()}</small>
                     </div>
                   </div>
                 );
@@ -203,6 +258,15 @@ function App() {
             </div>
           )}
         </main>
+      )}
+
+      {showInvestmentModal && selectedCrypto && (
+        <InvestmentModal
+          crypto={selectedCrypto}
+          isOpen={showInvestmentModal}
+          onClose={() => setShowInvestmentModal(false)}
+          onInvest={handleInvestmentSuccess}
+        />
       )}
     </div>
   );

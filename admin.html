@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Exchange - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .investments-table {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .update-form {
+            display: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .update-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin: 1rem 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.2rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .update-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        .wallet-address {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Crypto Exchange - Admin Panel</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="totalUsers">0</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalInvestments">0</h3>
+                <p>Total Investments</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="adminWallet">Loading...</h3>
+                <p>Admin Wallet</p>
+            </div>
+        </div>
+
+        <div class="investments-table">
+            <h2>Manage Investments</h2>
+            <p>Update user investment profits and current prices:</p>
+            
+            <div class="wallet-address">
+                <strong>Receiving Wallet Address:</strong><br>
+                <span id="walletAddress">Loading...</span>
+            </div>
+
+            <table id="investmentsTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Crypto</th>
+                        <th>Amount</th>
+                        <th>Entry Price</th>
+                        <th>Current Price</th>
+                        <th>Profit</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Investments will be loaded here -->
+                </tbody>
+            </table>
+
+            <div id="updateForm" class="update-form">
+                <h3>Update Investment</h3>
+                <div class="form-group">
+                    <label>New Current Price ($):</label>
+                    <input type="number" id="newPrice" step="0.01" placeholder="Enter new price">
+                </div>
+                <div class="form-group">
+                    <label>Profit Amount ($):</label>
+                    <input type="number" id="profitAmount" step="0.01" placeholder="Enter profit amount">
+                </div>
+                <button onclick="updateInvestment()">Update Investment</button>
+                <button onclick="cancelUpdate()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentInvestmentId = null;
+        let investments = [];
+
+        async function loadInvestments() {
+            try {
+                const response = await fetch('http://localhost:5000/api/admin/investments');
+                const data = await response.json();
+                
+                investments = data.investments;
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                document.getElementById('totalInvestments').textContent = data.totalInvestments;
+                document.getElementById('adminWallet').textContent = data.adminWallet.substring(0, 8) + '...';
+                document.getElementById('walletAddress').textContent = data.adminWallet;
+                
+                displayInvestments();
+            } catch (error) {
+                console.error('Error loading investments:', error);
+            }
+        }
+
+        function displayInvestments() {
+            const tbody = document.querySelector('#investmentsTable tbody');
+            tbody.innerHTML = '';
+
+            investments.forEach(investment => {
+                const row = document.createElement('tr');
+                const profitClass = investment.profit >= 0 ? 'positive' : 'negative';
+                
+                row.innerHTML = `
+                    <td>${investment.userId.substring(0, 8)}...</td>
+                    <td>${investment.cryptoName} (${investment.cryptoSymbol})</td>
+                    <td>${investment.amount.toFixed(6)}</td>
+                    <td>$${investment.investmentPrice.toFixed(2)}</td>
+                    <td>$${investment.currentPrice.toFixed(2)}</td>
+                    <td class="${profitClass}">$${investment.profit.toFixed(2)} (${investment.profitPercentage.toFixed(2)}%)</td>
+                    <td>
+                        <button class="update-btn" onclick="showUpdateForm('${investment.id}')">Update</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showUpdateForm(investmentId) {
+            currentInvestmentId = investmentId;
+            const investment = investments.find(inv => inv.id === investmentId);
+            
+            document.getElementById('newPrice').value = investment.currentPrice;
+            document.getElementById('profitAmount').value = investment.profit;
+            document.getElementById('updateForm').classList.add('active');
+        }
+
+        function cancelUpdate() {
+            currentInvestmentId = null;
+            document.getElementById('updateForm').classList.remove('active');
+        }
+
+        async function updateInvestment() {
+            if (!currentInvestmentId) return;
+
+            const newPrice = document.getElementById('newPrice').value;
+            const profitAmount = document.getElementById('profitAmount').value;
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/admin/update-profit/${currentInvestmentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        newPrice: parseFloat(newPrice),
+                        profitAmount: parseFloat(profitAmount)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('Investment updated successfully!');
+                    loadInvestments();
+                    cancelUpdate();
+                } else {
+                    alert('Error updating investment: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error updating investment:', error);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        // Load investments on page load
+        loadInvestments();
+        
+        // Refresh every 30 seconds
+        setInterval(loadInvestments, 30000);
+    </script>
+</body>
+</html>

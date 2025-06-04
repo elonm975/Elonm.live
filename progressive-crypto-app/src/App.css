@@ -12,10 +12,72 @@
   margin-bottom: 2rem;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 .App-header h1 {
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 2.5rem;
   font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info span {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.logout-button {
+  background: rgba(244, 67, 54, 0.2);
+  color: white;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.wallet-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wallet-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wallet-item span {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.wallet-item strong {
+  font-size: 1.5rem;
+  display: block;
 }
 
 .search-container {
@@ -152,17 +214,19 @@
   font-size: 0.9rem;
 }
 
-.add-to-portfolio-btn, .remove-btn {
+.invest-button, .remove-btn {
   background: linear-gradient(45deg, #4CAF50, #45a049);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 12px 24px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   transition: all 0.3s ease;
   margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .remove-btn {
@@ -220,6 +284,23 @@
   margin: 0.5rem 0;
 }
 
+.portfolio-card {
+  border-left: 4px solid #4CAF50;
+}
+
+.portfolio-card .amount {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.5rem 0;
+}
+
+.portfolio-card .value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #2196F3;
+  margin: 0.5rem 0;
+}
+
 .portfolio-card .profit {
   font-size: 1.1rem;
   font-weight: bold;
@@ -232,6 +313,11 @@
 
 .profit.negative {
   color: #f44336;
+}
+
+.portfolio-card small {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
 }
 
 @media (max-width: 768px) {

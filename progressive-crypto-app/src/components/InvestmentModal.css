@@ -1,0 +1,212 @@
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.crypto-info {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.crypto-info p {
+  margin: 0.5rem 0;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.investment-form label {
+  display: block;
+  color: white;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.investment-form input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+.investment-form input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.investment-form input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.investment-summary {
+  background: rgba(76, 175, 80, 0.2);
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.investment-summary p {
+  margin: 0.5rem 0;
+  color: white;
+}
+
+.wallet-info {
+  background: rgba(33, 150, 243, 0.2);
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 1rem 0;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.wallet-info h4 {
+  color: white;
+  margin: 0 0 1rem 0;
+}
+
+.wallet-info p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.5rem 0;
+}
+
+.wallet-address {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin: 0.8rem 0;
+  word-break: break-all;
+}
+
+.wallet-address code {
+  color: #4CAF50;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.wallet-info small {
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-button, .invest-button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button {
+  background: rgba(244, 67, 54, 0.2);
+  color: white;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.cancel-button:hover {
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.invest-button {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.invest-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.invest-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 1rem;
+    max-height: 95vh;
+  }
+  
+  .modal-header, .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}

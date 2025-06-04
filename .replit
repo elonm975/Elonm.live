@@ -23,12 +23,25 @@ localPort = 5173
 externalPort = 80
 
 [workflows]
-runButton = "Crypto Stimulator"
+runButton = "Crypto Exchange"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
 author = 43448675
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd progressive-crypto-app && npm start"
+
+[[workflows.workflow]]
+name = "Crypto Exchange"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server/server.js"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
