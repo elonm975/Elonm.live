@@ -26,7 +26,7 @@ const Auth = ({ onAuthSuccess }) => {
 
     try {
       const endpoint = isLogin ? '/api/login' : '/api/register';
-      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000/api/auth/${isLogin ? 'login' : 'register'}`, {
+      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,8 @@ const Auth = ({ onAuthSuccess }) => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{isLogin ? 'Login to Your Wallet' : 'Create Your Crypto Wallet'}</h2>
+        <div className="wallet-logo">TW</div>
+        <h2>{isLogin ? 'Welcome Back' : 'Create Your Wallet'}</h2>
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (
@@ -122,6 +123,29 @@ const Auth = ({ onAuthSuccess }) => {
             </button>
           </p>
         </div>
+
+        {!isLogin && (
+          <div className="trust-features">
+            <div className="feature-list">
+              <div className="feature-item">
+                <div className="feature-icon">✓</div>
+                <span>Secure multi-crypto wallet</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">✓</div>
+                <span>Buy, sell, and swap crypto</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">✓</div>
+                <span>Track your portfolio</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">✓</div>
+                <span>Earn rewards on holdings</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

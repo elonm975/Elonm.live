@@ -4,62 +4,78 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0C0C0E 0%, #1A1A1E 100%);
+  background: linear-gradient(135deg, #0D1421 0%, #1E2A3A 100%);
   padding: 2rem;
 }
 
 .auth-card {
-  background: rgba(26, 26, 30, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 24px;
   padding: 3rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 184, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  text-align: center;
 }
 
 .auth-card h2 {
-  color: white;
+  color: #1A1A1A;
   text-align: center;
-  margin-bottom: 2rem;
-  font-size: 1.8rem;
+  margin-bottom: 2.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.wallet-logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #3375BB, #1E88E5);
+  border-radius: 20px;
+  margin: 0 auto 1.5rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  font-weight: bold;
 }
 
 .form-group {
   margin-bottom: 1.5rem;
+  text-align: left;
 }
 
 .form-group input {
   width: 100%;
-  padding: 15px;
-  border: none;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  padding: 16px 20px;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  background: white;
+  color: #1A1A1A;
   font-size: 1rem;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: #9CA3AF;
 }
 
 .form-group input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  border-color: #3375BB;
+  box-shadow: 0 0 0 3px rgba(51, 117, 187, 0.1);
 }
 
 .auth-button {
   width: 100%;
-  padding: 15px;
+  padding: 16px;
   border: none;
-  border-radius: 10px;
-  background: linear-gradient(45deg, #FFB800, #E6A600);
-  color: #0C0C0E;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3375BB, #1E88E5);
+  color: white;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1rem;
@@ -67,22 +83,24 @@
 
 .auth-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(51, 117, 187, 0.3);
 }
 
 .auth-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 .error-message {
-  background: rgba(244, 67, 54, 0.2);
-  color: #ff5252;
-  padding: 10px;
+  background: #FEF2F2;
+  color: #DC2626;
+  padding: 12px 16px;
   border-radius: 8px;
   margin: 1rem 0;
   text-align: center;
-  border: 1px solid rgba(244, 67, 54, 0.3);
+  border: 1px solid #FECACA;
+  font-size: 0.9rem;
 }
 
 .auth-switch {
@@ -91,21 +109,58 @@
 }
 
 .auth-switch p {
-  color: rgba(255, 255, 255, 0.8);
+  color: #6B7280;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .switch-button {
   background: none;
   border: none;
-  color: #FFB800;
+  color: #3375BB;
   cursor: pointer;
-  font-weight: bold;
-  text-decoration: underline;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
 }
 
 .switch-button:hover {
-  color: #E6A600;
+  color: #1E88E5;
+  text-decoration: underline;
+}
+
+.trust-features {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #6B7280;
+  font-size: 0.9rem;
+}
+
+.feature-icon {
+  width: 20px;
+  height: 20px;
+  background: #3375BB;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
@@ -118,6 +173,12 @@
   }
   
   .auth-card h2 {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
+  }
+  
+  .wallet-logo {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
   }
 }

@@ -2,15 +2,16 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0C0C0E 0%, #1A1A1E 100%);
+  background: linear-gradient(135deg, #0D1421 0%, #1E2A3A 100%);
   color: white;
 }
 
 .App-header {
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.05);
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(255, 184, 0, 0.2);
+  border-bottom: 1px solid rgba(51, 117, 187, 0.2);
+  backdrop-filter: blur(10px);
 }
 
 .header-top {
@@ -62,11 +63,17 @@
 }
 
 .wallet-item {
-  background: rgba(26, 26, 30, 0.8);
+  background: rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
-  border-radius: 15px;
+  border-radius: 16px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 184, 0, 0.3);
+  border: 1px solid rgba(51, 117, 187, 0.3);
+  transition: all 0.3s ease;
+}
+
+.wallet-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
 }
 
 .wallet-item span {
