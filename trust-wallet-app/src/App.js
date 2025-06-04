@@ -148,6 +148,11 @@ function App() {
       return;
     }
     
+    if (!registerData.email.includes('@') || !registerData.email.includes('.')) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    
     if (registerData.password.length < 6) {
       alert('Password must be at least 6 characters long');
       return;

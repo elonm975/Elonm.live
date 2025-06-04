@@ -117,10 +117,10 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: 'Invalid email format' });
+    // Validate email format - more permissive
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+    if (!email.includes('@') || !email.includes('.') || email.length < 5) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
     }
 
     // Validate password length
