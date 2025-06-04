@@ -18,12 +18,17 @@ function App() {
   const [withdrawData, setWithdrawData] = useState({ amount: '', method: 'bitcoin', address: '' });
   const [transactions, setTransactions] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
+  const [tradeAmount, setTradeAmount] = useState('');
+  const [depositData, setDepositData] = useState({ amount: '', method: 'bitcoin', reference: '' });
+  const [deposits, setDeposits] = useState([]);
   
   // Admin states
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminConfig, setAdminConfig] = useState({});
   const [adminTransactions, setAdminTransactions] = useState([]);
   const [adminInvestments, setAdminInvestments] = useState([]);
+  const [adminDeposits, setAdminDeposits] = useState([]);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -34,6 +39,7 @@ function App() {
       fetchTransactions();
       fetchWithdrawals();
       fetchDepositInfo();
+      fetchDeposits();
       
       if (user?.isAdmin) {
         fetchAdminData();
@@ -100,10 +106,11 @@ function App() {
   };
 
   const fetchAdminData = async () => {
-    const [users, config, transactions, investments] = await Promise.all([
+    const [users, config, transactions, investments, deposits] = await Promise.all([
       apiCall('/admin/users'),
       apiCall('/admin/config'),
       apiCall('/admin/transactions'),
+      apiCall('/admin/investments'),
       apiCall('/admin/deposits')
     ]);
     
@@ -111,6 +118,7 @@ function App() {
     if (config) setAdminConfig(config);
     if (transactions) setAdminTransactions(transactions);
     if (investments) setAdminInvestments(investments);
+    if (deposits) setAdminDeposits(deposits);
   };
 
   const handleLogin = async (e) => {
@@ -237,6 +245,98 @@ function App() {
     
     if (data?.message) {
       setAdminConfig(data.config);
+      alert(data.message);
+    }
+  };
+
+  const handleDeposit = async (e) => {
+    e.preventDefault();
+    const data = await apiCall('/deposit', {
+      method: 'POST',
+      body: JSON.stringify(depositData)
+    });
+    
+    if (data?.message) {
+      setDepositData({ amount: '', method: 'bitcoin', reference: '' });
+      fetchDeposits();
+      alert(data.message);
+    } else {
+      alert(data?.message || 'Deposit failed');
+    }
+  };
+
+  const fetchDeposits = async () => {
+    const data = await apiCall('/deposits');
+    if (data) setDeposits(data);
+  };
+
+  const handleBuy = async () => {
+    if (!tradeAmount || !selectedCrypto) return;
+    
+    const data = await apiCall('/trade', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'buy',
+        cryptoId: selectedCrypto,
+        amount: parseFloat(tradeAmount)
+      })
+    });
+    
+    if (data?.message) {
+      setTradeAmount('');
+      fetchInvestments();
+      fetchTransactions();
+      alert(data.message);
+    } else {
+      alert(data?.message || 'Trade failed');
+    }
+  };
+
+  const handleSell = async () => {
+    if (!tradeAmount || !selectedCrypto) return;
+    
+    const data = await apiCall('/trade', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'sell',
+        cryptoId: selectedCrypto,
+        amount: parseFloat(tradeAmount)
+      })
+    });
+    
+    if (data?.message) {
+      setTradeAmount('');
+      fetchInvestments();
+      fetchTransactions();
+      alert(data.message);
+    } else {
+      alert(data?.message || 'Trade failed');
+    }
+  };
+
+  const updateUserBalance = async (userId, action, amount) => {
+    const data = await apiCall(`/admin/users/${userId}/balance`, {
+      method: 'PUT',
+      body: JSON.stringify({ 
+        amount: parseFloat(amount), 
+        action 
+      })
+    });
+    
+    if (data?.message) {
+      fetchAdminData();
+      alert(data.message);
+    }
+  };
+
+  const updateDepositStatus = async (depositId, status) => {
+    const data = await apiCall(`/admin/deposits/${depositId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status })
+    });
+    
+    if (data?.message) {
+      fetchAdminData();
       alert(data.message);
     }
   };
