@@ -261,6 +261,107 @@ app.get('/api/investments', authenticateToken, (req, res) => {
   });
 });
 
+// Deposit funds
+app.post('/api/deposit', authenticateToken, (req, res) => {
+  try {
+    const { amount } = req.body;
+    const user = users.find(u => u.id === req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid deposit amount' });
+    }
+
+    user.walletBalance += parseFloat(amount);
+
+    res.json({
+      message: 'Deposit successful',
+      newBalance: user.walletBalance
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Withdraw funds
+app.post('/api/withdraw', authenticateToken, (req, res) => {
+  try {
+    const { amount } = req.body;
+    const user = users.find(u => u.id === req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid withdrawal amount' });
+    }
+
+    if (amount > user.walletBalance) {
+      return res.status(400).json({ message: 'Insufficient balance' });
+    }
+
+    user.walletBalance -= parseFloat(amount);
+
+    res.json({
+      message: 'Withdrawal successful',
+      newBalance: user.walletBalance
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Sell investment
+app.post('/api/sell-investment/:investmentId', authenticateToken, (req, res) => {
+  try {
+    const { investmentId } = req.params;
+    const user = users.find(u => u.id === req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find investment in user's portfolio
+    const investmentIndex = user.investments.findIndex(inv => inv.id === investmentId);
+    if (investmentIndex === -1) {
+      return res.status(404).json({ message: 'Investment not found' });
+    }
+
+    const investment = user.investments[investmentIndex];
+    
+    // Calculate sale value (current price * amount + profit)
+    const saleValue = (investment.currentPrice * investment.amount) + investment.profit;
+    
+    // Add sale value to wallet
+    user.walletBalance += saleValue;
+    
+    // Update user totals
+    user.totalInvested -= (investment.investmentPrice * investment.amount);
+    user.totalProfit -= investment.profit;
+    
+    // Remove investment from user's portfolio
+    user.investments.splice(investmentIndex, 1);
+    
+    // Remove from global investments array
+    const globalInvestmentIndex = investments.findIndex(inv => inv.id === investmentId);
+    if (globalInvestmentIndex !== -1) {
+      investments.splice(globalInvestmentIndex, 1);
+    }
+
+    res.json({
+      message: 'Investment sold successfully',
+      saleValue: saleValue,
+      newBalance: user.walletBalance
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Serve React app
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../progressive-crypto-app/build', 'index.html'));

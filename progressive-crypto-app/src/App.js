@@ -14,6 +14,9 @@ function App() {
   const [error, setError] = useState(null);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
   const [showInvestmentModal, setShowInvestmentModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [selectedInvestmentToSell, setSelectedInvestmentToSell] = useState(null);
 
   const mockCryptoData = [
     { id: 1, name: 'Bitcoin', symbol: 'BTC', price: 65432.10, change: 2.34, marketCap: '1.2T', volume: '28.5B' },
@@ -113,6 +116,76 @@ function App() {
     fetchUserInvestments(); // Refresh user data
   };
 
+  const handleSellInvestment = async (investmentId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.location.origin}/api/sell-investment/${investmentId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        fetchUserInvestments(); // Refresh data
+        alert('Investment sold successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to sell investment:', error);
+      alert('Failed to sell investment');
+    }
+  };
+
+  const handleDeposit = async (amount) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.location.origin}/api/deposit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: parseFloat(amount) })
+      });
+      
+      if (response.ok) {
+        fetchUserInvestments(); // Refresh data
+        setShowDepositModal(false);
+        alert('Deposit successful!');
+      }
+    } catch (error) {
+      console.error('Failed to deposit:', error);
+      alert('Failed to process deposit');
+    }
+  };
+
+  const handleWithdraw = async (amount) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${window.location.origin}/api/withdraw`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: parseFloat(amount) })
+      });
+      
+      if (response.ok) {
+        fetchUserInvestments(); // Refresh data
+        setShowWithdrawModal(false);
+        alert('Withdrawal successful!');
+      } else {
+        const data = await response.json();
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Failed to withdraw:', error);
+      alert('Failed to process withdrawal');
+    }
+  };
+
   const filteredCrypto = cryptoData.filter(crypto =>
     crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     crypto.symbol.toLowerCase().includes(searchTerm.toLowerCase())
@@ -171,6 +244,10 @@ function App() {
           <div className="wallet-item">
             <span>Wallet Balance</span>
             <strong>${user.walletBalance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</strong>
+            <div className="wallet-actions">
+              <button onClick={() => setShowDepositModal(true)} className="deposit-btn">Deposit</button>
+              <button onClick={() => setShowWithdrawModal(true)} className="withdraw-btn">Withdraw</button>
+            </div>
           </div>
         </div>
         
@@ -251,6 +328,12 @@ function App() {
                         P&L: {profitLoss >= 0 ? '+' : ''}${profitLoss.toFixed(2)} ({profitPercentage.toFixed(2)}%)
                       </p>
                       <small>Invested: {new Date(investment.createdAt).toLocaleDateString()}</small>
+                      <button 
+                        className="sell-button"
+                        onClick={() => handleSellInvestment(investment.id)}
+                      >
+                        Sell
+                      </button>
                     </div>
                   </div>
                 );
@@ -267,6 +350,60 @@ function App() {
           onClose={() => setShowInvestmentModal(false)}
           onInvest={handleInvestmentSuccess}
         />
+      )}
+
+      {showDepositModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Deposit Funds</h3>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const amount = e.target.amount.value;
+              handleDeposit(amount);
+            }}>
+              <input 
+                type="number" 
+                name="amount" 
+                placeholder="Enter amount" 
+                min="1" 
+                step="0.01" 
+                required 
+              />
+              <div className="modal-buttons">
+                <button type="submit" className="deposit-btn">Deposit</button>
+                <button type="button" onClick={() => setShowDepositModal(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showWithdrawModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Withdraw Funds</h3>
+            <p>Available: ${user.walletBalance?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</p>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const amount = e.target.amount.value;
+              handleWithdraw(amount);
+            }}>
+              <input 
+                type="number" 
+                name="amount" 
+                placeholder="Enter amount" 
+                min="1" 
+                max={user.walletBalance || 0}
+                step="0.01" 
+                required 
+              />
+              <div className="modal-buttons">
+                <button type="submit" className="withdraw-btn">Withdraw</button>
+                <button type="button" onClick={() => setShowWithdrawModal(false)}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
