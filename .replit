@@ -1,7 +1,7 @@
-run = "cd crypto-stimulator && npm start"
+run = "cd progressive-crypto-app && npm start"
 modules = ["nodejs-20"]
 hidden = [".config", "package-lock.json"]
-entrypoint = "crypto-stimulator/src/App.js"
+entrypoint = "progressive-crypto-app/src/App.js"
 
 [nix]
 channel = "stable-24_05"
@@ -11,8 +11,8 @@ language = "nodejs"
 
 [deployment]
 deploymentTarget = "static"
-build = ["cd crypto-stimulator && npm run build"]
-publicDir = "crypto-stimulator/build"
+build = ["cd progressive-crypto-app && npm run build"]
+publicDir = "progressive-crypto-app/build"
 
 [[ports]]
 localPort = 3000
@@ -32,4 +32,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd crypto-stimulator && npm start"
+args = "cd progressive-crypto-app && npm start"
