@@ -133,6 +133,18 @@ function App() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName) {
+      alert('All fields are required');
+      return;
+    }
+    
+    if (registerData.password.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    
     const data = await apiCall('/auth/register', {
       method: 'POST',
       body: JSON.stringify(registerData)
