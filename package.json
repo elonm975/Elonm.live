@@ -25,6 +25,9 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.8"
+    "@tailwindcss/postcss": "^4.1.8",
+    "axios": "^1.9.0",
+    "firebase": "^11.8.1",
+    "start": "^5.1.0"
   }
 }
