@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -413,7 +414,21 @@ io.on('connection', (socket) => {
 
 // Serve React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'trust-wallet-app/build', 'index.html'));
+  const buildPath = path.join(__dirname, 'trust-wallet-app/build', 'index.html');
+  if (require('fs').existsSync(buildPath)) {
+    res.sendFile(buildPath);
+  } else {
+    res.json({ 
+      message: 'Trust Crypto Wallet API Server', 
+      status: 'running',
+      endpoints: {
+        auth: '/api/auth/login, /api/auth/register',
+        market: '/api/market',
+        portfolio: '/api/portfolio',
+        trading: '/api/buy, /api/sell'
+      }
+    });
+  }
 });
 
 server.listen(PORT, '0.0.0.0', () => {
