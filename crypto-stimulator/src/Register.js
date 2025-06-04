@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const Register = () => {
+export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -10,12 +10,14 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log('Registration attempt:', { email, password });
+    
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      alert('Passwords do not match!');
       return;
     }
-    console.log('Registration attempt:', { email, password });
-    // Add your registration logic here
+    
+    // For now, just navigate to dashboard
     navigate('/dashboard');
   };
 
@@ -73,14 +75,14 @@ const Register = () => {
             
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
             >
               Create Account
             </button>
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400">
               Already have an account?{' '}
               <Link to="/" className="text-yellow-400 hover:text-yellow-300 font-medium">
                 Sign in
@@ -91,6 +93,4 @@ const Register = () => {
       </div>
     </div>
   );
-};
-
-export default Register;
+}

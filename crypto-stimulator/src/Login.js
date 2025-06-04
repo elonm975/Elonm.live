@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const Login = () => {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Login attempt:', { email, password });
-    // Add your authentication logic here
+    // For now, just navigate to dashboard
     navigate('/dashboard');
   };
 
@@ -54,17 +54,17 @@ const Login = () => {
             
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"
+              className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-lg"
             >
               Sign In
             </button>
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-400">
               Don't have an account?{' '}
               <Link to="/register" className="text-yellow-400 hover:text-yellow-300 font-medium">
-                Create one
+                Sign up
               </Link>
             </p>
           </div>
@@ -72,6 +72,4 @@ const Login = () => {
       </div>
     </div>
   );
-};
-
-export default Login;
+}
