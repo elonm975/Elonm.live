@@ -5,6 +5,7 @@ entrypoint = "progressive-crypto-app/src/App.js"
 
 [nix]
 channel = "stable-24_05"
+packages = ["nano"]
 
 [unitTest]
 language = "nodejs"
