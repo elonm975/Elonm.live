@@ -2,14 +2,15 @@
 .App {
   text-align: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(135deg, #0C0C0E 0%, #1A1A1E 100%);
   color: white;
 }
 
 .App-header {
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.3);
   margin-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 184, 0, 0.2);
 }
 
 .header-top {
@@ -61,11 +62,11 @@
 }
 
 .wallet-item {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 30, 0.8);
   padding: 1.5rem;
   border-radius: 15px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 184, 0, 0.3);
 }
 
 .wallet-item span {
@@ -129,8 +130,9 @@
 }
 
 .tab.active {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 184, 0, 0.2);
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid #FFB800;
 }
 
 .tab:hover {
@@ -162,11 +164,11 @@
 }
 
 .crypto-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 30, 0.9);
   border-radius: 15px;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 184, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -215,8 +217,8 @@
 }
 
 .invest-button, .remove-btn {
-  background: linear-gradient(45deg, #4CAF50, #45a049);
-  color: white;
+  background: linear-gradient(45deg, #FFB800, #E6A600);
+  color: #0C0C0E;
   border: none;
   padding: 12px 24px;
   border-radius: 25px;
