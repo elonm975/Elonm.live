@@ -27,7 +27,7 @@ const Auth = ({ onAuthSuccess }) => {
 
     try {
       const endpoint = isLogin ? '/api/login' : '/api/register';
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const response = await fetch(`${window.location.origin}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
