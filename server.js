@@ -588,6 +588,125 @@ app.get('/api/market', (req, res) => {
   res.json(cryptoPrices);
 });
 
+// Investment and Profit Management
+app.get('/api/investments', authenticateToken, (req, res) => {
+  const user = users.find(u => u.id === req.user.userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const userTransactions = transactions
+    .filter(t => t.userId === req.user.userId && t.type === 'investment')
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  res.json({
+    totalInvested: user.totalInvested || 0,
+    totalProfits: user.totalProfits || 0,
+    profitPercentage: user.profitPercentage || 0,
+    investments: userTransactions
+  });
+});
+
+app.post('/api/invest', authenticateToken, (req, res) => {
+  try {
+    const { amount, method, reference } = req.body;
+    const user = users.find(u => u.id === req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (amount < adminConfig.minDeposit) {
+      return res.status(400).json({ message: `Minimum investment is $${adminConfig.minDeposit}` });
+    }
+
+    const newInvestment = {
+      id: generateId(),
+      userId: req.user.userId,
+      amount: parseFloat(amount),
+      method,
+      reference,
+      status: 'pending',
+      type: 'investment',
+      timestamp: new Date().toISOString()
+    };
+
+    transactions.push(newInvestment);
+    deposits.push(newInvestment);
+
+    res.json({
+      message: 'Investment request submitted successfully. It will be processed by admin.',
+      investment: newInvestment
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+app.put('/api/admin/users/:userId/profits', authenticateAdmin, (req, res) => {
+  const { userId } = req.params;
+  const { totalProfits, profitPercentage, action } = req.body;
+
+  const user = users.find(u => u.id === userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (action === 'set') {
+    user.totalProfits = parseFloat(totalProfits) || 0;
+    user.profitPercentage = parseFloat(profitPercentage) || 0;
+  } else if (action === 'add') {
+    user.totalProfits = (user.totalProfits || 0) + parseFloat(totalProfits || 0);
+    user.profitPercentage = (user.profitPercentage || 0) + parseFloat(profitPercentage || 0);
+  }
+
+  // Record admin profit adjustment
+  transactions.push({
+    id: generateId(),
+    userId: userId,
+    type: 'profit_adjustment',
+    profitAmount: totalProfits,
+    profitPercentage: profitPercentage,
+    action: action,
+    adminId: req.user.userId,
+    timestamp: new Date().toISOString()
+  });
+
+  res.json({ 
+    message: 'Profits updated successfully', 
+    totalProfits: user.totalProfits,
+    profitPercentage: user.profitPercentage
+  });
+});
+
+app.put('/api/admin/investments/:investmentId', authenticateAdmin, (req, res) => {
+  const { investmentId } = req.params;
+  const { status } = req.body;
+
+  const investment = transactions.find(t => t.id === investmentId && t.type === 'investment');
+  const deposit = deposits.find(d => d.id === investmentId);
+  
+  if (!investment || !deposit) {
+    return res.status(404).json({ message: 'Investment not found' });
+  }
+
+  investment.status = status;
+  deposit.status = status;
+  investment.processedAt = new Date().toISOString();
+  deposit.processedAt = new Date().toISOString();
+  investment.processedBy = req.user.userId;
+  deposit.processedBy = req.user.userId;
+
+  if (status === 'approved') {
+    const user = users.find(u => u.id === investment.userId);
+    if (user) {
+      user.totalInvested = (user.totalInvested || 0) + investment.amount;
+    }
+  }
+
+  res.json({ message: `Investment ${status} successfully` });
+});
+
 // Transactions
 app.get('/api/transactions', authenticateToken, (req, res) => {
   const userTransactions = transactions

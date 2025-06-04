@@ -6,35 +6,32 @@ function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [cryptoPrices, setCryptoPrices] = useState({});
-  const [portfolio, setPortfolio] = useState([]);
+  const [investments, setInvestments] = useState({ totalInvested: 0, totalProfits: 0, profitPercentage: 0, investments: [] });
   const [selectedCrypto, setSelectedCrypto] = useState('bitcoin');
-  const [tradeAmount, setTradeAmount] = useState('');
-  const [activeTab, setActiveTab] = useState('market');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [showLogin, setShowLogin] = useState(!token);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ email: '', password: '', firstName: '', lastName: '' });
   const [isRegister, setIsRegister] = useState(false);
   const [depositInfo, setDepositInfo] = useState(null);
-  const [depositData, setDepositData] = useState({ amount: '', method: 'bitcoin', reference: '' });
+  const [investmentData, setInvestmentData] = useState({ amount: '', method: 'bitcoin', reference: '' });
   const [withdrawData, setWithdrawData] = useState({ amount: '', method: 'bitcoin', address: '' });
   const [transactions, setTransactions] = useState([]);
-  const [deposits, setDeposits] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
   
   // Admin states
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminConfig, setAdminConfig] = useState({});
   const [adminTransactions, setAdminTransactions] = useState([]);
-  const [adminDeposits, setAdminDeposits] = useState([]);
+  const [adminInvestments, setAdminInvestments] = useState([]);
 
   // Fetch data on component mount
   useEffect(() => {
     if (token) {
       fetchUserData();
       fetchMarketData();
-      fetchPortfolio();
+      fetchInvestments();
       fetchTransactions();
-      fetchDeposits();
       fetchWithdrawals();
       fetchDepositInfo();
       
@@ -82,19 +79,14 @@ function App() {
     }
   };
 
-  const fetchPortfolio = async () => {
-    const data = await apiCall('/portfolio');
-    if (data) setPortfolio(data.holdings || []);
+  const fetchInvestments = async () => {
+    const data = await apiCall('/investments');
+    if (data) setInvestments(data);
   };
 
   const fetchTransactions = async () => {
     const data = await apiCall('/transactions');
     if (data) setTransactions(data);
-  };
-
-  const fetchDeposits = async () => {
-    const data = await apiCall('/deposits');
-    if (data) setDeposits(data);
   };
 
   const fetchWithdrawals = async () => {
@@ -108,7 +100,7 @@ function App() {
   };
 
   const fetchAdminData = async () => {
-    const [users, config, transactions, deposits] = await Promise.all([
+    const [users, config, transactions, investments] = await Promise.all([
       apiCall('/admin/users'),
       apiCall('/admin/config'),
       apiCall('/admin/transactions'),
@@ -118,7 +110,7 @@ function App() {
     if (users) setAdminUsers(users);
     if (config) setAdminConfig(config);
     if (transactions) setAdminTransactions(transactions);
-    if (deposits) setAdminDeposits(deposits);
+    if (investments) setAdminInvestments(investments);
   };
 
   const handleLogin = async (e) => {
@@ -165,75 +157,19 @@ function App() {
     setActiveTab('market');
   };
 
-  const handleBuy = async () => {
-    const amount = parseFloat(tradeAmount);
-    const crypto = cryptoPrices[selectedCrypto];
-    
-    if (!amount || amount <= 0) {
-      alert('Please enter a valid amount');
-      return;
-    }
-
-    const data = await apiCall('/buy', {
-      method: 'POST',
-      body: JSON.stringify({
-        cryptoId: selectedCrypto,
-        amount: amount,
-        price: crypto.price
-      })
-    });
-    
-    if (data?.message) {
-      setUser({...user, balance: data.newBalance});
-      setTradeAmount('');
-      fetchPortfolio();
-      fetchTransactions();
-      alert(`${data.message}\nCommission: $${data.commission?.toFixed(2) || 0}`);
-    } else {
-      alert(data?.message || 'Buy failed');
-    }
-  };
-
-  const handleSell = async () => {
-    const amount = parseFloat(tradeAmount);
-    
-    if (!amount || amount <= 0) {
-      alert('Please enter a valid amount');
-      return;
-    }
-
-    const data = await apiCall('/sell', {
-      method: 'POST',
-      body: JSON.stringify({
-        cryptoId: selectedCrypto,
-        amount: amount
-      })
-    });
-    
-    if (data?.message) {
-      setUser({...user, balance: data.newBalance});
-      setTradeAmount('');
-      fetchPortfolio();
-      fetchTransactions();
-      alert(`${data.message}\nCommission: $${data.commission?.toFixed(2) || 0}`);
-    } else {
-      alert(data?.message || 'Sell failed');
-    }
-  };
-
-  const handleDeposit = async (e) => {
+  const handleInvestment = async (e) => {
     e.preventDefault();
-    const data = await apiCall('/deposit', {
+    const data = await apiCall('/invest', {
       method: 'POST',
-      body: JSON.stringify(depositData)
+      body: JSON.stringify(investmentData)
     });
     
     if (data?.message) {
-      setDepositData({ amount: '', method: 'bitcoin', reference: '' });
-      fetchDeposits();
+      setInvestmentData({ amount: '', method: 'bitcoin', reference: '' });
+      fetchInvestments();
       alert(data.message);
     } else {
-      alert(data?.message || 'Deposit failed');
+      alert(data?.message || 'Investment failed');
     }
   };
 
@@ -253,10 +189,14 @@ function App() {
     }
   };
 
-  const updateUserBalance = async (userId, action, amount) => {
-    const data = await apiCall(`/admin/users/${userId}/balance`, {
+  const updateUserProfits = async (userId, totalProfits, profitPercentage, action = 'set') => {
+    const data = await apiCall(`/admin/users/${userId}/profits`, {
       method: 'PUT',
-      body: JSON.stringify({ action, amount: parseFloat(amount) })
+      body: JSON.stringify({ 
+        totalProfits: parseFloat(totalProfits), 
+        profitPercentage: parseFloat(profitPercentage),
+        action 
+      })
     });
     
     if (data?.message) {
@@ -265,8 +205,8 @@ function App() {
     }
   };
 
-  const updateDepositStatus = async (depositId, status) => {
-    const data = await apiCall(`/admin/deposits/${depositId}`, {
+  const updateInvestmentStatus = async (investmentId, status) => {
+    const data = await apiCall(`/admin/investments/${investmentId}`, {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
@@ -293,7 +233,7 @@ function App() {
     return (
       <div className="login-container">
         <div className="login-form">
-          <h1>🔐 Crypto Exchange</h1>
+          <h1>🚀 Elon Trust Wallet</h1>
           <form onSubmit={isRegister ? handleRegister : handleLogin}>
             {isRegister && (
               <>
@@ -346,7 +286,7 @@ function App() {
             </button>
           </p>
           <div className="demo-credentials">
-            <p><strong>Demo Admin:</strong> admin@cryptoexchange.com / admin123</p>
+            <p><strong>Demo Admin:</strong> admin@elontrustwall.com / admin123</p>
           </div>
         </div>
       </div>
@@ -356,15 +296,24 @@ function App() {
   return (
     <div className="crypto-exchange">
       <header className="exchange-header">
-        <h1>🔐 Crypto Exchange</h1>
+        <h1>🚀 Elon Trust Wallet</h1>
         <div className="user-info">
           <span>Welcome, {user?.firstName}!</span>
-          <div className="balance">Balance: ${user?.balance?.toFixed(2) || '0.00'}</div>
+          <div className="investment-info">
+            <div>Total Invested: ${user?.totalInvested?.toFixed(2) || '0.00'}</div>
+            <div className="profits">Profits: ${user?.totalProfits?.toFixed(2) || '0.00'} ({user?.profitPercentage?.toFixed(2) || '0.00'}%)</div>
+          </div>
           <button onClick={logout} className="logout-btn">Logout</button>
         </div>
       </header>
 
       <nav className="exchange-nav">
+        <button 
+          className={activeTab === 'dashboard' ? 'active' : ''}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          🏠 Dashboard
+        </button>
         <button 
           className={activeTab === 'market' ? 'active' : ''}
           onClick={() => setActiveTab('market')}
@@ -372,22 +321,10 @@ function App() {
           📈 Market
         </button>
         <button 
-          className={activeTab === 'portfolio' ? 'active' : ''}
-          onClick={() => setActiveTab('portfolio')}
+          className={activeTab === 'invest' ? 'active' : ''}
+          onClick={() => setActiveTab('invest')}
         >
-          💼 Portfolio
-        </button>
-        <button 
-          className={activeTab === 'trade' ? 'active' : ''}
-          onClick={() => setActiveTab('trade')}
-        >
-          💱 Trade
-        </button>
-        <button 
-          className={activeTab === 'deposit' ? 'active' : ''}
-          onClick={() => setActiveTab('deposit')}
-        >
-          💰 Deposit
+          💎 Invest
         </button>
         <button 
           className={activeTab === 'withdraw' ? 'active' : ''}
