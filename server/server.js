@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -8,8 +7,11 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// Configure CORS to allow requests from the React app
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://*.replit.dev', 'https://*.replit.app'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../progressive-crypto-app/build')));
 
@@ -332,20 +334,20 @@ app.post('/api/sell-investment/:investmentId', authenticateToken, (req, res) => 
     }
 
     const investment = user.investments[investmentIndex];
-    
+
     // Calculate sale value (current price * amount + profit)
     const saleValue = (investment.currentPrice * investment.amount) + investment.profit;
-    
+
     // Add sale value to wallet
     user.walletBalance += saleValue;
-    
+
     // Update user totals
     user.totalInvested -= (investment.investmentPrice * investment.amount);
     user.totalProfit -= investment.profit;
-    
+
     // Remove investment from user's portfolio
     user.investments.splice(investmentIndex, 1);
-    
+
     // Remove from global investments array
     const globalInvestmentIndex = investments.findIndex(inv => inv.id === investmentId);
     if (globalInvestmentIndex !== -1) {

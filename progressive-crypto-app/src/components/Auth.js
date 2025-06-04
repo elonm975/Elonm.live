@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import './Auth.css';
 
@@ -27,7 +26,7 @@ const Auth = ({ onAuthSuccess }) => {
 
     try {
       const endpoint = isLogin ? '/api/login' : '/api/register';
-      const response = await fetch(`${window.location.origin}${endpoint}`, {
+      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000/api/auth/${isLogin ? 'login' : 'register'}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +54,7 @@ const Auth = ({ onAuthSuccess }) => {
     <div className="auth-container">
       <div className="auth-card">
         <h2>{isLogin ? 'Login to Your Wallet' : 'Create Your Crypto Wallet'}</h2>
-        
+
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <>
@@ -81,7 +80,7 @@ const Auth = ({ onAuthSuccess }) => {
               </div>
             </>
           )}
-          
+
           <div className="form-group">
             <input
               type="email"
@@ -92,7 +91,7 @@ const Auth = ({ onAuthSuccess }) => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <input
               type="password"
