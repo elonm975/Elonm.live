@@ -28,7 +28,7 @@ localPort = 5173
 externalPort = 80
 
 [workflows]
-runButton = "Trust Crypto Wallet"
+runButton = "Trust Wallet App"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
@@ -60,3 +60,16 @@ mode = "parallel"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run install-all && npm run dev"
+
+[[workflows.workflow]]
+name = "Trust Wallet App"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm start"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd client && npm start"
