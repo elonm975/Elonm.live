@@ -68,8 +68,8 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm start"
+args = "node server.js"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd client && npm start"
+args = "cd trust-wallet-app && npm start"

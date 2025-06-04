@@ -26,7 +26,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'client/build')));
+app.use(express.static(path.join(__dirname, 'trust-wallet-app/build')));
 
 // In-memory storage
 let users = [];
@@ -413,7 +413,7 @@ io.on('connection', (socket) => {
 
 // Serve React app
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'trust-wallet-app/build', 'index.html'));
 });
 
 server.listen(PORT, '0.0.0.0', () => {
