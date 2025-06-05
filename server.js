@@ -55,7 +55,7 @@ let adminConfig = {
 const getUsers = async () => {
   try {
     const users = await db.get("users");
-    return users ? users : [];
+    return Array.isArray(users) ? users : [];
   } catch (error) {
     console.error("Error getting users:", error);
     return [];
@@ -65,10 +65,14 @@ const getUsers = async () => {
 // Helper function to save users to the database
 const saveUsers = async (users) => {
   try {
+    if (!Array.isArray(users)) {
+      throw new Error("Users data must be an array");
+    }
     await db.set("users", users);
     console.log("Users saved successfully");
   } catch (error) {
     console.error("Error saving users:", error);
+    throw error;
   }
 };
 
@@ -343,16 +347,24 @@ app.get('/api/admin/config', authenticateAdmin, (req, res) => {
   res.json(adminConfig);
 });
 
-app.put('/api/admin/config', authenticateAdmin, (req, res) => {
-  const { bitcoinAddress, bankAccount, commissionRate, minDeposit, minWithdraw } = req.body;
+app.put('/api/admin/config', authenticateAdmin, async (req, res) => {
+  try {
+    const { bitcoinAddress, bankAccount, commissionRate, minDeposit, minWithdraw } = req.body;
 
-  if (bitcoinAddress) adminConfig.bitcoinAddress = bitcoinAddress;
-  if (bankAccount) adminConfig.bankAccount = { ...adminConfig.bankAccount, ...bankAccount };
-  if (commissionRate !== undefined) adminConfig.commissionRate = commissionRate;
-  if (minDeposit !== undefined) adminConfig.minDeposit = minDeposit;
-  if (minWithdraw !== undefined) adminConfig.minWithdraw = minWithdraw;
+    if (bitcoinAddress) adminConfig.bitcoinAddress = bitcoinAddress;
+    if (bankAccount) adminConfig.bankAccount = { ...adminConfig.bankAccount, ...bankAccount };
+    if (commissionRate !== undefined) adminConfig.commissionRate = commissionRate;
+    if (minDeposit !== undefined) adminConfig.minDeposit = minDeposit;
+    if (minWithdraw !== undefined) adminConfig.minWithdraw = minWithdraw;
 
-  res.json({ message: 'Configuration updated successfully', config: adminConfig });
+    // Save to database
+    await db.set("adminConfig", adminConfig);
+
+    res.json({ message: 'Configuration updated successfully', config: adminConfig });
+  } catch (error) {
+    console.error('Error updating admin config:', error);
+    res.status(500).json({ message: 'Failed to update configuration' });
+  }
 });
 
 app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
@@ -760,6 +772,40 @@ app.get('/api/market', (req, res) => {
   res.json(cryptoPrices);
 });
 
+// Database status endpoint
+app.get('/api/admin/database-status', authenticateAdmin, async (req, res) => {
+  try {
+    const status = {
+      connected: true,
+      collections: {},
+      timestamp: new Date().toISOString()
+    };
+
+    // Check each collection
+    const users = await getUsers();
+    const portfolios = await getPortfolios();
+    const transactions = await getTransactions();
+    const deposits = await getDeposits();
+    const withdrawals = await getWithdrawals();
+
+    status.collections = {
+      users: users.length,
+      portfolios: portfolios.length,
+      transactions: transactions.length,
+      deposits: deposits.length,
+      withdrawals: withdrawals.length
+    };
+
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({
+      connected: false,
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Investment and Profit Management
 app.get('/api/investments', authenticateToken, async (req, res) => {
   const users = await getUsers();
@@ -959,14 +1005,29 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`💰 ${Object.keys(cryptoPrices).length} cryptocurrencies available`);
   console.log(`🔧 Admin Bitcoin Address: ${adminConfig.bitcoinAddress}`);
 
-  // Initialize default admin user if not already in the database
-  let users = await getUsers();
-  const adminExists = users.find(user => user.id === defaultAdmin.id);
-  if (!adminExists) {
-    users.push(defaultAdmin);
-    await saveUsers(users);
-    console.log('✅ Default admin user initialized.');
-  } else {
-    console.log('✅ Default admin user already exists.');
+  try {
+    // Initialize default admin user if not already in the database
+    let users = await getUsers();
+    const adminExists = users.find(user => user.id === defaultAdmin.id);
+    if (!adminExists) {
+      users.push(defaultAdmin);
+      await saveUsers(users);
+      console.log('✅ Default admin user initialized in database.');
+    } else {
+      console.log('✅ Default admin user already exists in database.');
+    }
+
+    // Initialize admin config in database
+    const existingConfig = await db.get("adminConfig");
+    if (!existingConfig) {
+      await db.set("adminConfig", adminConfig);
+      console.log('✅ Admin configuration initialized in database.');
+    } else {
+      // Load existing config from database
+      adminConfig = { ...adminConfig, ...existingConfig };
+      console.log('✅ Admin configuration loaded from database.');
+    }
+  } catch (error) {
+    console.error('❌ Database initialization error:', error);
   }
 });
