@@ -50,21 +50,32 @@ function App() {
   }, [token, user?.isAdmin]);
 
   const apiCall = async (endpoint, options = {}) => {
-    const response = await fetch(`/api${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers
+    try {
+      console.log('Making API call to:', endpoint, 'with options:', options);
+      
+      const response = await fetch(`/api${endpoint}`, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...options.headers
+        }
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (response.status === 401) {
+        logout();
+        return null;
       }
-    });
-    
-    if (response.status === 401) {
-      logout();
-      return null;
+      
+      const data = await response.json();
+      console.log('Response data:', data);
+      return data;
+    } catch (error) {
+      console.error('API call error:', error);
+      throw error;
     }
-    
-    return response.json();
   };
 
   const fetchUserData = async () => {
@@ -142,51 +153,60 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     
-    // Client-side validation
-    if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.username) {
-      alert('All fields are required');
-      return;
-    }
-    
-    // Email validation (case insensitive)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(registerData.email.toLowerCase())) {
-      alert('Please enter a valid email address');
-      return;
-    }
-    
-    // Username validation (letters and numbers only, case insensitive)
-    const usernameRegex = /^[a-zA-Z0-9]+$/;
-    if (!usernameRegex.test(registerData.username)) {
-      alert('Username can only contain letters and numbers');
-      return;
-    }
-    
-    if (registerData.username.length < 3) {
-      alert('Username must be at least 3 characters long');
-      return;
-    }
-    
-    // Password validation (must contain uppercase, lowercase, and numbers)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(registerData.password)) {
-      alert('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number');
-      return;
-    }
-    
-    const data = await apiCall('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(registerData)
-    });
-    
-    if (data?.token) {
-      localStorage.setItem('token', data.token);
-      setToken(data.token);
-      setUser(data.user);
-      setShowLogin(false);
-      alert('Account created successfully!');
-    } else {
-      alert(data?.message || 'Registration failed');
+    try {
+      // Client-side validation
+      if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.username) {
+        alert('All fields are required');
+        return;
+      }
+      
+      // Email validation (case insensitive)
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(registerData.email.toLowerCase())) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      // Username validation (letters and numbers only, case insensitive)
+      const usernameRegex = /^[a-zA-Z0-9]+$/;
+      if (!usernameRegex.test(registerData.username)) {
+        alert('Username can only contain letters and numbers');
+        return;
+      }
+      
+      if (registerData.username.length < 3) {
+        alert('Username must be at least 3 characters long');
+        return;
+      }
+      
+      // Password validation (must contain uppercase, lowercase, and numbers)
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+      if (!passwordRegex.test(registerData.password)) {
+        alert('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number');
+        return;
+      }
+      
+      console.log('Sending registration data:', registerData);
+      
+      const data = await apiCall('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(registerData)
+      });
+      
+      console.log('Registration response:', data);
+      
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+        setShowLogin(false);
+        alert('Account created successfully!');
+      } else {
+        alert(data?.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('Registration failed: ' + error.message);
     }
   };
 
