@@ -53,6 +53,7 @@ function App() {
     try {
       console.log('Making API call to:', endpoint, 'with options:', options);
       
+      // For Replit environment, use relative URLs and let proxy handle it
       const response = await fetch(`/api${endpoint}`, {
         ...options,
         headers: {
