@@ -53,7 +53,7 @@ function App() {
     try {
       console.log('Making API call to:', endpoint, 'with options:', options);
       
-      const response = await fetch(`/api${endpoint}`, {
+      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
