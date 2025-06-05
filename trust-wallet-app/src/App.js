@@ -168,7 +168,7 @@ function App() {
     }
     
     // Password validation (must contain uppercase, lowercase, and numbers)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
     if (!passwordRegex.test(registerData.password)) {
       alert('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number');
       return;
