@@ -1,6 +1,8 @@
+
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Elon Trust Wallet",
+  "name": "Elon Trust Wallet - Crypto Trading Platform",
+  "description": "Advanced cryptocurrency trading and investment platform by Elon Trust Wallet",
   "icons": [
     {
       "src": "favicon.ico",
@@ -18,8 +20,20 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1a1a2e",
+  "background_color": "#16213e",
+  "orientation": "portrait",
+  "categories": ["finance", "business", "productivity"],
+  "lang": "en-US",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "form_factor": "narrow"
+    }
+  ]
 }

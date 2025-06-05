@@ -1,4 +1,3 @@
-
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -8,6 +7,8 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const Database = require("@replit/database")
+const db = new Database()
 
 const app = express();
 const server = http.createServer(app);
@@ -44,11 +45,116 @@ let adminConfig = {
 };
 
 // In-memory storage
-let users = [];
-let portfolios = [];
-let transactions = [];
-let deposits = [];
-let withdrawals = [];
+//let users = [];
+//let portfolios = [];
+//let transactions = [];
+//let deposits = [];
+//let withdrawals = [];
+
+// Helper function to get users from the database
+const getUsers = async () => {
+  try {
+    const users = await db.get("users");
+    return users ? users : [];
+  } catch (error) {
+    console.error("Error getting users:", error);
+    return [];
+  }
+};
+
+// Helper function to save users to the database
+const saveUsers = async (users) => {
+  try {
+    await db.set("users", users);
+    console.log("Users saved successfully");
+  } catch (error) {
+    console.error("Error saving users:", error);
+  }
+};
+
+// Helper function to get portfolios from the database
+const getPortfolios = async () => {
+  try {
+    const portfolios = await db.get("portfolios");
+    return portfolios ? portfolios : [];
+  } catch (error) {
+    console.error("Error getting portfolios:", error);
+    return [];
+  }
+};
+
+// Helper function to save portfolios to the database
+const savePortfolios = async (portfolios) => {
+  try {
+    await db.set("portfolios", portfolios);
+    console.log("Portfolios saved successfully");
+  } catch (error) {
+    console.error("Error saving portfolios:", error);
+  }
+};
+
+// Helper function to get transactions from the database
+const getTransactions = async () => {
+  try {
+    const transactions = await db.get("transactions");
+    return transactions ? transactions : [];
+  } catch (error) {
+    console.error("Error getting transactions:", error);
+    return [];
+  }
+};
+
+// Helper function to save transactions to the database
+const saveTransactions = async (transactions) => {
+  try {
+    await db.set("transactions", transactions);
+    console.log("Transactions saved successfully");
+  } catch (error) {
+    console.error("Error saving transactions:", error);
+  }
+};
+
+// Helper function to get deposits from the database
+const getDeposits = async () => {
+  try {
+    const deposits = await db.get("deposits");
+    return deposits ? deposits : [];
+  } catch (error) {
+    console.error("Error getting deposits:", error);
+    return [];
+  }
+};
+
+// Helper function to save deposits to the database
+const saveDeposits = async (deposits) => {
+  try {
+    await db.set("deposits", deposits);
+    console.log("Deposits saved successfully");
+  } catch (error) {
+    console.error("Error saving deposits:", error);
+  }
+};
+
+// Helper function to get withdrawals from the database
+const getWithdrawals = async () => {
+  try {
+    const withdrawals = await db.get("withdrawals");
+    return withdrawals ? withdrawals : [];
+  } catch (error) {
+    console.error("Error getting withdrawals:", error);
+    return [];
+  }
+};
+
+// Helper function to save withdrawals to the database
+const saveWithdrawals = async (withdrawals) => {
+  try {
+    await db.set("withdrawals", withdrawals);
+    console.log("Withdrawals saved successfully");
+  } catch (error) {
+    console.error("Error saving withdrawals:", error);
+  }
+};
 
 // Default admin user
 const defaultAdmin = {
@@ -64,7 +170,7 @@ const defaultAdmin = {
   createdAt: new Date().toISOString()
 };
 
-users.push(defaultAdmin);
+//users.push(defaultAdmin);
 
 let cryptoPrices = {
   'bitcoin': { price: 67234.50, change: 2.45, symbol: 'BTC', name: 'Bitcoin' },
@@ -97,8 +203,9 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-const authenticateAdmin = (req, res, next) => {
-  authenticateToken(req, res, () => {
+const authenticateAdmin = async (req, res, next) => {
+  authenticateToken(req, res, async () => {
+    const users = await getUsers();
     const user = users.find(u => u.id === req.user.userId);
     if (!user || !user.isAdmin) {
       return res.status(403).json({ message: 'Admin access required' });
@@ -117,8 +224,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Validate email format - more permissive
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+    // Simple email validation
     if (!email.includes('@') || !email.includes('.') || email.length < 5) {
       return res.status(400).json({ message: 'Please enter a valid email address' });
     }
@@ -128,6 +234,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters long' });
     }
 
+    const users = await getUsers();
     const existingUser = users.find(user => user.email === email);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
@@ -147,18 +254,24 @@ app.post('/api/auth/register', async (req, res) => {
       role: 'user',
       isAdmin: false,
       status: 'active',
+      totalInvested: 0,
+      totalProfits: 0,
+      profitPercentage: 0,
       createdAt: new Date().toISOString()
     };
 
     users.push(newUser);
+    await saveUsers(users);
 
     // Initialize portfolio
+    const portfolios = await getPortfolios();
     portfolios.push({
       userId: newUser.id,
       holdings: [],
       totalValue: 0,
       totalProfit: 0
     });
+    await savePortfolios(portfolios);
 
     const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: '30d' });
 
@@ -173,11 +286,15 @@ app.post('/api/auth/register', async (req, res) => {
         walletAddress: newUser.walletAddress,
         balance: newUser.balance,
         role: newUser.role,
-        isAdmin: newUser.isAdmin
+        isAdmin: newUser.isAdmin,
+        totalInvested: newUser.totalInvested,
+        totalProfits: newUser.totalProfits,
+        profitPercentage: newUser.profitPercentage
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Server error: ' + error.message });
   }
 });
 
@@ -185,6 +302,7 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    const users = await getUsers();
     const user = users.find(u => u.email === email);
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -227,7 +345,7 @@ app.get('/api/admin/config', authenticateAdmin, (req, res) => {
 
 app.put('/api/admin/config', authenticateAdmin, (req, res) => {
   const { bitcoinAddress, bankAccount, commissionRate, minDeposit, minWithdraw } = req.body;
-  
+
   if (bitcoinAddress) adminConfig.bitcoinAddress = bitcoinAddress;
   if (bankAccount) adminConfig.bankAccount = { ...adminConfig.bankAccount, ...bankAccount };
   if (commissionRate !== undefined) adminConfig.commissionRate = commissionRate;
@@ -237,7 +355,8 @@ app.put('/api/admin/config', authenticateAdmin, (req, res) => {
   res.json({ message: 'Configuration updated successfully', config: adminConfig });
 });
 
-app.get('/api/admin/users', authenticateAdmin, (req, res) => {
+app.get('/api/admin/users', authenticateAdmin, async (req, res) => {
+  const users = await getUsers();
   const userList = users.map(user => ({
     id: user.id,
     email: user.email,
@@ -251,10 +370,11 @@ app.get('/api/admin/users', authenticateAdmin, (req, res) => {
   res.json(userList);
 });
 
-app.put('/api/admin/users/:userId/balance', authenticateAdmin, (req, res) => {
+app.put('/api/admin/users/:userId/balance', authenticateAdmin, async (req, res) => {
   const { userId } = req.params;
   const { balance, action, amount } = req.body;
 
+  const users = await getUsers();
   const user = users.find(u => u.id === userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -267,8 +387,10 @@ app.put('/api/admin/users/:userId/balance', authenticateAdmin, (req, res) => {
   } else if (action === 'subtract') {
     user.balance -= parseFloat(amount);
   }
+  await saveUsers(users);
 
   // Record admin transaction
+  const transactions = await getTransactions();
   transactions.push({
     id: generateId(),
     userId: userId,
@@ -278,24 +400,29 @@ app.put('/api/admin/users/:userId/balance', authenticateAdmin, (req, res) => {
     adminId: req.user.userId,
     timestamp: new Date().toISOString()
   });
+  await saveTransactions(transactions);
 
   res.json({ message: 'Balance updated successfully', newBalance: user.balance });
 });
 
-app.put('/api/admin/users/:userId/status', authenticateAdmin, (req, res) => {
+app.put('/api/admin/users/:userId/status', authenticateAdmin, async (req, res) => {
   const { userId } = req.params;
   const { status } = req.body;
 
+  const users = await getUsers();
   const user = users.find(u => u.id === userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
   user.status = status;
+  await saveUsers(users);
   res.json({ message: `User ${status} successfully` });
 });
 
-app.get('/api/admin/transactions', authenticateAdmin, (req, res) => {
+app.get('/api/admin/transactions', authenticateAdmin, async (req, res) => {
+  const transactions = await getTransactions();
+  const users = await getUsers();
   const allTransactions = transactions.map(t => {
     const user = users.find(u => u.id === t.userId);
     return {
@@ -307,7 +434,9 @@ app.get('/api/admin/transactions', authenticateAdmin, (req, res) => {
   res.json(allTransactions);
 });
 
-app.get('/api/admin/deposits', authenticateAdmin, (req, res) => {
+app.get('/api/admin/deposits', authenticateAdmin, async (req, res) => {
+  const deposits = await getDeposits();
+  const users = await getUsers();
   const allDeposits = deposits.map(d => {
     const user = users.find(u => u.id === d.userId);
     return {
@@ -319,10 +448,12 @@ app.get('/api/admin/deposits', authenticateAdmin, (req, res) => {
   res.json(allDeposits);
 });
 
-app.put('/api/admin/deposits/:depositId', authenticateAdmin, (req, res) => {
+app.put('/api/admin/deposits/:depositId', authenticateAdmin, async (req, res) => {
   const { depositId } = req.params;
   const { status } = req.body;
 
+  const deposits = await getDeposits();
+  const users = await getUsers();
   const deposit = deposits.find(d => d.id === depositId);
   if (!deposit) {
     return res.status(404).json({ message: 'Deposit not found' });
@@ -331,12 +462,15 @@ app.put('/api/admin/deposits/:depositId', authenticateAdmin, (req, res) => {
   deposit.status = status;
   deposit.processedAt = new Date().toISOString();
   deposit.processedBy = req.user.userId;
+  await saveDeposits(deposits);
 
   if (status === 'approved') {
     const user = users.find(u => u.id === deposit.userId);
     if (user) {
       user.balance += deposit.amount;
-      
+      await saveUsers(users);
+
+      const transactions = await getTransactions();
       transactions.push({
         id: generateId(),
         userId: deposit.userId,
@@ -344,6 +478,7 @@ app.put('/api/admin/deposits/:depositId', authenticateAdmin, (req, res) => {
         amount: deposit.amount,
         timestamp: new Date().toISOString()
       });
+      await saveTransactions(transactions);
     }
   }
 
@@ -351,8 +486,9 @@ app.put('/api/admin/deposits/:depositId', authenticateAdmin, (req, res) => {
 });
 
 // Portfolio Routes
-app.get('/api/portfolio', authenticateToken, (req, res) => {
-  const portfolio = portfolios.find(p => p.userId === req.user.userId);
+app.get('/api/portfolio', authenticateToken, async (req, res) => {
+  const portfolios = await getPortfolios();
+  let portfolio = portfolios.find(p => p.userId === req.user.userId);
   if (!portfolio) {
     return res.status(404).json({ message: 'Portfolio not found' });
   }
@@ -363,9 +499,9 @@ app.get('/api/portfolio', authenticateToken, (req, res) => {
     const currentValue = holding.amount * currentPrice;
     const profit = currentValue - holding.invested;
     const profitPercentage = holding.invested > 0 ? (profit / holding.invested) * 100 : 0;
-    
+
     totalValue += currentValue;
-    
+
     return {
       ...holding,
       currentPrice,
@@ -377,14 +513,17 @@ app.get('/api/portfolio', authenticateToken, (req, res) => {
 
   portfolio.holdings = updatedHoldings;
   portfolio.totalValue = totalValue;
+  await savePortfolios(portfolios);
 
   res.json(portfolio);
 });
 
 // Trading Routes
-app.post('/api/buy', authenticateToken, (req, res) => {
+app.post('/api/buy', authenticateToken, async (req, res) => {
   try {
     const { cryptoId, amount, price } = req.body;
+    const users = await getUsers();
+    const portfolios = await getPortfolios();
     const user = users.find(u => u.id === req.user.userId);
     const portfolio = portfolios.find(p => p.userId === req.user.userId);
 
@@ -401,6 +540,7 @@ app.post('/api/buy', authenticateToken, (req, res) => {
     }
 
     user.balance -= finalCost;
+    await saveUsers(users);
 
     const existingHolding = portfolio.holdings.find(h => h.cryptoId === cryptoId);
     if (existingHolding) {
@@ -421,7 +561,9 @@ app.post('/api/buy', authenticateToken, (req, res) => {
         purchaseDate: new Date().toISOString()
       });
     }
+    await savePortfolios(portfolios);
 
+    const transactions = await getTransactions();
     transactions.push({
       id: generateId(),
       userId: req.user.userId,
@@ -433,6 +575,7 @@ app.post('/api/buy', authenticateToken, (req, res) => {
       commission,
       timestamp: new Date().toISOString()
     });
+    await saveTransactions(transactions);
 
     res.json({
       message: 'Purchase successful',
@@ -451,9 +594,11 @@ app.post('/api/buy', authenticateToken, (req, res) => {
   }
 });
 
-app.post('/api/sell', authenticateToken, (req, res) => {
+app.post('/api/sell', authenticateToken, async (req, res) => {
   try {
     const { cryptoId, amount } = req.body;
+    const users = await getUsers();
+    const portfolios = await getPortfolios();
     const user = users.find(u => u.id === req.user.userId);
     const portfolio = portfolios.find(p => p.userId === req.user.userId);
 
@@ -480,9 +625,12 @@ app.post('/api/sell', authenticateToken, (req, res) => {
     } else {
       holding.avgPrice = holding.invested / holding.amount;
     }
+    await savePortfolios(portfolios);
 
     user.balance += finalValue;
+    await saveUsers(users);
 
+    const transactions = await getTransactions();
     transactions.push({
       id: generateId(),
       userId: req.user.userId,
@@ -494,6 +642,7 @@ app.post('/api/sell', authenticateToken, (req, res) => {
       commission,
       timestamp: new Date().toISOString()
     });
+    await saveTransactions(transactions);
 
     res.json({
       message: 'Sale successful',
@@ -515,7 +664,7 @@ app.get('/api/deposit/info', authenticateToken, (req, res) => {
   });
 });
 
-app.post('/api/deposit', authenticateToken, (req, res) => {
+app.post('/api/deposit', authenticateToken, async (req, res) => {
   try {
     const { amount, method, reference } = req.body;
 
@@ -533,7 +682,9 @@ app.post('/api/deposit', authenticateToken, (req, res) => {
       timestamp: new Date().toISOString()
     };
 
+    const deposits = await getDeposits();
     deposits.push(newDeposit);
+    await saveDeposits(deposits);
 
     res.json({
       message: 'Deposit request submitted successfully. It will be processed by admin.',
@@ -544,7 +695,8 @@ app.post('/api/deposit', authenticateToken, (req, res) => {
   }
 });
 
-app.get('/api/deposits', authenticateToken, (req, res) => {
+app.get('/api/deposits', authenticateToken, async (req, res) => {
+  const deposits = await getDeposits();
   const userDeposits = deposits
     .filter(d => d.userId === req.user.userId)
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -553,9 +705,10 @@ app.get('/api/deposits', authenticateToken, (req, res) => {
 });
 
 // Withdrawal Routes
-app.post('/api/withdraw', authenticateToken, (req, res) => {
+app.post('/api/withdraw', authenticateToken, async (req, res) => {
   try {
     const { amount, method, address } = req.body;
+    const users = await getUsers();
     const user = users.find(u => u.id === req.user.userId);
 
     if (!user) {
@@ -580,7 +733,9 @@ app.post('/api/withdraw', authenticateToken, (req, res) => {
       timestamp: new Date().toISOString()
     };
 
+    const withdrawals = await getWithdrawals();
     withdrawals.push(newWithdrawal);
+    await saveWithdrawals(withdrawals);
 
     res.json({
       message: 'Withdrawal request submitted successfully. It will be processed by admin.',
@@ -591,7 +746,8 @@ app.post('/api/withdraw', authenticateToken, (req, res) => {
   }
 });
 
-app.get('/api/withdrawals', authenticateToken, (req, res) => {
+app.get('/api/withdrawals', authenticateToken, async (req, res) => {
+  const withdrawals = await getWithdrawals();
   const userWithdrawals = withdrawals
     .filter(w => w.userId === req.user.userId)
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -605,12 +761,14 @@ app.get('/api/market', (req, res) => {
 });
 
 // Investment and Profit Management
-app.get('/api/investments', authenticateToken, (req, res) => {
+app.get('/api/investments', authenticateToken, async (req, res) => {
+  const users = await getUsers();
   const user = users.find(u => u.id === req.user.userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
+  const transactions = await getTransactions();
   const userTransactions = transactions
     .filter(t => t.userId === req.user.userId && t.type === 'investment')
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -623,9 +781,10 @@ app.get('/api/investments', authenticateToken, (req, res) => {
   });
 });
 
-app.post('/api/invest', authenticateToken, (req, res) => {
+app.post('/api/invest', authenticateToken, async (req, res) => {
   try {
     const { amount, method, reference } = req.body;
+    const users = await getUsers();
     const user = users.find(u => u.id === req.user.userId);
 
     if (!user) {
@@ -647,8 +806,13 @@ app.post('/api/invest', authenticateToken, (req, res) => {
       timestamp: new Date().toISOString()
     };
 
+    const transactions = await getTransactions();
     transactions.push(newInvestment);
+    await saveTransactions(transactions);
+
+    const deposits = await getDeposits();
     deposits.push(newInvestment);
+    await saveDeposits(deposits);
 
     res.json({
       message: 'Investment request submitted successfully. It will be processed by admin.',
@@ -659,10 +823,11 @@ app.post('/api/invest', authenticateToken, (req, res) => {
   }
 });
 
-app.put('/api/admin/users/:userId/profits', authenticateAdmin, (req, res) => {
+app.put('/api/admin/users/:userId/profits', authenticateAdmin, async (req, res) => {
   const { userId } = req.params;
   const { totalProfits, profitPercentage, action } = req.body;
 
+  const users = await getUsers();
   const user = users.find(u => u.id === userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
@@ -675,8 +840,10 @@ app.put('/api/admin/users/:userId/profits', authenticateAdmin, (req, res) => {
     user.totalProfits = (user.totalProfits || 0) + parseFloat(totalProfits || 0);
     user.profitPercentage = (user.profitPercentage || 0) + parseFloat(profitPercentage || 0);
   }
+  await saveUsers(users);
 
   // Record admin profit adjustment
+  const transactions = await getTransactions();
   transactions.push({
     id: generateId(),
     userId: userId,
@@ -687,6 +854,7 @@ app.put('/api/admin/users/:userId/profits', authenticateAdmin, (req, res) => {
     adminId: req.user.userId,
     timestamp: new Date().toISOString()
   });
+  await saveTransactions(transactions);
 
   res.json({ 
     message: 'Profits updated successfully', 
@@ -695,13 +863,15 @@ app.put('/api/admin/users/:userId/profits', authenticateAdmin, (req, res) => {
   });
 });
 
-app.put('/api/admin/investments/:investmentId', authenticateAdmin, (req, res) => {
+app.put('/api/admin/investments/:investmentId', authenticateAdmin, async (req, res) => {
   const { investmentId } = req.params;
   const { status } = req.body;
 
+  const transactions = await getTransactions();
+  const deposits = await getDeposits();
   const investment = transactions.find(t => t.id === investmentId && t.type === 'investment');
   const deposit = deposits.find(d => d.id === investmentId);
-  
+
   if (!investment || !deposit) {
     return res.status(404).json({ message: 'Investment not found' });
   }
@@ -713,10 +883,15 @@ app.put('/api/admin/investments/:investmentId', authenticateAdmin, (req, res) =>
   investment.processedBy = req.user.userId;
   deposit.processedBy = req.user.userId;
 
+  await saveTransactions(transactions);
+  await saveDeposits(deposits);
+
   if (status === 'approved') {
+    const users = await getUsers();
     const user = users.find(u => u.id === investment.userId);
     if (user) {
       user.totalInvested = (user.totalInvested || 0) + investment.amount;
+      await saveUsers(users);
     }
   }
 
@@ -724,7 +899,8 @@ app.put('/api/admin/investments/:investmentId', authenticateAdmin, (req, res) =>
 });
 
 // Transactions
-app.get('/api/transactions', authenticateToken, (req, res) => {
+app.get('/api/transactions', authenticateToken, async (req, res) => {
+  const transactions = await getTransactions();
   const userTransactions = transactions
     .filter(t => t.userId === req.user.userId)
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
@@ -749,7 +925,7 @@ setInterval(() => {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.emit('priceUpdate', cryptoPrices);
-  
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
@@ -777,9 +953,20 @@ app.get('*', (req, res) => {
   }
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Crypto Exchange Server running on http://0.0.0.0:${PORT}`);
   console.log(`👤 Default Admin: admin@cryptoexchange.com / admin123`);
   console.log(`💰 ${Object.keys(cryptoPrices).length} cryptocurrencies available`);
   console.log(`🔧 Admin Bitcoin Address: ${adminConfig.bitcoinAddress}`);
+
+  // Initialize default admin user if not already in the database
+  let users = await getUsers();
+  const adminExists = users.find(user => user.id === defaultAdmin.id);
+  if (!adminExists) {
+    users.push(defaultAdmin);
+    await saveUsers(users);
+    console.log('✅ Default admin user initialized.');
+  } else {
+    console.log('✅ Default admin user already exists.');
+  }
 });
