@@ -24,8 +24,14 @@ const JWT_SECRET = 'trust_wallet_secret_key_2024';
 
 // Middleware
 app.use(cors({
-  origin: "*",
-  credentials: true
+  origin: [
+    "http://localhost:3000",
+    "https://*.replit.dev",
+    "https://*.repl.co"
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'trust-wallet-app/build')));
