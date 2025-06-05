@@ -224,52 +224,7 @@ app.post('/api/auth/register', async (req, res) => {
     console.log('Registration request received:', req.body);
     const { email, password, firstName, lastName, username } = req.body;
 
-    // Validate required fields
-    if (!email || !password || !firstName || !lastName || !username) {
-      console.log('Missing required fields');
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // Email validation (case insensitive)
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email.toLowerCase())) {
-      console.log('Invalid email format:', email);
-      return res.status(400).json({ message: 'Please enter a valid email address' });
-    }
-
-    // Username validation (letters and numbers only, case insensitive)
-    const usernameRegex = /^[a-zA-Z0-9]+$/;
-    if (!usernameRegex.test(username)) {
-      console.log('Invalid username format:', username);
-      return res.status(400).json({ message: 'Username can only contain letters and numbers' });
-    }
-
-    if (username.length < 3) {
-      console.log('Username too short:', username);
-      return res.status(400).json({ message: 'Username must be at least 3 characters long' });
-    }
-
-    // Password validation (must contain uppercase, lowercase, and numbers)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    console.log('Testing password:', password, 'against regex');
-    if (!passwordRegex.test(password)) {
-      console.log('Password validation failed for:', password);
-      return res.status(400).json({ message: 'Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number' });
-    }
-
     const users = await getUsers();
-    
-    // Check for existing email (case insensitive)
-    const existingEmail = users.find(user => user.email.toLowerCase() === email.toLowerCase());
-    if (existingEmail) {
-      return res.status(400).json({ message: 'Email already exists' });
-    }
-
-    // Check for existing username (case insensitive)
-    const existingUsername = users.find(user => user.username && user.username.toLowerCase() === username.toLowerCase());
-    if (existingUsername) {
-      return res.status(400).json({ message: 'Username already exists' });
-    }
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const walletAddress = `1${Math.random().toString(16).substr(2, 33).toUpperCase()}`;

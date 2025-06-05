@@ -154,38 +154,6 @@ function App() {
     e.preventDefault();
     
     try {
-      // Client-side validation
-      if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.username) {
-        alert('All fields are required');
-        return;
-      }
-      
-      // Email validation (case insensitive)
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(registerData.email.toLowerCase())) {
-        alert('Please enter a valid email address');
-        return;
-      }
-      
-      // Username validation (letters and numbers only, case insensitive)
-      const usernameRegex = /^[a-zA-Z0-9]+$/;
-      if (!usernameRegex.test(registerData.username)) {
-        alert('Username can only contain letters and numbers');
-        return;
-      }
-      
-      if (registerData.username.length < 3) {
-        alert('Username must be at least 3 characters long');
-        return;
-      }
-      
-      // Password validation (must contain uppercase, lowercase, and numbers)
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-      if (!passwordRegex.test(registerData.password)) {
-        alert('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number');
-        return;
-      }
-      
       console.log('Sending registration data:', registerData);
       
       const data = await apiCall('/auth/register', {
