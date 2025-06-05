@@ -22,17 +22,31 @@ const io = socketIo(server, {
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'trust_wallet_secret_key_2024';
 
-// Middleware
+// Middleware - Allow all hosts in Replit environment
+app.set('trust proxy', true);
+
 app.use(cors({
   origin: [
     "http://localhost:3000",
     "https://*.replit.dev",
-    "https://*.repl.co"
+    "https://*.repl.co",
+    /^https:\/\/.*\.replit\.dev$/,
+    /^https:\/\/.*\.repl\.co$/
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Disable Express.js's strict host checking for Replit
+app.use((req, res, next) => {
+  // Allow any host in Replit environment
+  if (req.headers.host && (req.headers.host.includes('replit.dev') || req.headers.host.includes('repl.co'))) {
+    req.headers.host = req.headers.host;
+  }
+  next();
+});
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'trust-wallet-app/build')));
 
