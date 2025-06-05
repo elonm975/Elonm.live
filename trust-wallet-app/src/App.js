@@ -11,7 +11,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showLogin, setShowLogin] = useState(!token);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [registerData, setRegisterData] = useState({ email: '', password: '', firstName: '', lastName: '' });
+  const [registerData, setRegisterData] = useState({ email: '', password: '', firstName: '', lastName: '', username: '' });
   const [isRegister, setIsRegister] = useState(false);
   const [depositInfo, setDepositInfo] = useState(null);
   const [investmentData, setInvestmentData] = useState({ amount: '', method: 'bitcoin', reference: '' });
@@ -143,18 +143,34 @@ function App() {
     e.preventDefault();
     
     // Client-side validation
-    if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName) {
+    if (!registerData.email || !registerData.password || !registerData.firstName || !registerData.lastName || !registerData.username) {
       alert('All fields are required');
       return;
     }
     
-    if (!registerData.email.includes('@') || !registerData.email.includes('.')) {
+    // Email validation (case insensitive)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(registerData.email.toLowerCase())) {
       alert('Please enter a valid email address');
       return;
     }
     
-    if (registerData.password.length < 6) {
-      alert('Password must be at least 6 characters long');
+    // Username validation (letters and numbers only, case insensitive)
+    const usernameRegex = /^[a-zA-Z0-9]+$/;
+    if (!usernameRegex.test(registerData.username)) {
+      alert('Username can only contain letters and numbers');
+      return;
+    }
+    
+    if (registerData.username.length < 3) {
+      alert('Username must be at least 3 characters long');
+      return;
+    }
+    
+    // Password validation (must contain uppercase, lowercase, and numbers)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(registerData.password)) {
+      alert('Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number');
       return;
     }
     
@@ -368,21 +384,28 @@ function App() {
                   onChange={(e) => setRegisterData({...registerData, lastName: e.target.value})}
                   required
                 />
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={registerData.username}
+                  onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
+                  required
+                />
               </>
             )}
             <input
-              type="email"
-              placeholder="Email"
+              type={isRegister ? "email" : "text"}
+              placeholder={isRegister ? "Email" : "Email or Username"}
               value={isRegister ? registerData.email : loginData.email}
               onChange={(e) => isRegister 
-                ? setRegisterData({...registerData, email: e.target.value})
-                : setLoginData({...loginData, email: e.target.value})
+                ? setRegisterData({...registerData, email: e.target.value.toLowerCase()})
+                : setLoginData({...loginData, email: e.target.value.toLowerCase()})
               }
               required
             />
             <input
               type="password"
-              placeholder="Password"
+              placeholder={isRegister ? "Password (must include uppercase, lowercase & numbers)" : "Password"}
               value={isRegister ? registerData.password : loginData.password}
               onChange={(e) => isRegister 
                 ? setRegisterData({...registerData, password: e.target.value})

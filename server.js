@@ -221,27 +221,47 @@ const authenticateAdmin = async (req, res, next) => {
 // Auth Routes
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName, username } = req.body;
 
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName || !lastName || !username) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Simple email validation
-    if (!email.includes('@') || !email.includes('.') || email.length < 5) {
+    // Email validation (case insensitive)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email.toLowerCase())) {
       return res.status(400).json({ message: 'Please enter a valid email address' });
     }
 
-    // Validate password length
-    if (password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    // Username validation (letters and numbers only, case insensitive)
+    const usernameRegex = /^[a-zA-Z0-9]+$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({ message: 'Username can only contain letters and numbers' });
+    }
+
+    if (username.length < 3) {
+      return res.status(400).json({ message: 'Username must be at least 3 characters long' });
+    }
+
+    // Password validation (must contain uppercase, lowercase, and numbers)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number' });
     }
 
     const users = await getUsers();
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    
+    // Check for existing email (case insensitive)
+    const existingEmail = users.find(user => user.email.toLowerCase() === email.toLowerCase());
+    if (existingEmail) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
+    // Check for existing username (case insensitive)
+    const existingUsername = users.find(user => user.username && user.username.toLowerCase() === username.toLowerCase());
+    if (existingUsername) {
+      return res.status(400).json({ message: 'Username already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -249,7 +269,8 @@ app.post('/api/auth/register', async (req, res) => {
 
     const newUser = {
       id: generateId(),
-      email,
+      email: email.toLowerCase(),
+      username: username.toLowerCase(),
       firstName,
       lastName,
       password: hashedPassword,
@@ -285,6 +306,7 @@ app.post('/api/auth/register', async (req, res) => {
       user: {
         id: newUser.id,
         email: newUser.email,
+        username: newUser.username,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         walletAddress: newUser.walletAddress,
@@ -307,7 +329,11 @@ app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     const users = await getUsers();
-    const user = users.find(u => u.email === email);
+    // Allow login with either email or username (case insensitive)
+    const user = users.find(u => 
+      u.email.toLowerCase() === email.toLowerCase() || 
+      (u.username && u.username.toLowerCase() === email.toLowerCase())
+    );
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -329,6 +355,7 @@ app.post('/api/auth/login', async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
         walletAddress: user.walletAddress,
