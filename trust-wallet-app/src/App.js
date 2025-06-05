@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
@@ -22,7 +21,7 @@ function App() {
   const [tradeAmount, setTradeAmount] = useState('');
   const [depositData, setDepositData] = useState({ amount: '', method: 'bitcoin', reference: '' });
   const [deposits, setDeposits] = useState([]);
-  
+
   // Admin states
   const [adminUsers, setAdminUsers] = useState([]);
   const [adminConfig, setAdminConfig] = useState({});
@@ -40,7 +39,7 @@ function App() {
       fetchWithdrawals();
       fetchDepositInfo();
       fetchDeposits();
-      
+
       if (user?.isAdmin) {
         fetchAdminData();
       }
@@ -52,9 +51,10 @@ function App() {
   const apiCall = async (endpoint, options = {}) => {
     try {
       console.log('Making API call to:', endpoint, 'with options:', options);
-      
-      // For Replit environment, use relative URLs and let proxy handle it
-      const response = await fetch(`/api${endpoint}`, {
+
+      // Use current domain with port 5000 for API calls
+      const baseUrl = window.location.protocol + '//' + window.location.hostname + ':5000';
+      const response = await fetch(`${baseUrl}/api${endpoint}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
@@ -62,14 +62,14 @@ function App() {
           ...options.headers
         }
       });
-      
+
       console.log('Response status:', response.status);
-      
+
       if (response.status === 401) {
         logout();
         return null;
       }
-      
+
       const data = await response.json();
       console.log('Response data:', data);
       return data;
@@ -125,7 +125,7 @@ function App() {
       apiCall('/admin/investments'),
       apiCall('/admin/deposits')
     ]);
-    
+
     if (users) setAdminUsers(users);
     if (config) setAdminConfig(config);
     if (transactions) setAdminTransactions(transactions);
@@ -139,7 +139,7 @@ function App() {
       method: 'POST',
       body: JSON.stringify(loginData)
     });
-    
+
     if (data?.token) {
       localStorage.setItem('token', data.token);
       setToken(data.token);
@@ -153,17 +153,17 @@ function App() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    
+
     try {
       console.log('Sending registration data:', registerData);
-      
+
       const data = await apiCall('/auth/register', {
         method: 'POST',
         body: JSON.stringify(registerData)
       });
-      
+
       console.log('Registration response:', data);
-      
+
       if (data?.token) {
         localStorage.setItem('token', data.token);
         setToken(data.token);
@@ -193,7 +193,7 @@ function App() {
       method: 'POST',
       body: JSON.stringify(investmentData)
     });
-    
+
     if (data?.message) {
       setInvestmentData({ amount: '', method: 'bitcoin', reference: '' });
       fetchInvestments();
@@ -209,7 +209,7 @@ function App() {
       method: 'POST',
       body: JSON.stringify(withdrawData)
     });
-    
+
     if (data?.message) {
       setWithdrawData({ amount: '', method: 'bitcoin', address: '' });
       fetchWithdrawals();
@@ -228,7 +228,7 @@ function App() {
         action 
       })
     });
-    
+
     if (data?.message) {
       fetchAdminData();
       alert(data.message);
@@ -240,7 +240,7 @@ function App() {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
-    
+
     if (data?.message) {
       fetchAdminData();
       alert(data.message);
@@ -252,7 +252,7 @@ function App() {
       method: 'PUT',
       body: JSON.stringify(newConfig)
     });
-    
+
     if (data?.message) {
       setAdminConfig(data.config);
       alert(data.message);
@@ -265,7 +265,7 @@ function App() {
       method: 'POST',
       body: JSON.stringify(depositData)
     });
-    
+
     if (data?.message) {
       setDepositData({ amount: '', method: 'bitcoin', reference: '' });
       fetchDeposits();
@@ -282,7 +282,7 @@ function App() {
 
   const handleBuy = async () => {
     if (!tradeAmount || !selectedCrypto) return;
-    
+
     const data = await apiCall('/trade', {
       method: 'POST',
       body: JSON.stringify({
@@ -291,7 +291,7 @@ function App() {
         amount: parseFloat(tradeAmount)
       })
     });
-    
+
     if (data?.message) {
       setTradeAmount('');
       fetchInvestments();
@@ -304,7 +304,7 @@ function App() {
 
   const handleSell = async () => {
     if (!tradeAmount || !selectedCrypto) return;
-    
+
     const data = await apiCall('/trade', {
       method: 'POST',
       body: JSON.stringify({
@@ -313,7 +313,7 @@ function App() {
         amount: parseFloat(tradeAmount)
       })
     });
-    
+
     if (data?.message) {
       setTradeAmount('');
       fetchInvestments();
@@ -332,7 +332,7 @@ function App() {
         action 
       })
     });
-    
+
     if (data?.message) {
       fetchAdminData();
       alert(data.message);
@@ -344,7 +344,7 @@ function App() {
       method: 'PUT',
       body: JSON.stringify({ status })
     });
-    
+
     if (data?.message) {
       fetchAdminData();
       alert(data.message);
@@ -537,7 +537,7 @@ function App() {
                   </option>
                 ))}
               </select>
-              
+
               <input
                 type="number"
                 placeholder="Amount"
@@ -547,7 +547,7 @@ function App() {
                 step="0.001"
                 min="0"
               />
-              
+
               <div className="trade-buttons">
                 <button onClick={handleBuy} className="buy-btn">
                   Buy {cryptoPrices[selectedCrypto]?.symbol || ''}
@@ -556,7 +556,7 @@ function App() {
                   Sell {cryptoPrices[selectedCrypto]?.symbol || ''}
                 </button>
               </div>
-              
+
               {tradeAmount && cryptoPrices[selectedCrypto] && (
                 <div className="trade-summary">
                   <div>Total Cost: ${(parseFloat(tradeAmount) * cryptoPrices[selectedCrypto].price).toFixed(2)}</div>
@@ -571,7 +571,7 @@ function App() {
         {activeTab === 'deposit' && (
           <div className="deposit-view">
             <h2>Deposit Funds</h2>
-            
+
             {depositInfo && (
               <div className="deposit-info">
                 <div className="deposit-methods">
@@ -581,7 +581,7 @@ function App() {
                     <div className="address-box">{depositInfo.bitcoinAddress}</div>
                     <p>Send Bitcoin to this address and enter the transaction reference below.</p>
                   </div>
-                  
+
                   <div className="deposit-method">
                     <h3>🏦 Bank Transfer</h3>
                     <div className="bank-details">
@@ -592,7 +592,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-                
+
                 <form onSubmit={handleDeposit} className="deposit-form">
                   <select
                     value={depositData.method}
@@ -602,7 +602,7 @@ function App() {
                     <option value="bitcoin">Bitcoin</option>
                     <option value="bank">Bank Transfer</option>
                   </select>
-                  
+
                   <input
                     type="number"
                     placeholder={`Amount (Min: $${depositInfo.minDeposit})`}
@@ -611,7 +611,7 @@ function App() {
                     min={depositInfo.minDeposit}
                     required
                   />
-                  
+
                   <input
                     type="text"
                     placeholder={depositData.method === 'bitcoin' ? 'Bitcoin Transaction ID' : 'Bank Reference/Transfer ID'}
@@ -619,12 +619,12 @@ function App() {
                     onChange={(e) => setDepositData({...depositData, reference: e.target.value})}
                     required
                   />
-                  
+
                   <button type="submit" className="deposit-btn">Submit Deposit</button>
                 </form>
               </div>
             )}
-            
+
             <div className="deposit-history">
               <h3>Deposit History</h3>
               {deposits.map(deposit => (
@@ -645,7 +645,7 @@ function App() {
         {activeTab === 'withdraw' && (
           <div className="withdraw-view">
             <h2>Withdraw Funds</h2>
-            
+
             <form onSubmit={handleWithdraw} className="withdraw-form">
               <select
                 value={withdrawData.method}
@@ -655,7 +655,7 @@ function App() {
                 <option value="bitcoin">Bitcoin</option>
                 <option value="bank">Bank Transfer</option>
               </select>
-              
+
               <input
                 type="number"
                 placeholder="Amount"
@@ -664,7 +664,7 @@ function App() {
                 max={user?.balance}
                 required
               />
-              
+
               <input
                 type="text"
                 placeholder={withdrawData.method === 'bitcoin' ? 'Your Bitcoin Address' : 'Your Bank Account Details'}
@@ -672,10 +672,10 @@ function App() {
                 onChange={(e) => setWithdrawData({...withdrawData, address: e.target.value})}
                 required
               />
-              
+
               <button type="submit" className="withdraw-btn">Submit Withdrawal</button>
             </form>
-            
+
             <div className="withdraw-history">
               <h3>Withdrawal History</h3>
               {withdrawals.map(withdrawal => (
@@ -720,7 +720,7 @@ function App() {
         {activeTab === 'admin' && user?.isAdmin && (
           <div className="admin-view">
             <h2>Admin Dashboard</h2>
-            
+
             <div className="admin-tabs">
               <div className="admin-section">
                 <h3>Platform Configuration</h3>
@@ -733,7 +733,7 @@ function App() {
                       onChange={(e) => setAdminConfig({...adminConfig, bitcoinAddress: e.target.value})}
                     />
                   </label>
-                  
+
                   <label>
                     Commission Rate (%):
                     <input
@@ -743,13 +743,13 @@ function App() {
                       onChange={(e) => setAdminConfig({...adminConfig, commissionRate: parseFloat(e.target.value) / 100})}
                     />
                   </label>
-                  
+
                   <button onClick={() => updateAdminConfig(adminConfig)}>
                     Update Configuration
                   </button>
                 </div>
               </div>
-              
+
               <div className="admin-section">
                 <h3>User Management</h3>
                 <div className="users-list">
@@ -785,7 +785,7 @@ function App() {
                   ))}
                 </div>
               </div>
-              
+
               <div className="admin-section">
                 <h3>Pending Deposits</h3>
                 <div className="deposits-list">
