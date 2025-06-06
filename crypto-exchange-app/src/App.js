@@ -510,35 +510,60 @@ function App() {
         </section>
 
         <section className="live-prices-section">
-          <h2>Live Crypto Prices</h2>
-          <div className="crypto-grid">
-            {livePrices.slice(0, 20).map(crypto => (
-              <div key={crypto.id} className="crypto-card">
-                <div className="crypto-info">
-                  <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
-                  <div className="crypto-details">
-                    <h3>{crypto.name}</h3>
-                    <span className="crypto-symbol">{crypto.symbol.toUpperCase()}</span>
+          <h2>Markets</h2>
+          <div className="crypto-table-container">
+            <div className="crypto-table-header">
+              <div className="header-item">Name</div>
+              <div className="header-item">Price</div>
+              <div className="header-item">24h Change</div>
+              <div className="header-item">24h Volume</div>
+              <div className="header-item">Market Cap</div>
+              <div className="header-item">Action</div>
+            </div>
+            <div className="crypto-table-body">
+              {livePrices.slice(0, 50).map((crypto, index) => (
+                <div key={crypto.id} className="crypto-row">
+                  <div className="crypto-name-cell">
+                    <span className="crypto-rank">{index + 1}</span>
+                    <img src={crypto.image} alt={crypto.name} className="crypto-icon-small" />
+                    <div className="crypto-name-details">
+                      <span className="crypto-name">{crypto.name}</span>
+                      <span className="crypto-symbol">{crypto.symbol.toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <div className="crypto-price-cell">
+                    <span className="price-value">${crypto.current_price.toLocaleString()}</span>
+                  </div>
+                  <div className="crypto-change-cell">
+                    <span className={`change-value ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                      {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
+                      {crypto.price_change_percentage_24h?.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="crypto-volume-cell">
+                    <span className="volume-value">
+                      ${(crypto.total_volume / 1000000).toFixed(0)}M
+                    </span>
+                  </div>
+                  <div className="crypto-cap-cell">
+                    <span className="cap-value">
+                      ${(crypto.market_cap / 1000000000).toFixed(1)}B
+                    </span>
+                  </div>
+                  <div className="crypto-action-cell">
+                    <button 
+                      className="trade-btn-small"
+                      onClick={() => {
+                        setSelectedCrypto(crypto);
+                        setShowInvestModal(true);
+                      }}
+                    >
+                      Trade
+                    </button>
                   </div>
                 </div>
-                <div className="crypto-price">
-                  <span className="price">${crypto.current_price.toLocaleString()}</span>
-                  <span className={`change ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
-                    {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
-                    {crypto.price_change_percentage_24h?.toFixed(2)}%
-                  </span>
-                </div>
-                <button 
-                  className="invest-btn"
-                  onClick={() => {
-                    setSelectedCrypto(crypto);
-                    setShowInvestModal(true);
-                  }}
-                >
-                  Invest
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
