@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
@@ -24,6 +23,8 @@ function App() {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
 
   // Your receiving wallet address
   const RECEIVING_WALLET = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -41,10 +42,27 @@ function App() {
       fetchCryptoData();
       fetchLivePrices();
       fetchUserData();
+      if (adminMode) {
+        fetchAllUsers();
+      }
       const priceInterval = setInterval(fetchLivePrices, 30000); // Update every 30 seconds
       return () => clearInterval(priceInterval);
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, adminMode]);
+
+  const fetchAllUsers = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'users'));
+      const users = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setAllUsers(users);
+    } catch (error) {
+      console.error('Error fetching all users:', error);
+    }
+  };
 
   const fetchLivePrices = async () => {
     try {
@@ -93,7 +111,7 @@ function App() {
     try {
       const q = query(collection(db, 'userPortfolios'), where('userId', '==', user.uid));
       const querySnapshot = await getDocs(q);
-      
+
       if (!querySnapshot.empty) {
         const docRef = doc(db, 'userPortfolios', querySnapshot.docs[0].id);
         await updateDoc(docRef, {
@@ -129,10 +147,10 @@ function App() {
     try {
       const cryptoPrice = selectedCrypto.current_price;
       const cryptoAmount = amount / cryptoPrice;
-      
+
       // Update user balance
       const newBalance = userBalance - amount;
-      
+
       // Update portfolio
       const newPortfolio = { ...userPortfolio };
       if (newPortfolio[selectedCrypto.id]) {
@@ -155,7 +173,7 @@ function App() {
       });
 
       await updateUserPortfolio(newBalance, newPortfolio);
-      
+
       setUserBalance(newBalance);
       setUserPortfolio(newPortfolio);
       setShowInvestModal(false);
@@ -191,7 +209,7 @@ function App() {
       });
 
       await updateUserPortfolio(newBalance, userPortfolio);
-      
+
       setUserBalance(newBalance);
       setShowWithdrawModal(false);
       setWithdrawalAmount('');
@@ -370,15 +388,50 @@ function App() {
             <button onClick={handleSignOut}>Sign Out</button>
           </div>
         </div>
+        {/* Admin Mode Toggle */}
+        {user && user.email === 'admin@example.com' && (
+          <div className="admin-toggle">
+            <label>
+              Admin Mode:
+              <input
+                type="checkbox"
+                checked={adminMode}
+                onChange={() => setAdminMode(!adminMode)}
+              />
+            </label>
+          </div>
+        )}
       </header>
 
       <main className="main-content">
+      {/* Display all users in admin mode */}
+      {adminMode && (
+          <section className="admin-section">
+            <h2>All Users</h2>
+            <div className="users-list">
+              {allUsers.map(user => (
+                <div key={user.id} className="user-item">
+                  <span>{user.name} ({user.email})</span>
+                  {/* Add functionality to edit user balance here */}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
         <section className="dashboard-actions">
           <button 
             className="action-btn withdraw-btn"
             onClick={() => setShowWithdrawModal(true)}
           >
             Withdraw Funds
+          </button>
+          <button 
+            className="action-btn deposit-btn"
+            onClick={() => {
+              // Navigate to deposit page or show deposit modal
+            }}
+          >
+            Deposit Funds
           </button>
         </section>
 
