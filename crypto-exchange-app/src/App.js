@@ -315,61 +315,135 @@ function App() {
 
   if (!user) {
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1>Elon Crypto Exchange</h1>
-          <div className="auth-container">
-            <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
-              <h2>{isSignUp ? 'Create Account' : 'Sign In'}</h2>
-              {error && <div className="error">{error}</div>}
+      <div className="App login-page">
+        {/* Animated Background Elements */}
+        <div className="animated-background">
+          <div className="floating-shape shape-1"></div>
+          <div className="floating-shape shape-2"></div>
+          <div className="floating-shape shape-3"></div>
+          <div className="floating-shape shape-4"></div>
+          <div className="floating-shape shape-5"></div>
+          <div className="floating-shape shape-6"></div>
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
+        </div>
 
-              {isSignUp && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </>
-              )}
+        <div className="login-container">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="logo-container">
+                <div className="crypto-logo">
+                  <div className="logo-icon">₿</div>
+                </div>
+                <h1>Elon Crypto</h1>
+                <p className="tagline">Your gateway to digital assets</p>
+              </div>
+            </div>
 
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
+            <div className="auth-form-container">
+              <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="auth-form">
+                <h2>{isSignUp ? 'Create Your Account' : 'Welcome Back'}</h2>
+                <p className="form-subtitle">
+                  {isSignUp ? 'Join millions of users worldwide' : 'Sign in to continue your journey'}
+                </p>
 
-              {isSignUp ? (
-                <button type="button" onClick={() => setIsSignUp(false)}>
-                  Already have an account? Sign In
+                {error && <div className="error-message">{error}</div>}
+
+                <div className="form-fields">
+                  {isSignUp && (
+                    <>
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          placeholder="Full Name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
+                          className="form-input"
+                        />
+                        <span className="input-icon">👤</span>
+                      </div>
+                      <div className="input-group">
+                        <input
+                          type="text"
+                          placeholder="Username"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          required
+                          className="form-input"
+                        />
+                        <span className="input-icon">@</span>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="input-group">
+                    <input
+                      type="email"
+                      placeholder="Email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className="form-input"
+                    />
+                    <span className="input-icon">✉️</span>
+                  </div>
+
+                  <div className="input-group">
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="form-input"
+                    />
+                    <span className="input-icon">🔒</span>
+                  </div>
+                </div>
+
+                <button type="submit" className="submit-btn">
+                  <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+                  <div className="btn-glow"></div>
                 </button>
-              ) : (
-                <button type="button" onClick={() => setIsSignUp(true)}>
-                  Create Account
-                </button>
-              )}
-            </form>
+
+                <div className="form-footer">
+                  {isSignUp ? (
+                    <p>
+                      Already have an account?{' '}
+                      <button type="button" onClick={() => setIsSignUp(false)} className="link-btn">
+                        Sign In
+                      </button>
+                    </p>
+                  ) : (
+                    <p>
+                      New to Elon Crypto?{' '}
+                      <button type="button" onClick={() => setIsSignUp(true)} className="link-btn">
+                        Create Account
+                      </button>
+                    </p>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            <div className="trust-indicators">
+              <div className="indicator">
+                <span className="indicator-icon">🔐</span>
+                <span>Bank-level Security</span>
+              </div>
+              <div className="indicator">
+                <span className="indicator-icon">⚡</span>
+                <span>Lightning Fast</span>
+              </div>
+              <div className="indicator">
+                <span className="indicator-icon">🌍</span>
+                <span>Global Access</span>
+              </div>
+            </div>
           </div>
-        </header>
+        </div>
       </div>
     );
   }
