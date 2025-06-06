@@ -1,4 +1,3 @@
-
 .App {
   text-align: center;
   min-height: 100vh;
@@ -30,44 +29,64 @@
 }
 
 .auth-container {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
   background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
   border-radius: 10px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 350px;
 }
 
-.auth-container form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.auth-container h2 {
+  margin-bottom: 1.5rem;
+  color: #61dafb;
+  text-align: center;
 }
 
 .auth-container input {
-  padding: 12px;
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.9);
-  color: #333;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.auth-container input:focus {
+  outline: 2px solid #61dafb;
+  background: rgba(255, 255, 255, 1);
 }
 
 .auth-container button {
-  padding: 12px 24px;
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.5rem 0;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 5px;
+  background: #61dafb;
+  color: #282c34;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: linear-gradient(45deg, #ffd700, #ffed4e);
-  color: #333;
+  transition: background-color 0.3s;
+  box-sizing: border-box;
 }
 
 .auth-container button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+  background: #21a0c4;
+}
+
+.auth-container button:last-child {
+  background: transparent;
+  color: #61dafb;
+  border: 1px solid #61dafb;
+}
+
+.auth-container button:last-child:hover {
+  background: rgba(97, 218, 251, 0.1);
 }
 
 .error {
@@ -209,13 +228,13 @@
     flex-direction: column;
     align-items: center;
   }
-  
+
   .transaction-item {
     grid-template-columns: 1fr;
     text-align: center;
     gap: 10px;
   }
-  
+
   .user-info {
     flex-direction: column;
     gap: 10px;

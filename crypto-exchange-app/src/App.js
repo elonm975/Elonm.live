@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
@@ -12,6 +11,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cryptoData, setCryptoData] = useState([]);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -45,10 +47,47 @@ function App() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate all fields
+    if (!name.trim()) {
+      setError('Please enter your full name');
+      return;
+    }
+
+    if (!username.trim()) {
+      setError('Please enter a username');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+
+      // Store additional user data in Firestore
+      await addDoc(collection(db, 'users'), {
+        uid: userCredential.user.uid,
+        name: name.trim(),
+        username: username.trim(),
+        email: email.trim(),
+        createdAt: new Date()
+      });
+
       setEmail('');
       setPassword('');
+      setUsername('');
+      setName('');
+      setIsSignUp(false);
     } catch (error) {
       setError(error.message);
     }
@@ -90,6 +129,24 @@ function App() {
     }
   };
 
+  const switchToSignUp = () => {
+    setIsSignUp(true);
+    setError('');
+    setEmail('');
+    setPassword('');
+    setUsername('');
+    setName('');
+  };
+
+  const switchToSignIn = () => {
+    setIsSignUp(false);
+    setError('');
+    setEmail('');
+    setPassword('');
+    setUsername('');
+    setName('');
+  };
+
   if (loading) {
     return (
       <div className="App">
@@ -104,9 +161,29 @@ function App() {
         <header className="App-header">
           <h1>Elon Crypto Exchange</h1>
           <div className="auth-container">
-            <form onSubmit={handleSignIn}>
-              <h2>Sign In</h2>
+            <form onSubmit={isSignUp ? handleSignUp : handleSignIn}>
+              <h2>{isSignUp ? 'Create Account' : 'Sign In'}</h2>
               {error && <div className="error">{error}</div>}
+
+              {isSignUp && (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </>
+              )}
+
               <input
                 type="email"
                 placeholder="Email"
@@ -121,10 +198,17 @@ function App() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <button type="submit">Sign In</button>
-              <button type="button" onClick={handleSignUp}>
-                Create Account
-              </button>
+              <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
+
+              {isSignUp ? (
+                <button type="button" onClick={switchToSignIn}>
+                  Already have an account? Sign In
+                </button>
+              ) : (
+                <button type="button" onClick={switchToSignUp}>
+                  Create Account
+                </button>
+              )}
             </form>
           </div>
         </header>
