@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import axios from 'axios';
 import './App.css';
 
 function App() {
@@ -14,25 +16,54 @@ function App() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
+  const [livePrices, setLivePrices] = useState([]);
+  const [userBalance, setUserBalance] = useState(1000); // Starting balance
+  const [userPortfolio, setUserPortfolio] = useState({});
+  const [selectedCrypto, setSelectedCrypto] = useState(null);
+  const [investmentAmount, setInvestmentAmount] = useState('');
+  const [withdrawalAmount, setWithdrawalAmount] = useState('');
+  const [showInvestModal, setShowInvestModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+
+  // Your receiving wallet address
+  const RECEIVING_WALLET = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     if (user) {
       fetchCryptoData();
+      fetchLivePrices();
+      fetchUserData();
+      const priceInterval = setInterval(fetchLivePrices, 30000); // Update every 30 seconds
+      return () => clearInterval(priceInterval);
     }
   }, [user]);
 
+  const fetchLivePrices = async () => {
+    try {
+      const response = await axios.get(
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'
+      );
+      setLivePrices(response.data);
+    } catch (error) {
+      console.error('Error fetching live prices:', error);
+    }
+  };
+
   const fetchCryptoData = async () => {
     try {
-      const q = query(collection(db, 'cryptoTransactions'), orderBy('timestamp', 'desc'));
+      const q = query(
+        collection(db, 'cryptoTransactions'), 
+        where('userId', '==', user.uid),
+        orderBy('timestamp', 'desc')
+      );
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -44,11 +75,137 @@ function App() {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const q = query(collection(db, 'userPortfolios'), where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        setUserBalance(userData.balance || 1000);
+        setUserPortfolio(userData.portfolio || {});
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const updateUserPortfolio = async (newBalance, newPortfolio) => {
+    try {
+      const q = query(collection(db, 'userPortfolios'), where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const docRef = doc(db, 'userPortfolios', querySnapshot.docs[0].id);
+        await updateDoc(docRef, {
+          balance: newBalance,
+          portfolio: newPortfolio,
+          lastUpdated: new Date()
+        });
+      } else {
+        await addDoc(collection(db, 'userPortfolios'), {
+          userId: user.uid,
+          balance: newBalance,
+          portfolio: newPortfolio,
+          createdAt: new Date()
+        });
+      }
+    } catch (error) {
+      console.error('Error updating portfolio:', error);
+    }
+  };
+
+  const handleInvestment = async () => {
+    if (!selectedCrypto || !investmentAmount || parseFloat(investmentAmount) <= 0) {
+      setError('Please enter a valid investment amount');
+      return;
+    }
+
+    const amount = parseFloat(investmentAmount);
+    if (amount > userBalance) {
+      setError('Insufficient balance');
+      return;
+    }
+
+    try {
+      const cryptoPrice = selectedCrypto.current_price;
+      const cryptoAmount = amount / cryptoPrice;
+      
+      // Update user balance
+      const newBalance = userBalance - amount;
+      
+      // Update portfolio
+      const newPortfolio = { ...userPortfolio };
+      if (newPortfolio[selectedCrypto.id]) {
+        newPortfolio[selectedCrypto.id] += cryptoAmount;
+      } else {
+        newPortfolio[selectedCrypto.id] = cryptoAmount;
+      }
+
+      // Record transaction
+      await addDoc(collection(db, 'cryptoTransactions'), {
+        userId: user.uid,
+        type: 'investment',
+        cryptocurrency: selectedCrypto.name,
+        cryptoId: selectedCrypto.id,
+        amount: amount,
+        cryptoAmount: cryptoAmount,
+        price: cryptoPrice,
+        timestamp: new Date(),
+        receivingWallet: RECEIVING_WALLET
+      });
+
+      await updateUserPortfolio(newBalance, newPortfolio);
+      
+      setUserBalance(newBalance);
+      setUserPortfolio(newPortfolio);
+      setShowInvestModal(false);
+      setInvestmentAmount('');
+      setError('');
+      fetchCryptoData();
+    } catch (error) {
+      setError('Investment failed: ' + error.message);
+    }
+  };
+
+  const handleWithdrawal = async () => {
+    if (!withdrawalAmount || parseFloat(withdrawalAmount) <= 0) {
+      setError('Please enter a valid withdrawal amount');
+      return;
+    }
+
+    const amount = parseFloat(withdrawalAmount);
+    if (amount > userBalance) {
+      setError('Insufficient balance');
+      return;
+    }
+
+    try {
+      const newBalance = userBalance - amount;
+
+      await addDoc(collection(db, 'cryptoTransactions'), {
+        userId: user.uid,
+        type: 'withdrawal',
+        amount: amount,
+        timestamp: new Date(),
+        status: 'pending'
+      });
+
+      await updateUserPortfolio(newBalance, userPortfolio);
+      
+      setUserBalance(newBalance);
+      setShowWithdrawModal(false);
+      setWithdrawalAmount('');
+      setError('');
+      fetchCryptoData();
+    } catch (error) {
+      setError('Withdrawal failed: ' + error.message);
+    }
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Validate all fields
     if (!name.trim()) {
       setError('Please enter your full name');
       return;
@@ -59,7 +216,6 @@ function App() {
       return;
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email.trim())) {
       setError('Please enter a valid email address');
@@ -74,12 +230,19 @@ function App() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
 
-      // Store additional user data in Firestore
       await addDoc(collection(db, 'users'), {
         uid: userCredential.user.uid,
         name: name.trim(),
         username: username.trim(),
         email: email.trim(),
+        createdAt: new Date()
+      });
+
+      // Initialize user portfolio
+      await addDoc(collection(db, 'userPortfolios'), {
+        userId: userCredential.user.uid,
+        balance: 1000,
+        portfolio: {},
         createdAt: new Date()
       });
 
@@ -113,38 +276,15 @@ function App() {
     }
   };
 
-  const addTransaction = async (type, amount, crypto) => {
-    try {
-      await addDoc(collection(db, 'cryptoTransactions'), {
-        userId: user.uid,
-        type: type,
-        amount: amount,
-        cryptocurrency: crypto,
-        timestamp: new Date(),
-        userEmail: user.email
-      });
-      fetchCryptoData();
-    } catch (error) {
-      setError('Error adding transaction: ' + error.message);
-    }
-  };
-
-  const switchToSignUp = () => {
-    setIsSignUp(true);
-    setError('');
-    setEmail('');
-    setPassword('');
-    setUsername('');
-    setName('');
-  };
-
-  const switchToSignIn = () => {
-    setIsSignUp(false);
-    setError('');
-    setEmail('');
-    setPassword('');
-    setUsername('');
-    setName('');
+  const getPortfolioValue = () => {
+    let totalValue = 0;
+    Object.keys(userPortfolio).forEach(cryptoId => {
+      const crypto = livePrices.find(c => c.id === cryptoId);
+      if (crypto) {
+        totalValue += userPortfolio[cryptoId] * crypto.current_price;
+      }
+    });
+    return totalValue;
   };
 
   if (loading) {
@@ -201,11 +341,11 @@ function App() {
               <button type="submit">{isSignUp ? 'Sign Up' : 'Sign In'}</button>
 
               {isSignUp ? (
-                <button type="button" onClick={switchToSignIn}>
+                <button type="button" onClick={() => setIsSignUp(false)}>
                   Already have an account? Sign In
                 </button>
               ) : (
-                <button type="button" onClick={switchToSignUp}>
+                <button type="button" onClick={() => setIsSignUp(true)}>
                   Create Account
                 </button>
               )}
@@ -221,33 +361,78 @@ function App() {
       <header className="App-header">
         <h1>Elon Crypto Exchange</h1>
         <div className="user-info">
-          <p>Welcome, {user.email}!</p>
-          <button onClick={handleSignOut}>Sign Out</button>
+          <div className="balance-info">
+            <span>Balance: ${userBalance.toFixed(2)}</span>
+            <span>Portfolio Value: ${getPortfolioValue().toFixed(2)}</span>
+          </div>
+          <div className="user-actions">
+            <span>Welcome, {user.email}!</span>
+            <button onClick={handleSignOut}>Sign Out</button>
+          </div>
         </div>
       </header>
 
       <main className="main-content">
-        <section className="trading-section">
-          <h2>Quick Trade</h2>
-          <div className="trade-buttons">
-            <button 
-              className="buy-btn"
-              onClick={() => addTransaction('buy', 100, 'Bitcoin')}
-            >
-              Buy Bitcoin ($100)
-            </button>
-            <button 
-              className="buy-btn"
-              onClick={() => addTransaction('buy', 50, 'Ethereum')}
-            >
-              Buy Ethereum ($50)
-            </button>
-            <button 
-              className="sell-btn"
-              onClick={() => addTransaction('sell', 75, 'Dogecoin')}
-            >
-              Sell Dogecoin ($75)
-            </button>
+        <section className="dashboard-actions">
+          <button 
+            className="action-btn withdraw-btn"
+            onClick={() => setShowWithdrawModal(true)}
+          >
+            Withdraw Funds
+          </button>
+        </section>
+
+        <section className="live-prices-section">
+          <h2>Live Crypto Prices</h2>
+          <div className="crypto-grid">
+            {livePrices.slice(0, 20).map(crypto => (
+              <div key={crypto.id} className="crypto-card">
+                <div className="crypto-info">
+                  <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
+                  <div className="crypto-details">
+                    <h3>{crypto.name}</h3>
+                    <span className="crypto-symbol">{crypto.symbol.toUpperCase()}</span>
+                  </div>
+                </div>
+                <div className="crypto-price">
+                  <span className="price">${crypto.current_price.toLocaleString()}</span>
+                  <span className={`change ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                    {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
+                    {crypto.price_change_percentage_24h?.toFixed(2)}%
+                  </span>
+                </div>
+                <button 
+                  className="invest-btn"
+                  onClick={() => {
+                    setSelectedCrypto(crypto);
+                    setShowInvestModal(true);
+                  }}
+                >
+                  Invest
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-section">
+          <h2>My Portfolio</h2>
+          <div className="portfolio-grid">
+            {Object.keys(userPortfolio).map(cryptoId => {
+              const crypto = livePrices.find(c => c.id === cryptoId);
+              if (!crypto) return null;
+              const value = userPortfolio[cryptoId] * crypto.current_price;
+              return (
+                <div key={cryptoId} className="portfolio-item">
+                  <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
+                  <div className="portfolio-details">
+                    <h4>{crypto.name}</h4>
+                    <p>Amount: {userPortfolio[cryptoId].toFixed(6)}</p>
+                    <p>Value: ${value.toFixed(2)}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -255,14 +440,16 @@ function App() {
           <h2>Recent Transactions</h2>
           <div className="transactions-list">
             {cryptoData.length === 0 ? (
-              <p>No transactions yet. Start trading!</p>
+              <p>No transactions yet. Start investing!</p>
             ) : (
               cryptoData.map(transaction => (
                 <div key={transaction.id} className="transaction-item">
                   <span className={`transaction-type ${transaction.type}`}>
                     {transaction.type.toUpperCase()}
                   </span>
-                  <span className="crypto-name">{transaction.cryptocurrency}</span>
+                  <span className="crypto-name">
+                    {transaction.cryptocurrency || 'Cash'}
+                  </span>
                   <span className="amount">${transaction.amount}</span>
                   <span className="timestamp">
                     {transaction.timestamp?.toDate?.()?.toLocaleString() || 'Just now'}
@@ -273,6 +460,60 @@ function App() {
           </div>
         </section>
       </main>
+
+      {/* Investment Modal */}
+      {showInvestModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Invest in {selectedCrypto?.name}</h3>
+            <p>Current Price: ${selectedCrypto?.current_price.toLocaleString()}</p>
+            <input
+              type="number"
+              placeholder="Amount to invest ($)"
+              value={investmentAmount}
+              onChange={(e) => setInvestmentAmount(e.target.value)}
+              min="1"
+              max={userBalance}
+            />
+            <div className="modal-actions">
+              <button onClick={handleInvestment} className="confirm-btn">
+                Invest
+              </button>
+              <button onClick={() => setShowInvestModal(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+            {error && <div className="error">{error}</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Withdrawal Modal */}
+      {showWithdrawModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Withdraw Funds</h3>
+            <p>Available Balance: ${userBalance.toFixed(2)}</p>
+            <input
+              type="number"
+              placeholder="Amount to withdraw ($)"
+              value={withdrawalAmount}
+              onChange={(e) => setWithdrawalAmount(e.target.value)}
+              min="1"
+              max={userBalance}
+            />
+            <div className="modal-actions">
+              <button onClick={handleWithdrawal} className="confirm-btn">
+                Withdraw
+              </button>
+              <button onClick={() => setShowWithdrawModal(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+            {error && <div className="error">{error}</div>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
