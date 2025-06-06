@@ -82,8 +82,4 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node server.js"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = "cd crypto-exchange-app && npm start"
