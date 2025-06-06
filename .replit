@@ -29,7 +29,7 @@ localPort = 5173
 externalPort = 80
 
 [workflows]
-runButton = "Trust Wallet App"
+runButton = "Crypto Exchange Firebase"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
@@ -74,3 +74,16 @@ args = "node server.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd trust-wallet-app && npm start"
+
+[[workflows.workflow]]
+name = "Crypto Exchange Firebase"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node server.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && npm start"
