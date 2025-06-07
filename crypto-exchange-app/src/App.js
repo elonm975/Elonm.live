@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
@@ -16,18 +17,30 @@ function App() {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [livePrices, setLivePrices] = useState([]);
-  const [userBalance, setUserBalance] = useState(1000); // Starting balance
+  const [userBalance, setUserBalance] = useState(1000);
   const [userPortfolio, setUserPortfolio] = useState({});
   const [selectedCrypto, setSelectedCrypto] = useState(null);
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const [showInvestModal, setShowInvestModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const [activeTab, setActiveTab] = useState('markets');
+  const [selectedCoin, setSelectedCoin] = useState(null);
+  const [showCoinChart, setShowCoinChart] = useState(false);
 
-  // Your receiving wallet address
-  const RECEIVING_WALLET = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  // Admin settings
+  const [bitcoinAddress, setBitcoinAddress] = useState("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh");
+  const [bankDetails, setBankDetails] = useState({
+    accountName: "Elon Crypto Exchange",
+    accountNumber: "1234567890",
+    bankName: "First National Bank",
+    routingNumber: "021000021"
+  });
+
+  const RECEIVING_WALLET = bitcoinAddress;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -45,7 +58,7 @@ function App() {
       if (adminMode) {
         fetchAllUsers();
       }
-      const priceInterval = setInterval(fetchLivePrices, 30000); // Update every 30 seconds
+      const priceInterval = setInterval(fetchLivePrices, 30000);
       return () => clearInterval(priceInterval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,10 +161,7 @@ function App() {
       const cryptoPrice = selectedCrypto.current_price;
       const cryptoAmount = amount / cryptoPrice;
 
-      // Update user balance
       const newBalance = userBalance - amount;
-
-      // Update portfolio
       const newPortfolio = { ...userPortfolio };
       if (newPortfolio[selectedCrypto.id]) {
         newPortfolio[selectedCrypto.id] += cryptoAmount;
@@ -159,7 +169,6 @@ function App() {
         newPortfolio[selectedCrypto.id] = cryptoAmount;
       }
 
-      // Record transaction
       await addDoc(collection(db, 'cryptoTransactions'), {
         userId: user.uid,
         type: 'investment',
@@ -256,7 +265,6 @@ function App() {
         createdAt: new Date()
       });
 
-      // Initialize user portfolio
       await addDoc(collection(db, 'userPortfolios'), {
         userId: userCredential.user.uid,
         balance: 1000,
@@ -305,6 +313,25 @@ function App() {
     return totalValue;
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('Copied to clipboard!');
+  };
+
+  const updateUserBalance = async (userId, newBalance) => {
+    try {
+      const q = query(collection(db, 'userPortfolios'), where('userId', '==', userId));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const docRef = doc(db, 'userPortfolios', querySnapshot.docs[0].id);
+        await updateDoc(docRef, { balance: newBalance });
+        fetchAllUsers();
+      }
+    } catch (error) {
+      console.error('Error updating user balance:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="App">
@@ -316,7 +343,6 @@ function App() {
   if (!user) {
     return (
       <div className="App login-page">
-        {/* Animated Background Elements */}
         <div className="animated-background">
           <div className="floating-shape shape-1"></div>
           <div className="floating-shape shape-2"></div>
@@ -448,130 +474,150 @@ function App() {
     );
   }
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Elon Crypto Exchange</h1>
-        <div className="user-info">
-          <div className="balance-info">
-            <span>Balance: ${userBalance.toFixed(2)}</span>
-            <span>Portfolio Value: ${getPortfolioValue().toFixed(2)}</span>
+  const renderMarketsTab = () => (
+    <div className="markets-tab">
+      <div className="markets-header">
+        <h2>Markets</h2>
+        <div className="market-stats">
+          <div className="stat-item">
+            <span className="stat-label">24h Vol</span>
+            <span className="stat-value">$2.8T</span>
           </div>
-          <div className="user-actions">
-            <span>Welcome, {user.email}!</span>
-            <button onClick={handleSignOut}>Sign Out</button>
+          <div className="stat-item">
+            <span className="stat-label">Coins</span>
+            <span className="stat-value">{livePrices.length}</span>
           </div>
         </div>
-        {/* Admin Mode Toggle */}
-        {user && user.email === 'admin@example.com' && (
-          <div className="admin-toggle">
-            <label>
-              Admin Mode:
-              <input
-                type="checkbox"
-                checked={adminMode}
-                onChange={() => setAdminMode(!adminMode)}
-              />
-            </label>
-          </div>
-        )}
-      </header>
+      </div>
 
-      <main className="main-content">
-      {/* Display all users in admin mode */}
-      {adminMode && (
-          <section className="admin-section">
-            <h2>All Users</h2>
-            <div className="users-list">
-              {allUsers.map(user => (
-                <div key={user.id} className="user-item">
-                  <span>{user.name} ({user.email})</span>
-                  {/* Add functionality to edit user balance here */}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className="dashboard-actions">
-          <button 
-            className="action-btn withdraw-btn"
-            onClick={() => setShowWithdrawModal(true)}
-          >
-            Withdraw Funds
-          </button>
-          <button 
-            className="action-btn deposit-btn"
-            onClick={() => {
-              // Navigate to deposit page or show deposit modal
-            }}
-          >
-            Deposit Funds
-          </button>
-        </section>
-
-        <section className="live-prices-section">
-          <h2>Markets</h2>
-          <div className="crypto-table-container">
-            <div className="crypto-table-header">
-              <div className="header-item">Name</div>
-              <div className="header-item">Price</div>
-              <div className="header-item">24h Change</div>
-              <div className="header-item">24h Volume</div>
-              <div className="header-item">Market Cap</div>
-              <div className="header-item">Action</div>
-            </div>
-            <div className="crypto-table-body">
-              {livePrices.slice(0, 50).map((crypto, index) => (
-                <div key={crypto.id} className="crypto-row">
-                  <div className="crypto-name-cell">
-                    <span className="crypto-rank">{index + 1}</span>
-                    <img src={crypto.image} alt={crypto.name} className="crypto-icon-small" />
-                    <div className="crypto-name-details">
-                      <span className="crypto-name">{crypto.name}</span>
-                      <span className="crypto-symbol">{crypto.symbol.toUpperCase()}</span>
-                    </div>
-                  </div>
-                  <div className="crypto-price-cell">
-                    <span className="price-value">${crypto.current_price.toLocaleString()}</span>
-                  </div>
-                  <div className="crypto-change-cell">
-                    <span className={`change-value ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
-                      {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
-                      {crypto.price_change_percentage_24h?.toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="crypto-volume-cell">
-                    <span className="volume-value">
-                      ${(crypto.total_volume / 1000000).toFixed(0)}M
-                    </span>
-                  </div>
-                  <div className="crypto-cap-cell">
-                    <span className="cap-value">
-                      ${(crypto.market_cap / 1000000000).toFixed(1)}B
-                    </span>
-                  </div>
-                  <div className="crypto-action-cell">
-                    <button 
-                      className="trade-btn-small"
-                      onClick={() => {
-                        setSelectedCrypto(crypto);
-                        setShowInvestModal(true);
-                      }}
-                    >
-                      Trade
-                    </button>
-                  </div>
-                </div>
-              ))}
+      {showCoinChart && selectedCoin ? (
+        <div className="coin-chart-view">
+          <div className="chart-header">
+            <button className="back-btn" onClick={() => setShowCoinChart(false)}>
+              ← Back
+            </button>
+            <div className="coin-info">
+              <img src={selectedCoin.image} alt={selectedCoin.name} className="coin-image" />
+              <div>
+                <h3>{selectedCoin.name}</h3>
+                <span className="coin-symbol">{selectedCoin.symbol.toUpperCase()}</span>
+              </div>
             </div>
           </div>
-        </section>
+          
+          <div className="price-section">
+            <div className="current-price">
+              <span className="price">${selectedCoin.current_price.toLocaleString()}</span>
+              <span className={`change ${selectedCoin.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                {selectedCoin.price_change_percentage_24h >= 0 ? '+' : ''}
+                {selectedCoin.price_change_percentage_24h?.toFixed(2)}%
+              </span>
+            </div>
+          </div>
 
-        <section className="portfolio-section">
-          <h2>My Portfolio</h2>
-          <div className="portfolio-grid">
-            {Object.keys(userPortfolio).map(cryptoId => {
+          <div className="chart-placeholder">
+            <div className="chart-container">
+              <p>Chart visualization would be here</p>
+              <p>Price: ${selectedCoin.current_price.toLocaleString()}</p>
+              <p>24h High: ${selectedCoin.high_24h?.toLocaleString()}</p>
+              <p>24h Low: ${selectedCoin.low_24h?.toLocaleString()}</p>
+              <p>Market Cap: ${(selectedCoin.market_cap / 1000000000).toFixed(1)}B</p>
+            </div>
+          </div>
+
+          <div className="trade-actions">
+            <button 
+              className="buy-btn"
+              onClick={() => {
+                setSelectedCrypto(selectedCoin);
+                setShowInvestModal(true);
+              }}
+            >
+              Buy {selectedCoin.symbol.toUpperCase()}
+            </button>
+            <button className="sell-btn">Sell {selectedCoin.symbol.toUpperCase()}</button>
+          </div>
+        </div>
+      ) : (
+        <div className="crypto-list">
+          {livePrices.slice(0, 50).map((crypto, index) => (
+            <div 
+              key={crypto.id} 
+              className="crypto-item"
+              onClick={() => {
+                setSelectedCoin(crypto);
+                setShowCoinChart(true);
+              }}
+            >
+              <div className="crypto-rank">{index + 1}</div>
+              <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
+              <div className="crypto-details">
+                <div className="crypto-name">{crypto.name}</div>
+                <div className="crypto-symbol">{crypto.symbol.toUpperCase()}</div>
+              </div>
+              <div className="crypto-price-info">
+                <div className="price">${crypto.current_price.toLocaleString()}</div>
+                <div className={`change ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                  {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
+                  {crypto.price_change_percentage_24h?.toFixed(2)}%
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderAssetsTab = () => (
+    <div className="assets-tab">
+      <div className="assets-header">
+        <h2>Assets</h2>
+        <div className="total-balance">
+          <div className="balance-card">
+            <span className="balance-label">Total Balance</span>
+            <span className="balance-amount">${(userBalance + getPortfolioValue()).toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="balance-breakdown">
+        <div className="balance-item">
+          <span className="balance-type">Available Balance</span>
+          <span className="balance-value">${userBalance.toFixed(2)}</span>
+        </div>
+        <div className="balance-item">
+          <span className="balance-type">Portfolio Value</span>
+          <span className="balance-value">${getPortfolioValue().toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="asset-actions">
+        <button 
+          className="action-btn deposit-btn"
+          onClick={() => setShowDepositModal(true)}
+        >
+          Deposit
+        </button>
+        <button 
+          className="action-btn withdraw-btn"
+          onClick={() => setShowWithdrawModal(true)}
+        >
+          Withdraw
+        </button>
+        <button className="action-btn transfer-btn">Transfer</button>
+        <button className="action-btn buy-btn">Buy</button>
+      </div>
+
+      <div className="portfolio-section">
+        <h3>My Portfolio</h3>
+        <div className="portfolio-list">
+          {Object.keys(userPortfolio).length === 0 ? (
+            <div className="empty-portfolio">
+              <p>No assets yet. Start investing!</p>
+            </div>
+          ) : (
+            Object.keys(userPortfolio).map(cryptoId => {
               const crypto = livePrices.find(c => c.id === cryptoId);
               if (!crypto) return null;
               const value = userPortfolio[cryptoId] * crypto.current_price;
@@ -579,46 +625,247 @@ function App() {
                 <div key={cryptoId} className="portfolio-item">
                   <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
                   <div className="portfolio-details">
-                    <h4>{crypto.name}</h4>
-                    <p>Amount: {userPortfolio[cryptoId].toFixed(6)}</p>
-                    <p>Value: ${value.toFixed(2)}</p>
+                    <div className="crypto-name">{crypto.name}</div>
+                    <div className="crypto-amount">{userPortfolio[cryptoId].toFixed(6)} {crypto.symbol.toUpperCase()}</div>
+                  </div>
+                  <div className="portfolio-value">
+                    <div className="value">${value.toFixed(2)}</div>
+                    <div className={`change ${crypto.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}`}>
+                      {crypto.price_change_percentage_24h >= 0 ? '+' : ''}
+                      {crypto.price_change_percentage_24h?.toFixed(2)}%
+                    </div>
                   </div>
                 </div>
               );
-            })}
-          </div>
-        </section>
+            })
+          )}
+        </div>
+      </div>
 
-        <section className="transactions-section">
-          <h2>Recent Transactions</h2>
-          <div className="transactions-list">
-            {cryptoData.length === 0 ? (
-              <p>No transactions yet. Start investing!</p>
-            ) : (
-              cryptoData.map(transaction => (
-                <div key={transaction.id} className="transaction-item">
-                  <span className={`transaction-type ${transaction.type}`}>
+      <div className="recent-transactions">
+        <h3>Recent Transactions</h3>
+        <div className="transactions-list">
+          {cryptoData.length === 0 ? (
+            <p>No transactions yet</p>
+          ) : (
+            cryptoData.slice(0, 10).map(transaction => (
+              <div key={transaction.id} className="transaction-item">
+                <div className="transaction-type">
+                  <span className={`type-badge ${transaction.type}`}>
                     {transaction.type.toUpperCase()}
                   </span>
-                  <span className="crypto-name">
-                    {transaction.cryptocurrency || 'Cash'}
-                  </span>
-                  <span className="amount">${transaction.amount}</span>
-                  <span className="timestamp">
-                    {transaction.timestamp?.toDate?.()?.toLocaleString() || 'Just now'}
-                  </span>
                 </div>
-              ))
-            )}
+                <div className="transaction-details">
+                  <span className="crypto-name">{transaction.cryptocurrency || 'Cash'}</span>
+                  <span className="amount">${transaction.amount}</span>
+                </div>
+                <span className="timestamp">
+                  {transaction.timestamp?.toDate?.()?.toLocaleDateString() || 'Just now'}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMenuTab = () => (
+    <div className="menu-tab">
+      <div className="menu-header">
+        <div className="user-profile">
+          <div className="profile-avatar">
+            <span>{user.email.charAt(0).toUpperCase()}</span>
           </div>
-        </section>
+          <div className="profile-info">
+            <h3>{user.email}</h3>
+            <p>Verified Account</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="menu-sections">
+        <div className="menu-section">
+          <h4>Account</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">👤</span>
+              <span>Profile Settings</span>
+              <span className="arrow">→</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔒</span>
+              <span>Security</span>
+              <span className="arrow">→</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔔</span>
+              <span>Notifications</span>
+              <span className="arrow">→</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h4>Trading</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">📊</span>
+              <span>Trading History</span>
+              <span className="arrow">→</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">⚙️</span>
+              <span>Trading Preferences</span>
+              <span className="arrow">→</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h4>Support</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">❓</span>
+              <span>Help Center</span>
+              <span className="arrow">→</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">💬</span>
+              <span>Contact Support</span>
+              <span className="arrow">→</span>
+            </div>
+          </div>
+        </div>
+
+        {user && user.email === 'admin@example.com' && (
+          <div className="menu-section">
+            <h4>Admin</h4>
+            <div className="menu-items">
+              <div className="menu-item" onClick={() => setAdminMode(!adminMode)}>
+                <span className="menu-icon">🛠️</span>
+                <span>Admin Panel</span>
+                <span className={`toggle ${adminMode ? 'active' : ''}`}></span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="menu-section">
+          <div className="menu-items">
+            <div className="menu-item logout" onClick={handleSignOut}>
+              <span className="menu-icon">🚪</span>
+              <span>Sign Out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {adminMode && (
+        <div className="admin-panel">
+          <h3>Admin Settings</h3>
+          
+          <div className="admin-section">
+            <h4>Payment Settings</h4>
+            <div className="settings-form">
+              <input
+                type="text"
+                placeholder="Bitcoin Address"
+                value={bitcoinAddress}
+                onChange={(e) => setBitcoinAddress(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Bank Account Name"
+                value={bankDetails.accountName}
+                onChange={(e) => setBankDetails({...bankDetails, accountName: e.target.value})}
+              />
+              <input
+                type="text"
+                placeholder="Account Number"
+                value={bankDetails.accountNumber}
+                onChange={(e) => setBankDetails({...bankDetails, accountNumber: e.target.value})}
+              />
+              <input
+                type="text"
+                placeholder="Bank Name"
+                value={bankDetails.bankName}
+                onChange={(e) => setBankDetails({...bankDetails, bankName: e.target.value})}
+              />
+              <button>Save Settings</button>
+            </div>
+          </div>
+
+          <div className="admin-section">
+            <h4>User Management</h4>
+            <div className="users-list">
+              {allUsers.map(user => (
+                <div key={user.id} className="user-item">
+                  <span>{user.name} ({user.email})</span>
+                  <input
+                    type="number"
+                    placeholder="New Balance"
+                    onBlur={(e) => {
+                      if (e.target.value) {
+                        updateUserBalance(user.uid, parseFloat(e.target.value));
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="App bybit-style">
+      <header className="app-header">
+        <div className="header-content">
+          <h1>Elon Crypto</h1>
+          <div className="header-actions">
+            <span className="balance-display">${userBalance.toFixed(2)}</span>
+          </div>
+        </div>
+      </header>
+
+      <main className="main-content">
+        {activeTab === 'markets' && renderMarketsTab()}
+        {activeTab === 'assets' && renderAssetsTab()}
+        {activeTab === 'menu' && renderMenuTab()}
       </main>
+
+      <nav className="bottom-navigation">
+        <div 
+          className={`nav-item ${activeTab === 'markets' ? 'active' : ''}`}
+          onClick={() => setActiveTab('markets')}
+        >
+          <span className="nav-icon">📊</span>
+          <span className="nav-label">Markets</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`}
+          onClick={() => setActiveTab('assets')}
+        >
+          <span className="nav-icon">💼</span>
+          <span className="nav-label">Assets</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`}
+          onClick={() => setActiveTab('menu')}
+        >
+          <span className="nav-icon">☰</span>
+          <span className="nav-label">Menu</span>
+        </div>
+      </nav>
 
       {/* Investment Modal */}
       {showInvestModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Invest in {selectedCrypto?.name}</h3>
+            <h3>Buy {selectedCrypto?.name}</h3>
             <p>Current Price: ${selectedCrypto?.current_price.toLocaleString()}</p>
             <input
               type="number"
@@ -630,7 +877,7 @@ function App() {
             />
             <div className="modal-actions">
               <button onClick={handleInvestment} className="confirm-btn">
-                Invest
+                Buy Now
               </button>
               <button onClick={() => setShowInvestModal(false)} className="cancel-btn">
                 Cancel
@@ -664,6 +911,57 @@ function App() {
               </button>
             </div>
             {error && <div className="error">{error}</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Deposit Modal */}
+      {showDepositModal && (
+        <div className="modal-overlay">
+          <div className="modal deposit-modal">
+            <h3>Deposit Funds</h3>
+            
+            <div className="deposit-methods">
+              <div className="deposit-method">
+                <h4>Bitcoin Deposit</h4>
+                <div className="payment-info">
+                  <p>Send Bitcoin to this address:</p>
+                  <div className="address-container">
+                    <span className="address">{bitcoinAddress}</span>
+                    <button onClick={() => copyToClipboard(bitcoinAddress)}>Copy</button>
+                  </div>
+                  <p className="instruction">⚠️ Only send Bitcoin to this address. Sending other cryptocurrencies may result in permanent loss.</p>
+                </div>
+              </div>
+
+              <div className="deposit-method">
+                <h4>Bank Transfer</h4>
+                <div className="payment-info">
+                  <div className="bank-details">
+                    <p><strong>Account Name:</strong> {bankDetails.accountName}</p>
+                    <p><strong>Account Number:</strong> {bankDetails.accountNumber}</p>
+                    <p><strong>Bank Name:</strong> {bankDetails.bankName}</p>
+                    <p><strong>Routing Number:</strong> {bankDetails.routingNumber}</p>
+                  </div>
+                  <p className="instruction">💡 Please include your user ID in the transfer memo for faster processing.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="deposit-amount-section">
+              <input
+                type="number"
+                placeholder="Expected deposit amount ($)"
+                min="1"
+              />
+              <p className="deposit-note">Enter the amount you're planning to deposit for tracking purposes.</p>
+            </div>
+
+            <div className="modal-actions">
+              <button onClick={() => setShowDepositModal(false)} className="cancel-btn">
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
