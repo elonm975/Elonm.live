@@ -478,15 +478,34 @@ function App() {
     <div className="markets-tab">
       <div className="markets-header">
         <h2>Markets</h2>
-        <div className="market-stats">
-          <div className="stat-item">
-            <span className="stat-label">24h Vol</span>
-            <span className="stat-value">$2.8T</span>
+        <div className="market-controls">
+          <div className="market-tabs">
+            <button className="market-tab-btn active">Spot</button>
+            <button className="market-tab-btn">Futures</button>
+            <button className="market-tab-btn">Options</button>
           </div>
-          <div className="stat-item">
-            <span className="stat-label">Coins</span>
-            <span className="stat-value">{livePrices.length}</span>
+          <div className="market-stats">
+            <div className="stat-item">
+              <span className="stat-label">24h Vol</span>
+              <span className="stat-value">$2.8T</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Coins</span>
+              <span className="stat-value">{livePrices.length}</span>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div className="market-filters">
+        <div className="filter-buttons">
+          <button className="filter-btn active">All</button>
+          <button className="filter-btn">Gainers</button>
+          <button className="filter-btn">Losers</button>
+          <button className="filter-btn">24h Vol</button>
+        </div>
+        <div className="search-container">
+          <input type="text" placeholder="Search coins..." className="market-search" />
         </div>
       </div>
 
@@ -572,11 +591,28 @@ function App() {
   const renderAssetsTab = () => (
     <div className="assets-tab">
       <div className="assets-header">
-        <h2>Assets</h2>
-        <div className="total-balance">
-          <div className="balance-card">
-            <span className="balance-label">Total Balance</span>
+        <div className="balance-overview">
+          <div className="total-balance-card">
+            <div className="balance-header">
+              <span className="balance-label">Total Balance (USD)</span>
+              <button className="eye-btn">👁</button>
+            </div>
             <span className="balance-amount">${(userBalance + getPortfolioValue()).toFixed(2)}</span>
+            <div className="balance-change">
+              <span className="change-amount">+$0.00</span>
+              <span className="change-percent">(+0.00%)</span>
+            </div>
+          </div>
+          
+          <div className="quick-stats">
+            <div className="stat-card">
+              <span className="stat-label">Available</span>
+              <span className="stat-value">${userBalance.toFixed(2)}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">In Orders</span>
+              <span className="stat-value">$0.00</span>
+            </div>
           </div>
         </div>
       </div>
@@ -597,16 +633,31 @@ function App() {
           className="action-btn deposit-btn"
           onClick={() => setShowDepositModal(true)}
         >
-          Deposit
+          <span className="btn-icon">💰</span>
+          <span>Deposit</span>
         </button>
         <button 
           className="action-btn withdraw-btn"
           onClick={() => setShowWithdrawModal(true)}
         >
-          Withdraw
+          <span className="btn-icon">📤</span>
+          <span>Withdraw</span>
         </button>
-        <button className="action-btn transfer-btn">Transfer</button>
-        <button className="action-btn buy-btn">Buy</button>
+        <button className="action-btn transfer-btn">
+          <span className="btn-icon">🔄</span>
+          <span>Transfer</span>
+        </button>
+        <button className="action-btn buy-btn">
+          <span className="btn-icon">🛒</span>
+          <span>Buy Crypto</span>
+        </button>
+      </div>
+
+      <div className="asset-tabs">
+        <button className="asset-tab-btn active">Spot</button>
+        <button className="asset-tab-btn">Funding</button>
+        <button className="asset-tab-btn">Trading Bot</button>
+        <button className="asset-tab-btn">Copy Trading</button>
       </div>
 
       <div className="portfolio-section">

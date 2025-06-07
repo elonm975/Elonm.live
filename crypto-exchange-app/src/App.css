@@ -104,10 +104,83 @@
 }
 
 .markets-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #333;
+  margin-bottom: 20px;
+}
+
+.market-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.market-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.market-tab-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.market-tab-btn.active {
+  background: #f7931a;
+  color: white;
+  border-color: #f7931a;
+}
+
+.market-filters {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding: 12px 0;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  color: #f7931a;
+  background: rgba(247, 147, 26, 0.1);
+}
+
+.search-container {
+  flex: 0 0 200px;
+}
+
+.market-search {
+  width: 100%;
+  padding: 8px 12px;
+  background: #2d2d2d;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+}
+
+.market-search::placeholder {
+  color: #666;
 }
 
 .markets-header h2 {
@@ -330,20 +403,77 @@
 }
 
 .assets-header {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-.assets-header h2 {
-  margin: 0 0 16px 0;
-  font-size: 24px;
-  color: #fff;
+.balance-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.total-balance .balance-card {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  padding: 20px;
+.total-balance-card {
+  background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+  padding: 24px;
   border-radius: 16px;
-  text-align: center;
+  border: 1px solid #333;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.eye-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.balance-change {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.change-amount {
+  color: #22c55e;
+}
+
+.change-percent {
+  color: #888;
+}
+
+.quick-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-card {
+  background: #2d2d2d;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: #888;
+}
+
+.stat-card .stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
 }
 
 .balance-label {
@@ -388,19 +518,53 @@
 
 .asset-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin: 20px 0;
 }
 
 .action-btn {
-  padding: 16px;
+  padding: 16px 12px;
   border: none;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-icon {
+  font-size: 20px;
+}
+
+.asset-tabs {
+  display: flex;
+  gap: 2px;
+  background: #2d2d2d;
+  padding: 4px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.asset-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #888;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.asset-tab-btn.active {
+  background: #f7931a;
+  color: white;
 }
 
 .deposit-btn {
@@ -561,9 +725,11 @@
 .user-profile {
   display: flex;
   align-items: center;
-  background: #2d2d2d;
-  padding: 20px;
+  background: linear-gradient(135deg, #2d2d2d, #1e1e1e);
+  padding: 24px;
   border-radius: 16px;
+  border: 1px solid #333;
+  margin-bottom: 8px;
 }
 
 .profile-avatar {
@@ -1357,13 +1523,35 @@
   }
 
   .asset-actions {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
 
   .action-btn {
-    padding: 12px;
-    font-size: 14px;
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+
+  .btn-icon {
+    font-size: 16px;
+  }
+
+  .market-controls {
+    gap: 12px;
+  }
+
+  .market-filters {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .search-container {
+    flex: 1;
+  }
+
+  .quick-stats {
+    grid-template-columns: 1fr;
   }
 
   .trade-actions {
@@ -1372,10 +1560,6 @@
 
   .current-price .price {
     font-size: 24px;
-  }
-
-  .balance-breakdown {
-    grid-template-columns: 1fr;
   }
 
   .modal {
