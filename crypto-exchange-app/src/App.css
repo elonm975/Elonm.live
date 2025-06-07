@@ -466,8 +466,8 @@
 
 .dashboard-header {
   display: flex;
-  justify-content: between;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 30px;
   flex-wrap: wrap;
 }
@@ -529,6 +529,37 @@
 
 .sign-out-btn:hover {
   background-color: #d32f2f;
+}
+
+.asset-section {
+  background: #2d2d2d;
+  padding: 30px;
+  border-radius: 12px;
+  margin-bottom: 40px;
+  border: 1px solid #555;
+}
+
+.asset-section h2 {
+  color: #4CAF50;
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.asset-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+}
+
+.transfer-btn {
+  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  color: white;
+}
+
+.transfer-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
 }
 
 .dashboard-actions {

@@ -492,6 +492,7 @@ function App() {
             </div>
           </section>
         )}
+
         <section className="dashboard-actions">
           <button 
             className="action-btn withdraw-btn"
