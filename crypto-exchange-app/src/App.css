@@ -1487,6 +1487,244 @@
   font-size: 18px;
 }
 
+/* WhatsApp Support Button */
+.whatsapp-support {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-icon {
+  font-size: 24px;
+  color: white;
+}
+
+/* Profile Settings Modal */
+.profile-modal {
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+.profile-picture-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.profile-picture-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 15px;
+  border: 3px solid #f7931a;
+}
+
+.profile-picture-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f7931a, #ff6b35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-btn {
+  background: #f7931a;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.upload-btn:hover {
+  background: #e6841a;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  color: #fff;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: #333;
+  color: white;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.form-group small {
+  color: #888;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.save-btn {
+  flex: 1;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+  background: #45a049;
+}
+
+.password-section {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #333;
+}
+
+.password-section h4 {
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.change-password-btn {
+  width: 100%;
+  padding: 12px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.change-password-btn:hover {
+  background: #e55a2b;
+}
+
+/* Verification Modal */
+.verification-modal {
+  max-width: 400px;
+  text-align: center;
+}
+
+.verification-input {
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 4px;
+  font-weight: bold;
+}
+
+.verify-btn {
+  flex: 1;
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.verify-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.verify-btn:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.error-message {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-header {
@@ -1557,6 +1795,44 @@
   .trade-actions {
     flex-direction: column;
   }
+
+  .whatsapp-support {
+    bottom: 80px;
+    right: 15px;
+  }
+
+  .whatsapp-btn {
+    width: 45px;
+    height: 45px;
+  }
+
+  .whatsapp-icon {
+    font-size: 20px;
+  }
+
+  .profile-modal {
+    margin: 20px;
+    max-width: calc(100% - 40px);
+  }
+
+  .profile-picture-preview {
+    width: 80px;
+    height: 80px;
+  }
+
+  .default-avatar {
+    font-size: 28px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .verification-modal {
+    margin: 20px;
+    max-width: calc(100% - 40px);
+  }
+}
 
   .current-price .price {
     font-size: 24px;

@@ -30,6 +30,21 @@ function App() {
   const [activeTab, setActiveTab] = useState('markets');
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [showCoinChart, setShowCoinChart] = useState(false);
+  
+  // Profile settings state
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: '',
+    username: '',
+    email: '',
+    profilePicture: null
+  });
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(''); // 'email' or 'password'
+  const [pendingChanges, setPendingChanges] = useState({});
 
   // Admin settings
   const [bitcoinAddress, setBitcoinAddress] = useState("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh");
@@ -55,6 +70,7 @@ function App() {
       fetchCryptoData();
       fetchLivePrices();
       fetchUserData();
+      fetchProfileData();
       if (adminMode) {
         fetchAllUsers();
       }
@@ -329,6 +345,171 @@ function App() {
       }
     } catch (error) {
       console.error('Error updating user balance:', error);
+    }
+  };
+
+  const fetchProfileData = async () => {
+    try {
+      const q = query(collection(db, 'users'), where('uid', '==', user.uid));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+        setProfileData({
+          name: userData.name || '',
+          username: userData.username || '',
+          email: userData.email || user.email,
+          profilePicture: userData.profilePicture || null
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
+
+  const sendVerificationEmail = async (type, newData) => {
+    try {
+      // Generate a 6-digit verification code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Store verification code in Firestore
+      await addDoc(collection(db, 'verificationCodes'), {
+        userId: user.uid,
+        code: code,
+        type: type,
+        newData: newData,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+      });
+
+      // In a real app, you would send this via email service
+      // For demo purposes, we'll show the code in console
+      console.log(`Verification code for ${type}: ${code}`);
+      alert(`Verification code sent! For demo purposes, your code is: ${code}`);
+      
+      setVerificationStep(type);
+      setPendingChanges(newData);
+      setShowVerificationModal(true);
+    } catch (error) {
+      setError('Failed to send verification email: ' + error.message);
+    }
+  };
+
+  const verifyCodeAndUpdate = async () => {
+    try {
+      const q = query(
+        collection(db, 'verificationCodes'),
+        where('userId', '==', user.uid),
+        where('code', '==', verificationCode),
+        where('type', '==', verificationStep)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        setError('Invalid verification code');
+        return;
+      }
+
+      const codeDoc = querySnapshot.docs[0];
+      const codeData = codeDoc.data();
+      
+      if (new Date() > codeData.expiresAt.toDate()) {
+        setError('Verification code has expired');
+        return;
+      }
+
+      // Update the user data
+      if (verificationStep === 'email') {
+        // Update email in Firebase Auth and Firestore
+        const userDocQuery = query(collection(db, 'users'), where('uid', '==', user.uid));
+        const userQuerySnapshot = await getDocs(userDocQuery);
+        if (!userQuerySnapshot.empty) {
+          const userDocRef = doc(db, 'users', userQuerySnapshot.docs[0].id);
+          await updateDoc(userDocRef, pendingChanges);
+        }
+      } else if (verificationStep === 'password') {
+        // In a real app, you would update the password in Firebase Auth
+        console.log('Password would be updated here');
+      }
+
+      // Delete used verification code
+      await updateDoc(doc(db, 'verificationCodes', codeDoc.id), {
+        used: true
+      });
+
+      setShowVerificationModal(false);
+      setVerificationCode('');
+      setVerificationStep('');
+      setPendingChanges({});
+      fetchProfileData();
+      alert('Profile updated successfully!');
+    } catch (error) {
+      setError('Verification failed: ' + error.message);
+    }
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const userDocQuery = query(collection(db, 'users'), where('uid', '==', user.uid));
+      const userQuerySnapshot = await getDocs(userDocQuery);
+      
+      if (!userQuerySnapshot.empty) {
+        const userDocRef = doc(db, 'users', userQuerySnapshot.docs[0].id);
+        
+        // Check if email is being changed
+        if (profileData.email !== user.email) {
+          await sendVerificationEmail('email', {
+            name: profileData.name,
+            username: profileData.username,
+            email: profileData.email,
+            profilePicture: profileData.profilePicture
+          });
+          return;
+        }
+
+        // Update profile without email verification
+        await updateDoc(userDocRef, {
+          name: profileData.name,
+          username: profileData.username,
+          profilePicture: profileData.profilePicture,
+          updatedAt: new Date()
+        });
+
+        alert('Profile updated successfully!');
+        setShowProfileSettings(false);
+      }
+    } catch (error) {
+      setError('Failed to update profile: ' + error.message);
+    }
+  };
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    await sendVerificationEmail('password', { newPassword });
+  };
+
+  const handleProfilePictureUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileData({ ...profileData, profilePicture: e.target.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -739,7 +920,7 @@ function App() {
         <div className="menu-section">
           <h4>Account</h4>
           <div className="menu-items">
-            <div className="menu-item">
+            <div className="menu-item" onClick={() => setShowProfileSettings(true)}>
               <span className="menu-icon">👤</span>
               <span>Profile Settings</span>
               <span className="arrow">→</span>
@@ -1013,6 +1194,184 @@ function App() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* WhatsApp Support Button */}
+      <div className="whatsapp-support">
+        <a 
+          href="https://wa.me/4915210305922" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="whatsapp-btn"
+        >
+          <span className="whatsapp-icon">💬</span>
+        </a>
+      </div>
+
+      {/* Profile Settings Modal */}
+      {showProfileSettings && (
+        <div className="modal-overlay">
+          <div className="modal profile-modal">
+            <div className="modal-header">
+              <h3>Profile Settings</h3>
+              <button 
+                className="close-btn"
+                onClick={() => setShowProfileSettings(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleProfileUpdate} className="profile-form">
+              <div className="profile-picture-section">
+                <div className="profile-picture-preview">
+                  {profileData.profilePicture ? (
+                    <img src={profileData.profilePicture} alt="Profile" />
+                  ) : (
+                    <div className="default-avatar">
+                      {profileData.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureUpload}
+                  className="file-input"
+                  id="profile-picture"
+                />
+                <label htmlFor="profile-picture" className="upload-btn">
+                  Change Picture
+                </label>
+              </div>
+
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={profileData.name}
+                  onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={profileData.username}
+                  onChange={(e) => setProfileData({...profileData, username: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                  required
+                />
+                <small>Changing email requires verification</small>
+              </div>
+
+              <div className="form-actions">
+                <button type="submit" className="save-btn">
+                  Save Changes
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowProfileSettings(false)}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+
+            <div className="password-section">
+              <h4>Change Password</h4>
+              <form onSubmit={handlePasswordChange}>
+                <div className="form-group">
+                  <label>New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    minLength="6"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Confirm Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    minLength="6"
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="change-password-btn">
+                  Change Password
+                </button>
+              </form>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Email Verification Modal */}
+      {showVerificationModal && (
+        <div className="modal-overlay">
+          <div className="modal verification-modal">
+            <h3>Email Verification</h3>
+            <p>
+              We've sent a verification code to your email. 
+              Please enter it below to confirm your {verificationStep} change.
+            </p>
+            
+            <div className="form-group">
+              <label>Verification Code</label>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                placeholder="Enter 6-digit code"
+                maxLength="6"
+                className="verification-input"
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                onClick={verifyCodeAndUpdate}
+                className="verify-btn"
+                disabled={verificationCode.length !== 6}
+              >
+                Verify & Update
+              </button>
+              <button 
+                onClick={() => {
+                  setShowVerificationModal(false);
+                  setVerificationCode('');
+                  setVerificationStep('');
+                  setPendingChanges({});
+                }}
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
           </div>
         </div>
       )}
