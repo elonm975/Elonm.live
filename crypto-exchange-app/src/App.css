@@ -1831,3 +1831,142 @@
     max-width: calc(100% - 40px);
   }
 }
+
+/* Password Reset Styles */
+.forgot-password {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.forgot-link {
+  color: #4CAF50 !important;
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+  color: #45a049 !important;
+  text-decoration: underline;
+}
+
+.password-reset-modal {
+  max-width: 450px;
+  width: 90%;
+}
+
+.reset-form {
+  padding: 20px 0;
+}
+
+.reset-description {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.reset-email-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: white;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.reset-email-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.reset-email-input::placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+.reset-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.reset-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.reset-success {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  color: #4CAF50;
+  margin-bottom: 20px;
+}
+
+.reset-success h4 {
+  color: white;
+  margin: 0 0 15px 0;
+  font-size: 20px;
+}
+
+.reset-success p {
+  color: #ccc;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+.reset-note {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 25px !important;
+}
+
+.done-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+}
+
+.done-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.resend-btn {
+  background: transparent;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.resend-btn:hover {
+  background: #4CAF50;
+  color: white;
+}

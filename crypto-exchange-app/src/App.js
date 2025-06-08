@@ -45,6 +45,11 @@ function App() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationStep, setVerificationStep] = useState(''); // 'email' or 'password'
   const [pendingChanges, setPendingChanges] = useState({});
+  
+  // Password reset state
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   // Admin settings
   const [bitcoinAddress, setBitcoinAddress] = useState("bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh");
@@ -513,6 +518,46 @@ function App() {
     }
   };
 
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!resetEmail.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail.trim())) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      // Generate a password reset token
+      const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      // Store reset token in Firestore
+      await addDoc(collection(db, 'passwordResets'), {
+        email: resetEmail.trim(),
+        token: resetToken,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        used: false
+      });
+
+      // In a real app, you would send this via email service
+      // For demo purposes, we'll show the reset link in console
+      const resetLink = `${window.location.origin}/reset-password?token=${resetToken}`;
+      console.log(`Password reset link: ${resetLink}`);
+      
+      setResetEmailSent(true);
+      setError('');
+    } catch (error) {
+      setError('Failed to send reset email: ' + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="App">
@@ -624,12 +669,23 @@ function App() {
                       </button>
                     </p>
                   ) : (
-                    <p>
-                      New to Elon Crypto?{' '}
-                      <button type="button" onClick={() => setIsSignUp(true)} className="link-btn">
-                        Create Account
-                      </button>
-                    </p>
+                    <>
+                      <p>
+                        New to Elon Crypto?{' '}
+                        <button type="button" onClick={() => setIsSignUp(true)} className="link-btn">
+                          Create Account
+                        </button>
+                      </p>
+                      <p className="forgot-password">
+                        <button 
+                          type="button" 
+                          onClick={() => setShowPasswordReset(true)} 
+                          className="link-btn forgot-link"
+                        >
+                          Trouble logging in?
+                        </button>
+                      </p>
+                    </>
                   )}
                 </div>
               </form>
@@ -1372,6 +1428,100 @@ function App() {
             </div>
 
             {error && <div className="error-message">{error}</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Modal */}
+      {showPasswordReset && (
+        <div className="modal-overlay">
+          <div className="modal password-reset-modal">
+            <div className="modal-header">
+              <h3>Reset Your Password</h3>
+              <button 
+                className="close-btn"
+                onClick={() => {
+                  setShowPasswordReset(false);
+                  setResetEmail('');
+                  setResetEmailSent(false);
+                  setError('');
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {!resetEmailSent ? (
+              <form onSubmit={handlePasswordReset} className="reset-form">
+                <p className="reset-description">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="elon@example.com"
+                    required
+                    className="reset-email-input"
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button type="submit" className="reset-btn">
+                    Send Reset Link
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setShowPasswordReset(false);
+                      setResetEmail('');
+                      setError('');
+                    }}
+                    className="cancel-btn"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+              </form>
+            ) : (
+              <div className="reset-success">
+                <div className="success-icon">✓</div>
+                <h4>Reset Link Sent!</h4>
+                <p>
+                  We've sent a password reset link to <strong>{resetEmail}</strong>.
+                  Check your email and follow the instructions to reset your password.
+                </p>
+                <p className="reset-note">
+                  Didn't receive the email? Check your spam folder or try again.
+                </p>
+                <div className="modal-actions">
+                  <button 
+                    onClick={() => {
+                      setShowPasswordReset(false);
+                      setResetEmail('');
+                      setResetEmailSent(false);
+                    }}
+                    className="done-btn"
+                  >
+                    Done
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setResetEmailSent(false);
+                      setError('');
+                    }}
+                    className="resend-btn"
+                  >
+                    Send Again
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
