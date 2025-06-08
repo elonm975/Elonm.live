@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from 'firebase/auth';
 import axios from 'axios';
 import './App.css';
 
-function App() {
+function MainApp() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +30,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('markets');
   const [selectedCoin, setSelectedCoin] = useState(null);
   const [showCoinChart, setShowCoinChart] = useState(false);
-  
+
   // Profile settings state
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [profileData, setProfileData] = useState({
@@ -45,7 +45,7 @@ function App() {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationStep, setVerificationStep] = useState(''); // 'email' or 'password'
   const [pendingChanges, setPendingChanges] = useState({});
-  
+
   // Password reset state
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -385,7 +385,7 @@ function App() {
     try {
       // Generate a 6-digit verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
-      
+
       // Store verification code in Firestore
       await addDoc(collection(db, 'verificationCodes'), {
         userId: user.uid,
@@ -400,7 +400,7 @@ function App() {
       // For demo purposes, we'll show the code in console
       console.log(`Verification code for ${type}: ${code}`);
       alert(`Verification code sent! For demo purposes, your code is: ${code}`);
-      
+
       setVerificationStep(type);
       setPendingChanges(newData);
       setShowVerificationModal(true);
@@ -418,7 +418,7 @@ function App() {
         where('type', '==', verificationStep)
       );
       const querySnapshot = await getDocs(q);
-      
+
       if (querySnapshot.empty) {
         setError('Invalid verification code');
         return;
@@ -426,7 +426,7 @@ function App() {
 
       const codeDoc = querySnapshot.docs[0];
       const codeData = codeDoc.data();
-      
+
       if (new Date() > codeData.expiresAt.toDate()) {
         setError('Verification code has expired');
         return;
@@ -469,10 +469,10 @@ function App() {
     try {
       const userDocQuery = query(collection(db, 'users'), where('uid', '==', user.uid));
       const userQuerySnapshot = await getDocs(userDocQuery);
-      
+
       if (!userQuerySnapshot.empty) {
         const userDocRef = doc(db, 'users', userQuerySnapshot.docs[0].id);
-        
+
         // Check if email is being changed
         if (profileData.email !== user.email) {
           await sendVerificationEmail('email', {
@@ -532,35 +532,37 @@ function App() {
     e.preventDefault();
     setError('');
 
-    if (!resetEmail.trim()) {
-      setError('Please enter your email address');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(resetEmail.trim())) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
     try {
-      // Generate a password reset token
-      const resetToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
-      // Store reset token in Firestore
-      await addDoc(collection(db, 'passwordResets'), {
-        email: resetEmail.trim(),
+      // Generate a reset token (in a real app, this would be more secure)
+      const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
+      // Store the reset token with expiration (1 hour)
+      const resetData = {
+        email: resetEmail,
         token: resetToken,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-        used: false
+        expires: Date.now() + 3600000 // 1 hour
+      };
+
+      // Store this securely
+      localStorage.setItem('passwordReset', JSON.stringify(resetData));
+
+      // Send email via backend service
+      const response = await fetch('/api/send-reset-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: resetEmail,
+          resetToken: resetToken
+        })
       });
 
-      // In a real app, you would send this via email service
-      // For demo purposes, we'll show the reset link in console
-      const resetLink = `${window.location.origin}/reset-password?token=${resetToken}`;
-      console.log(`Password reset link: ${resetLink}`);
-      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send reset email');
+      }
+
       setResetEmailSent(true);
       setError('');
     } catch (error) {
@@ -870,7 +872,7 @@ function App() {
               </div>
             </div>
           </div>
-          
+
           <div className="price-section">
             <div className="current-price">
               <span className="price">${selectedCoin.current_price.toLocaleString()}</span>
@@ -950,7 +952,7 @@ function App() {
               <span className="change-percent">(+0.00%)</span>
             </div>
           </div>
-          
+
           <div className="quick-stats">
             <div className="stat-card">
               <span className="stat-label">Available</span>
@@ -1162,7 +1164,7 @@ function App() {
       {adminMode && (
         <div className="admin-panel">
           <h3>Admin Settings</h3>
-          
+
           <div className="admin-section">
             <h4>Payment Settings</h4>
             <div className="settings-form">
@@ -1318,7 +1320,7 @@ function App() {
         <div className="modal-overlay">
           <div className="modal deposit-modal">
             <h3>Deposit Funds</h3>
-            
+
             <div className="deposit-methods">
               <div className="deposit-method">
                 <h4>Bitcoin Deposit</h4>
@@ -1503,7 +1505,7 @@ function App() {
               We've sent a verification code to your email. 
               Please enter it below to confirm your {verificationStep} change.
             </p>
-            
+
             <div className="form-group">
               <label>Verification Code</label>
               <input
@@ -1636,6 +1638,115 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function ResetPassword() {
+  const [searchParams] = useSearchParams();
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  const resetToken = searchParams.get('token');
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!resetToken) {
+      setError('Invalid reset token.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
+    try {
+      // Send the reset token and new password to your backend
+      const response = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resetToken: resetToken,
+          newPassword: newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to reset password.');
+      }
+
+      setSuccess(true);
+      // Redirect to login page after a delay
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  return (
+    <div className="reset-password-page">
+      <div className="reset-password-container">
+        <h2>Reset Your Password</h2>
+        {error && <div className="error-message">{error}</div>}
+        {success ? (
+          <div className="success-message">
+            Password reset successfully! Redirecting to login...
+          </div>
+        ) : (
+          <form onSubmit={handleResetPassword} className="reset-password-form">
+            <div className="form-group">
+              <label htmlFor="newPassword">New Password:</label>
+              <input
+                type="password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm New Password:</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="reset-password-button">
+              Reset Password
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<MainApp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
+    </Router>
   );
 }
 
