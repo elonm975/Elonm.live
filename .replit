@@ -1,7 +1,7 @@
-run = "cd progressive-crypto-app && npm start"
+run = "cd crypto-exchange-app && npm start"
 modules = ["nodejs-20"]
 hidden = [".config", "package-lock.json"]
-entrypoint = "progressive-crypto-app/src/App.js"
+entrypoint = "crypto-exchange-app/src/App.js"
 
 [nix]
 channel = "stable-24_05"
@@ -29,7 +29,7 @@ localPort = 5000
 externalPort = 5000
 
 [workflows]
-runButton = "Crypto Exchange Fixed"
+runButton = "Crypto Exchange Clean Start"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
@@ -103,6 +103,19 @@ args = "cd crypto-exchange-app && npm start"
 
 [[workflows.workflow]]
 name = "Crypto Exchange Fixed"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && node server.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && npm start"
+
+[[workflows.workflow]]
+name = "Crypto Exchange Clean Start"
 author = 43448675
 mode = "parallel"
 
