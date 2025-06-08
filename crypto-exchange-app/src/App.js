@@ -311,7 +311,17 @@ function App() {
       setEmail('');
       setPassword('');
     } catch (error) {
-      setError(error.message);
+      // Show user-friendly error message for authentication failures
+      if (error.code === 'auth/user-not-found' || 
+          error.code === 'auth/wrong-password' || 
+          error.code === 'auth/invalid-credential' ||
+          error.code === 'auth/invalid-email') {
+        setError('Incorrect username or password. Please try again.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many failed login attempts. Please try again later.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     }
   };
 
