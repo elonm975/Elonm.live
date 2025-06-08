@@ -4,6 +4,7 @@
   "description": "[React](https://reactjs.org/) is a popular JavaScript library for building user interfaces.",
   "main": "index.js",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "accepts": "^1.3.8",
     "array-flatten": "^1.1.1",
     "axios": "^1.9.0",
