@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
@@ -998,8 +998,7 @@ function MainApp() {
             <div className="stat-card">
               <span className="stat-label">Available</span>
               <span className="stat-value">${userBalance.toFixed(2)}</span>
-            </div>
-            <div className="stat-card">
+            </div>            <div className="stat-card">
               <span className="stat-label">In Orders</span>
               <span className="stat-value">$0.00</span>
             </div>
