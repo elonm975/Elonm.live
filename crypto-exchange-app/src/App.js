@@ -6,6 +6,47 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, on
 import axios from 'axios';
 import './App.css';
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('React Error Boundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '20px', textAlign: 'center', color: 'white', background: '#1a1a2e' }}>
+          <h2>Something went wrong</h2>
+          <p>Please refresh the page and try again.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{ 
+              padding: '10px 20px', 
+              background: '#4CAF50', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            Refresh Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function MainApp() {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
@@ -1741,12 +1782,16 @@ function ResetPassword() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainApp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-      </Routes>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<MainApp />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Routes>
+        </ErrorBoundary>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
