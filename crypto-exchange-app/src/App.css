@@ -1172,8 +1172,11 @@
   color: #aaa;
   font-size: 14px;
   margin: 0 0 30px 0;
-}```text
-.form-fields {  margin-bottom: 30px;
+}
+
+.form-fields {
+```text
+  margin-bottom: 30px;
 }
 
 .input-group {
