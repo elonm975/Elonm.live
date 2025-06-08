@@ -29,7 +29,7 @@ localPort = 5000
 externalPort = 5000
 
 [workflows]
-runButton = "Crypto Exchange with Email Service"
+runButton = "Crypto Exchange Fixed"
 
 [[workflows.workflow]]
 name = "Crypto Stimulator"
@@ -90,6 +90,19 @@ args = "cd crypto-exchange-app && npm start"
 
 [[workflows.workflow]]
 name = "Crypto Exchange with Email Service"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && node server.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && npm start"
+
+[[workflows.workflow]]
+name = "Crypto Exchange Fixed"
 author = 43448675
 mode = "parallel"
 
