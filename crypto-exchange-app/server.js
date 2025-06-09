@@ -156,10 +156,10 @@ const createResetEmailHTML = (username, resetLink) => {
         </div>
         <div class="content">
           <h2>Hi ${username},</h2>
-          <p>Please click the following verification link to change your Eloncrypto account password:</p>
+          <p>Please click the link below to reset your password:</p>
 
           <div style="text-align: center;">
-            <a href="${resetLink}" class="button">Reset Your Password</a>
+            <a href="${resetLink}" class="button">Reset your password</a>
           </div>
 
           <p>This link will expire in 1 hour for security purposes.</p>
