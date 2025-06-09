@@ -542,52 +542,64 @@ function MainApp() {
   return (
     <div className="App">
       <header className="app-nav">
-        <h1>🚀 Eloncrypto Exchange</h1>
-        <div className="nav-info">
-          <span>Balance: ${balance.toLocaleString()}</span>
-          <span>{user.email}</span>
-          <button onClick={() => signOut(auth)}>Logout</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <h1>⚡ Eloncrypto Exchange</h1>
+          <div className="nav-info">
+            <span>💰 ${balance.toLocaleString()}</span>
+            <span>👤 {user.email}</span>
+            <button onClick={() => signOut(auth)}>Sign Out</button>
+          </div>
         </div>
       </header>
 
       <main className="main-content">
         <div className="dashboard">
           <div className="portfolio-section">
-            <h2>Portfolio</h2>
+            <h2>📊 Your Portfolio</h2>
             <div className="portfolio-grid">
               {portfolio.length > 0 ? (
                 portfolio.map(asset => {
                   const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
                   const currentValue = asset.amount * currentPrice;
                   const profit = currentValue - (asset.amount * asset.purchasePrice);
+                  const profitPercentage = ((profit / (asset.amount * asset.purchasePrice)) * 100).toFixed(2);
                   return (
                     <div key={asset.id} className="portfolio-item">
                       <h3>{asset.cryptoName}</h3>
-                      <p>Amount: {asset.amount.toFixed(6)}</p>
-                      <p>Value: ${currentValue.toFixed(2)}</p>
+                      <p>Holdings: {asset.amount.toFixed(6)} coins</p>
+                      <p>Current Value: ${currentValue.toLocaleString()}</p>
                       <p className={profit >= 0 ? 'profit' : 'loss'}>
-                        {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                        {profit >= 0 ? '+' : ''}${profit.toFixed(2)} ({profit >= 0 ? '+' : ''}{profitPercentage}%)
                       </p>
                     </div>
                   );
                 })
               ) : (
                 <div className="empty-portfolio">
-                  <p>Your portfolio is empty. Start trading to see your assets here!</p>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
+                  <h3 style={{ color: 'white', marginBottom: '12px' }}>Start Your Crypto Journey</h3>
+                  <p>Your portfolio is empty. Begin trading to build your cryptocurrency portfolio!</p>
                 </div>
               )}
             </div>
           </div>
 
           <div className="crypto-section">
-            <h2>Market</h2>
+            <h2>🌍 Live Market</h2>
             <div className="crypto-grid">
               {cryptoData.map(crypto => (
                 <div key={crypto.id} className="crypto-item">
-                  <h3>{crypto.name}</h3>
+                  <h3>
+                    {crypto.name === 'Bitcoin' && '₿'} 
+                    {crypto.name === 'Ethereum' && 'Ξ'} 
+                    {crypto.name === 'Cardano' && '₳'} 
+                    {crypto.name === 'Polkadot' && '●'} 
+                    {crypto.name === 'Chainlink' && '🔗'} 
+                    {crypto.name}
+                  </h3>
                   <p className="price">${crypto.price.toLocaleString()}</p>
                   <p className={crypto.change >= 0 ? 'positive' : 'negative'}>
-                    {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+                    {crypto.change >= 0 ? '📈 +' : '📉 '}{Math.abs(crypto.change).toFixed(2)}% (24h)
                   </p>
                   <button 
                     className="trade-btn"
@@ -596,7 +608,7 @@ function MainApp() {
                       setShowTrade(true);
                     }}
                   >
-                    Trade
+                    🚀 Trade Now
                   </button>
                 </div>
               ))}
@@ -604,21 +616,24 @@ function MainApp() {
           </div>
 
           <div className="transactions-section">
-            <h2>Recent Transactions</h2>
+            <h2>📋 Transaction History</h2>
             <div className="transactions-list">
               {transactions.length > 0 ? (
                 transactions.slice(0, 5).map(tx => (
                   <div key={tx.id} className="transaction-item">
                     <span className={`transaction-type ${tx.type}`}>
-                      {tx.type.toUpperCase()}
+                      {tx.type === 'buy' ? '🟢 BUY' : '🔴 SELL'}
                     </span>
-                    <span>{tx.cryptoName}</span>
-                    <span>{tx.amount.toFixed(6)}</span>
-                    <span>${tx.total.toFixed(2)}</span>
+                    <span style={{ fontWeight: '600', color: 'white' }}>{tx.cryptoName}</span>
+                    <span style={{ color: '#94a3b8' }}>{tx.amount.toFixed(6)}</span>
+                    <span style={{ fontWeight: '700', color: 'white' }}>${tx.total.toLocaleString()}</span>
                   </div>
                 ))
               ) : (
-                <p>No transactions yet</p>
+                <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+                  <p>No transactions yet. Start trading to see your history!</p>
+                </div>
               )}
             </div>
           </div>
@@ -626,10 +641,10 @@ function MainApp() {
 
         <div className="action-buttons">
           <button className="action-btn deposit" onClick={() => setShowDeposit(true)}>
-            Deposit
+            💳 Add Funds
           </button>
           <button className="action-btn withdraw" onClick={() => setShowWithdraw(true)}>
-            Withdraw
+            💸 Withdraw
           </button>
         </div>
       </main>
