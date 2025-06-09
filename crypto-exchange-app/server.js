@@ -29,8 +29,9 @@ app.listen(PORT, '0.0.0.0', () => {
 
 // Email validation function
 const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  // More comprehensive email regex that handles various valid email formats
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  return typeof email === 'string' && email.length > 0 && emailRegex.test(email.trim());
 };
 
 // Password reset email route
@@ -38,14 +39,27 @@ app.post('/api/send-reset-email', async (req, res) => {
   try {
     const { email, resetToken } = req.body;
 
-    // Validate email format
-    if (!email || !isValidEmail(email)) {
+    console.log('Reset email request received:', { email, resetToken: resetToken ? 'present' : 'missing' });
+
+    // Check if email is provided
+    if (!email) {
+      console.log('Email is missing from request');
+      return res.status(400).json({ 
+        error: 'Email address is required' 
+      });
+    }
+
+    // Trim email and validate format
+    const trimmedEmail = email.trim();
+    if (!isValidEmail(trimmedEmail)) {
+      console.log('Email validation failed for:', trimmedEmail);
       return res.status(400).json({ 
         error: 'Please enter a valid email address' 
       });
     }
 
     if (!resetToken) {
+      console.log('Reset token is missing');
       return res.status(400).json({ 
         error: 'Reset token is required' 
       });
@@ -55,7 +69,7 @@ app.post('/api/send-reset-email', async (req, res) => {
     const resetLink = `${req.get('origin') || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
     // For development, just log the reset info and return success
-    console.log('Password reset requested for:', email);
+    console.log('Password reset requested for:', trimmedEmail);
     console.log('Reset link:', resetLink);
 
     // Simulate successful email send

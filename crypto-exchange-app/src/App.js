@@ -192,8 +192,10 @@ function MainApp() {
     setError('');
 
     // Validate email format on frontend
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!resetEmail || !emailRegex.test(resetEmail)) {
+    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    const trimmedEmail = resetEmail?.trim();
+    
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
       setError('Please enter a valid email address');
       return;
     }
@@ -201,12 +203,14 @@ function MainApp() {
     try {
       const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
       const resetData = {
-        email: resetEmail,
+        email: trimmedEmail,
         token: resetToken,
         expires: Date.now() + 3600000
       };
 
       localStorage.setItem('passwordReset', JSON.stringify(resetData));
+
+      console.log('Sending reset email request for:', trimmedEmail);
 
       const response = await fetch('/api/send-reset-email', {
         method: 'POST',
@@ -214,12 +218,13 @@ function MainApp() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: resetEmail,
+          email: trimmedEmail,
           resetToken: resetToken
         })
       });
 
       const responseData = await response.json();
+      console.log('Server response:', responseData);
 
       if (!response.ok) {
         throw new Error(responseData.error || 'Failed to send reset email');
