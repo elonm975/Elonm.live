@@ -265,6 +265,37 @@
 .welcome-section {
   text-align: center;
   margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.welcome-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 30%, 
+    rgba(59, 130, 246, 0.1) 40%, 
+    rgba(16, 185, 129, 0.1) 60%, 
+    transparent 70%);
+  animation: welcomeGlow 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes welcomeGlow {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(360deg);
+  }
 }
 
 .welcome-section h2 {
@@ -273,6 +304,25 @@
   color: white;
   font-weight: 700;
   letter-spacing: -0.5px;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, #3b82f6, #10b981, #3b82f6);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: welcomeTextGlow 3s ease-in-out infinite;
+}
+
+@keyframes welcomeTextGlow {
+  0%, 100% {
+    background-position: 0% 50%;
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    background-position: 100% 50%;
+    text-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+  }
 }
 
 .form-subtitle {
@@ -280,6 +330,95 @@
   font-size: 15px;
   margin: 0 0 36px 0;
   font-weight: 500;
+  position: relative;
+  z-index: 2;
+  animation: subtitleFloat 2s ease-in-out infinite;
+}
+
+@keyframes subtitleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.welcome-floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.welcome-floating-box {
+  position: absolute;
+  border-radius: 8px;
+  background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
+  animation: welcomeBoxFloat 6s ease-in-out infinite;
+}
+
+.welcome-box-1 {
+  width: 20px;
+  height: 20px;
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 5s;
+}
+
+.welcome-box-2 {
+  width: 15px;
+  height: 15px;
+  top: 20%;
+  right: 15%;
+  animation-delay: 1s;
+  animation-duration: 7s;
+  border-radius: 50%;
+}
+
+.welcome-box-3 {
+  width: 12px;
+  height: 12px;
+  bottom: 20%;
+  left: 20%;
+  animation-delay: 2s;
+  animation-duration: 6s;
+  transform: rotate(45deg);
+}
+
+.welcome-box-4 {
+  width: 18px;
+  height: 18px;
+  bottom: 15%;
+  right: 10%;
+  animation-delay: 3s;
+  animation-duration: 8s;
+  border-radius: 30%;
+}
+
+@keyframes welcomeBoxFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateY(-15px) translateX(10px) rotate(90deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(10px) translateX(-5px) rotate(180deg);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-8px) translateX(-10px) rotate(270deg);
+    opacity: 0.8;
+  }
 }
 
 .auth-buttons-modern {
@@ -287,6 +426,8 @@
   flex-direction: column;
   gap: 16px;
   margin-bottom: 40px;
+  position: relative;
+  z-index: 2;
 }
 
 .primary-btn {

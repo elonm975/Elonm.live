@@ -340,6 +340,12 @@ function MainApp() {
             {!showLogin && !showSignup && !showForgotPassword && (
               <div className="auth-form-container">
                 <div className="welcome-section">
+                  <div className="welcome-floating-elements">
+                    <div className="welcome-floating-box welcome-box-1"></div>
+                    <div className="welcome-floating-box welcome-box-2"></div>
+                    <div className="welcome-floating-box welcome-box-3"></div>
+                    <div className="welcome-floating-box welcome-box-4"></div>
+                  </div>
                   <h2>Welcome Back</h2>
                   <p className="form-subtitle">Sign in to access your trading dashboard</p>
                 </div>
