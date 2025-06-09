@@ -14,7 +14,7 @@ language = "nodejs"
 deploymentTarget = "static"
 build = ["cd progressive-crypto-app && npm run build"]
 publicDir = "progressive-crypto-app/build"
-run = ["sh", "-c", "node server.js"]
+run = ["sh", "-c", "cd crypto-exchange-app && node server.js & cd crypto-exchange-app && npm run build && npx serve -s build -l 3000"]
 
 [[ports]]
 localPort = 3000
@@ -112,6 +112,19 @@ args = "cd crypto-exchange-app && npm start"
 
 [[workflows.workflow]]
 name = "Crypto Exchange Clean Start"
+author = 43448675
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && node server.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd crypto-exchange-app && npm start"
+
+[[workflows.workflow]]
+name = "Crypto Exchange App"
 author = 43448675
 mode = "parallel"
 
