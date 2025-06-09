@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// SendGrid configuration (optional - for production use)
+// SendGrid configuration
 const transporter = nodemailer.createTransport({
   service: 'SendGrid',
   auth: {
@@ -16,6 +16,24 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Verify transporter configuration
+const verifyEmailService = async () => {
+  if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'dummy-key') {
+    try {
+      await transporter.verify();
+      console.log('✅ Email service connected successfully');
+      console.log('📧 Emails will be sent from: noreply@elonm.live');
+      return true;
+    } catch (error) {
+      console.log('❌ Email service connection failed:', error.message);
+      return false;
+    }
+  } else {
+    console.log('⚠️ No SendGrid API key found - running in development mode');
+    return false;
+  }
+};
+
 // Basic health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
@@ -23,8 +41,9 @@ app.get('/api/health', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on port ${PORT}`);
+  await verifyEmailService(); // Verify email service on startup
 });
 
 // Email validation function
@@ -68,15 +87,39 @@ app.post('/api/send-reset-email', async (req, res) => {
     // Create reset link
     const resetLink = `${req.get('origin') || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
 
-    // For development, just log the reset info and return success
     console.log('Password reset requested for:', trimmedEmail);
     console.log('Reset link:', resetLink);
 
-    // Simulate successful email send
-    res.json({ 
-      success: true, 
-      message: 'Password reset email sent successfully' 
-    });
+    const msg = {
+      to: trimmedEmail,
+      from: 'noreply@elonm.live',
+      subject: '🚀 Reset Your Eloncrypto Password',
+      html: createResetEmailHTML('User', resetLink)
+    };
+
+    // Send email if SendGrid is configured, otherwise log
+    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'dummy-key') {
+      try {
+        await transporter.sendMail(msg);
+        console.log('✅ Password reset email sent successfully to:', trimmedEmail);
+        res.json({ 
+          success: true, 
+          message: 'Password reset email sent successfully' 
+        });
+      } catch (error) {
+        console.log('❌ Failed to send email:', error.message);
+        return res.status(500).json({ 
+          error: 'Failed to send password reset email' 
+        });
+      }
+    } else {
+      console.log('📧 Email would be sent to:', trimmedEmail);
+      console.log('📄 Email content preview:', msg.subject);
+      res.json({ 
+        success: true, 
+        message: 'Password reset email sent successfully (development mode)' 
+      });
+    }
 
   } catch (error) {
     console.error('Password reset error:', error);
