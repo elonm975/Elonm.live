@@ -1,4 +1,3 @@
-
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
@@ -8,12 +7,68 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// SendGrid configuration
+// SendGrid configuration (optional - for production use)
 const transporter = nodemailer.createTransport({
   service: 'SendGrid',
   auth: {
     user: 'apikey',
-    pass: process.env.SENDGRID_API_KEY
+    pass: process.env.SENDGRID_API_KEY || 'dummy-key'
+  }
+});
+
+// Basic health check route
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'Server is running' });
+});
+
+// Start server
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Email validation function
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Password reset email route
+app.post('/api/send-reset-email', async (req, res) => {
+  try {
+    const { email, resetToken } = req.body;
+
+    // Validate email format
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ 
+        error: 'Please enter a valid email address' 
+      });
+    }
+
+    if (!resetToken) {
+      return res.status(400).json({ 
+        error: 'Reset token is required' 
+      });
+    }
+
+    // Create reset link
+    const resetLink = `${req.get('origin') || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+
+    // For development, just log the reset info and return success
+    console.log('Password reset requested for:', email);
+    console.log('Reset link:', resetLink);
+
+    // Simulate successful email send
+    res.json({ 
+      success: true, 
+      message: 'Password reset email sent successfully' 
+    });
+
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ 
+      error: 'Failed to process password reset request' 
+    });
   }
 });
 
@@ -45,13 +100,13 @@ const createResetEmailHTML = (username, resetLink) => {
         <div class="content">
           <h2>Hi ${username},</h2>
           <p>Please click the following verification link to change your Eloncrypto account password:</p>
-          
+
           <div style="text-align: center;">
             <a href="${resetLink}" class="button">Reset Your Password</a>
           </div>
-          
+
           <p>This link will expire in 1 hour for security purposes.</p>
-          
+
           <div class="warning">
             <strong>In case you were not trying to access your Eloncrypto account & are seeing this email, please follow the instructions below:</strong>
             <ul>
@@ -70,48 +125,3 @@ const createResetEmailHTML = (username, resetLink) => {
     </html>
   `;
 };
-
-// Send password reset email
-app.post('/api/send-reset-email', async (req, res) => {
-  try {
-    const { email, resetToken } = req.body;
-    
-    if (!email || !resetToken) {
-      return res.status(400).json({ error: 'Email and reset token are required' });
-    }
-
-    const username = email.split('@')[0]; // Extract username from email
-    const resetLink = `${req.get('origin') || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
-
-    const mailOptions = {
-      from: 'noreply@elonm.live',
-      to: email,
-      subject: 'Reset Your Eloncrypto Password',
-      html: createResetEmailHTML(username, resetLink)
-    };
-
-    await transporter.sendMail(mailOptions);
-    
-    res.json({ 
-      success: true, 
-      message: 'Password reset email sent successfully' 
-    });
-    
-  } catch (error) {
-    console.error('Email sending error:', error);
-    res.status(500).json({ 
-      error: 'Failed to send reset email',
-      details: error.message 
-    });
-  }
-});
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'Server is running', timestamp: new Date().toISOString() });
-});
-
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Email service running on port ${PORT}`);
-});

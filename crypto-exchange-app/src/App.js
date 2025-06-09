@@ -191,6 +191,13 @@ function MainApp() {
     e.preventDefault();
     setError('');
 
+    // Validate email format on frontend
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!resetEmail || !emailRegex.test(resetEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     try {
       const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
       const resetData = {
@@ -212,15 +219,17 @@ function MainApp() {
         })
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send reset email');
+        throw new Error(responseData.error || 'Failed to send reset email');
       }
 
       setResetEmailSent(true);
       setError('');
     } catch (error) {
-      setError('Failed to send reset email: ' + error.message);
+      console.error('Password reset error:', error);
+      setError(error.message || 'Failed to send reset email. Please try again.');
     }
   };
 
