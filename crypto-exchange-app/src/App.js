@@ -312,150 +312,229 @@ function MainApp() {
 
   if (!user) {
     return (
-      <div className="App">
-        <header className="App-header">
-          <h1>🚀 Eloncrypto Exchange</h1>
-          <p>The future of cryptocurrency trading</p>
+      <div className="bybit-login-page">
+        <div className="animated-background">
+          <div className="floating-shape shape-1"></div>
+          <div className="floating-shape shape-2"></div>
+          <div className="floating-shape shape-3"></div>
+          <div className="floating-shape shape-4"></div>
+          <div className="floating-shape shape-5"></div>
+          <div className="floating-shape shape-6"></div>
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
+        </div>
 
-          {!showLogin && !showSignup && !showForgotPassword && (
-            <div className="auth-buttons">
-              <button className="auth-btn login" onClick={() => setShowLogin(true)}>
-                Login
-              </button>
-              <button className="auth-btn signup" onClick={() => setShowSignup(true)}>
-                Sign Up
-              </button>
+        <div className="login-container">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="logo-container">
+                <div className="crypto-logo">
+                  <span className="logo-icon">₿</span>
+                </div>
+                <h1>Eloncrypto</h1>
+                <p className="tagline">Advanced Crypto Trading Platform</p>
+              </div>
             </div>
-          )}
 
-          {showLogin && (
-            <div className="auth-form">
-              <h2>Login</h2>
-              <form onSubmit={handleLogin}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                {error && <div className="error">{error}</div>}
-                <button type="submit">Login</button>
-                <p className="auth-link">
-                  Don't have an account? 
-                  <span onClick={() => { setShowLogin(false); setShowSignup(true); setError(''); }}>
-                    Sign up
-                  </span>
-                </p>
-                <p className="auth-link">
-                  <span onClick={() => { setShowLogin(false); setShowForgotPassword(true); setError(''); }}>
-                    Forgot Password?
-                  </span>
-                </p>
-                <button type="button" onClick={() => { setShowLogin(false); setError(''); }}>
-                  Cancel
-                </button>
-              </form>
-            </div>
-          )}
-
-          {showSignup && (
-            <div className="auth-form">
-              <h2>Sign Up</h2>
-              <form onSubmit={handleSignup}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-                {error && <div className="error">{error}</div>}
-                <button type="submit">Sign Up</button>
-                <p className="auth-link">
-                  Already have an account? 
-                  <span onClick={() => { setShowSignup(false); setShowLogin(true); setError(''); }}>
-                    Login
-                  </span>
-                </p>
-                <button type="button" onClick={() => { setShowSignup(false); setError(''); }}>
-                  Cancel
-                </button>
-              </form>
-            </div>
-          )}
-
-          {showForgotPassword && (
-            <div className="auth-form">
-              <h2>Reset Password</h2>
-              {!resetEmailSent ? (
-                <form onSubmit={handlePasswordReset}>
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    required
-                  />
-                  {error && <div className="error">{error}</div>}
-                  <button type="submit">Send Reset Email</button>
-                  <button type="button" onClick={() => { setShowForgotPassword(false); setError(''); }}>
-                    Back to Login
+            {!showLogin && !showSignup && !showForgotPassword && (
+              <div className="auth-form-container">
+                <div className="welcome-section">
+                  <h2>Welcome Back</h2>
+                  <p className="form-subtitle">Sign in to access your trading dashboard</p>
+                </div>
+                <div className="auth-buttons-modern">
+                  <button className="primary-btn" onClick={() => setShowLogin(true)}>
+                    Sign In
                   </button>
-                </form>
-              ) : (
-                <div className="reset-success">
-                  <h3>✅ Email Sent!</h3>
-                  <p>We've sent a password reset link to <strong>{resetEmail}</strong></p>
-                  <p>Please check your email and follow the instructions to reset your password.</p>
-                  <div className="reset-actions">
-                    <button 
-                      className="done-btn"
-                      onClick={() => {
-                        setShowForgotPassword(false);
-                        setResetEmailSent(false);
-                        setResetEmail('');
-                        setError('');
-                      }}
-                    >
-                      Done
-                    </button>
-                    <button 
-                      className="resend-btn"
-                      onClick={() => {
-                        setResetEmailSent(false);
-                        setError('');
-                      }}
-                    >
-                      Resend Email
-                    </button>
+                  <button className="secondary-btn" onClick={() => setShowSignup(true)}>
+                    Create Account
+                  </button>
+                </div>
+                <div className="trust-indicators">
+                  <div className="indicator">
+                    <span className="indicator-icon">🔒</span>
+                    <span>Bank-level Security</span>
+                  </div>
+                  <div className="indicator">
+                    <span className="indicator-icon">⚡</span>
+                    <span>Lightning Fast</span>
+                  </div>
+                  <div className="indicator">
+                    <span className="indicator-icon">🌍</span>
+                    <span>Global Access</span>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-        </header>
+              </div>
+            )}
+
+            {showLogin && (
+              <div className="auth-form-container">
+                <div className="auth-form modern">
+                  <h2>Sign In</h2>
+                  <p className="form-subtitle">Enter your credentials to access your account</p>
+                  <form onSubmit={handleLogin} className="modern-form">
+                    <div className="form-fields">
+                      <div className="input-group">
+                        <input
+                          type="email"
+                          placeholder="Email address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="modern-input"
+                        />
+                      </div>
+                      <div className="input-group">
+                        <input
+                          type="password"
+                          placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="modern-input"
+                        />
+                      </div>
+                    </div>
+                    {error && <div className="error-message">{error}</div>}
+                    <button type="submit" className="submit-btn">Sign In</button>
+                    <div className="form-links">
+                      <button type="button" className="link-btn" onClick={() => { setShowLogin(false); setShowForgotPassword(true); setError(''); }}>
+                        Forgot Password?
+                      </button>
+                    </div>
+                    <div className="form-footer">
+                      <p>Don't have an account? 
+                        <button type="button" className="link-btn" onClick={() => { setShowLogin(false); setShowSignup(true); setError(''); }}>
+                          Create one
+                        </button>
+                      </p>
+                      <button type="button" className="back-btn" onClick={() => { setShowLogin(false); setError(''); }}>
+                        ← Back
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {showSignup && (
+              <div className="auth-form-container">
+                <div className="auth-form modern">
+                  <h2>Create Account</h2>
+                  <p className="form-subtitle">Join thousands of traders worldwide</p>
+                  <form onSubmit={handleSignup} className="modern-form">
+                    <div className="form-fields">
+                      <div className="input-group">
+                        <input
+                          type="email"
+                          placeholder="Email address"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="modern-input"
+                        />
+                      </div>
+                      <div className="input-group">
+                        <input
+                          type="password"
+                          placeholder="Password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          className="modern-input"
+                        />
+                      </div>
+                      <div className="input-group">
+                        <input
+                          type="password"
+                          placeholder="Confirm Password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          className="modern-input"
+                        />
+                      </div>
+                    </div>
+                    {error && <div className="error-message">{error}</div>}
+                    <button type="submit" className="submit-btn">Create Account</button>
+                    <div className="form-footer">
+                      <p>Already have an account? 
+                        <button type="button" className="link-btn" onClick={() => { setShowSignup(false); setShowLogin(true); setError(''); }}>
+                          Sign in
+                        </button>
+                      </p>
+                      <button type="button" className="back-btn" onClick={() => { setShowSignup(false); setError(''); }}>
+                        ← Back
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {showForgotPassword && (
+              <div className="auth-form-container">
+                <div className="auth-form modern">
+                  <h2>Reset Password</h2>
+                  {!resetEmailSent ? (
+                    <form onSubmit={handlePasswordReset} className="modern-form">
+                      <p className="form-subtitle">Enter your email to receive reset instructions</p>
+                      <div className="form-fields">
+                        <div className="input-group">
+                          <input
+                            type="email"
+                            placeholder="Email address"
+                            value={resetEmail}
+                            onChange={(e) => setResetEmail(e.target.value)}
+                            required
+                            className="modern-input"
+                          />
+                        </div>
+                      </div>
+                      {error && <div className="error-message">{error}</div>}
+                      <button type="submit" className="submit-btn">Send Reset Email</button>
+                      <div className="form-footer">
+                        <button type="button" className="back-btn" onClick={() => { setShowForgotPassword(false); setError(''); }}>
+                          ← Back to Sign In
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="reset-success">
+                      <div className="success-icon">✉️</div>
+                      <h3>Check Your Email</h3>
+                      <p>We've sent password reset instructions to</p>
+                      <p className="email-highlight">{resetEmail}</p>
+                      <div className="form-actions">
+                        <button 
+                          className="submit-btn"
+                          onClick={() => {
+                            setShowForgotPassword(false);
+                            setResetEmailSent(false);
+                            setResetEmail('');
+                            setError('');
+                          }}
+                        >
+                          Done
+                        </button>
+                        <button 
+                          className="secondary-btn"
+                          onClick={() => {
+                            setResetEmailSent(false);
+                            setError('');
+                          }}
+                        >
+                          Resend Email
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
