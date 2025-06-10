@@ -226,24 +226,37 @@ function MainApp() {
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
 
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Server returned non-JSON response:', await response.text());
+        throw new Error('Server error - invalid response format');
+      }
+
       const responseData = await response.json();
       console.log('Server response:', responseData);
 
       if (!response.ok) {
         console.error('Server error response:', responseData);
-        throw new Error(responseData.error || `Server error: ${response.status}`);
+        throw new Error(responseData.error || responseData.message || `Server error: ${response.status}`);
       }
 
       if (responseData.success) {
         setResetEmailSent(true);
         setError('');
       } else {
-        throw new Error(responseData.error || 'Failed to send reset email');
+        throw new Error(responseData.error || responseData.message || 'Failed to send reset email');
       }
     } catch (error) {
       console.error('Password reset error:', error);
-      if (error.message.includes('Failed to fetch')) {
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error.message);
+      console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
         setError('Network error. Please check your connection and try again.');
+      } else if (error.message.includes('Failed to fetch')) {
+        setError('Cannot connect to server. Please try again.');
       } else {
         setError(error.message || 'Failed to send reset email. Please try again.');
       }
