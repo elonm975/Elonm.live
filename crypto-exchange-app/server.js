@@ -45,13 +45,25 @@ app.get('/api/health', (req, res) => {
 
 // Catch-all handler: send back React's index.html file
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+  const indexPath = path.join(__dirname, 'build', 'index.html');
+  try {
+    if (require('fs').existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.log('❌ Build files not found at:', indexPath);
+      res.status(404).send('Build files not found. Please ensure npm run build was executed successfully.');
+    }
+  } catch (error) {
+    console.error('Error serving static files:', error);
+    res.status(500).send('Internal server error');
+  }
 });
 
 // Start server
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌐 Server bound to 0.0.0.0:${PORT}`);
   await verifyEmailService(); // Verify email service on startup
 });
 
