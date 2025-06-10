@@ -1,11 +1,15 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, 'build')));
 
 // SendGrid configuration
 const transporter = nodemailer.createTransport({
@@ -37,6 +41,11 @@ const verifyEmailService = async () => {
 // Basic health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
+});
+
+// Catch-all handler: send back React's index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // Start server
