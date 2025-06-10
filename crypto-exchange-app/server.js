@@ -43,13 +43,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
 
-// Catch-all handler: send back React's index.html file
-app.get('*', (req, res) => {
-  // Skip API routes to prevent path-to-regexp conflicts
-  if (req.path && req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
-  }
-  
+// Handle React routing - catch all non-API routes
+app.get(/^(?!\/api).*/, (req, res) => {
   const indexPath = path.join(__dirname, 'build', 'index.html');
   try {
     if (require('fs').existsSync(indexPath)) {
