@@ -18,11 +18,11 @@ run = ["sh", "-c", "cd crypto-exchange-app && node server.js & cd crypto-exchang
 
 [[ports]]
 localPort = 3000
-externalPort = 80
+externalPort = 3000
 
 [[ports]]
 localPort = 3001
-externalPort = 3001
+externalPort = 80
 
 [workflows]
 runButton = "Crypto Exchange App"
