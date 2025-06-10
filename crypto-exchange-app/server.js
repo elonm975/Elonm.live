@@ -45,8 +45,8 @@ app.get('/api/health', (req, res) => {
 
 // Catch-all handler: send back React's index.html file
 app.get('*', (req, res) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/')) {
+  // Skip API routes to prevent path-to-regexp conflicts
+  if (req.path && req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
   
