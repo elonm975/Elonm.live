@@ -72,7 +72,7 @@ app.post('/api/send-reset-email', async (req, res) => {
     // Trim email and validate format
     const trimmedEmail = email.trim();
     console.log('Validating email:', trimmedEmail);
-    
+
     if (!isValidEmail(trimmedEmail)) {
       console.log('Email validation failed for:', trimmedEmail);
       console.log('Email format check result:', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail));
@@ -80,7 +80,7 @@ app.post('/api/send-reset-email', async (req, res) => {
         error: 'Please enter a valid email address' 
       });
     }
-    
+
     console.log('Email validation passed for:', trimmedEmail);
 
     if (!resetToken) {
@@ -90,17 +90,39 @@ app.post('/api/send-reset-email', async (req, res) => {
       });
     }
 
-    // Create reset link
-    const resetLink = `${req.get('origin') || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
-
-    console.log('Password reset requested for:', trimmedEmail);
-    console.log('Reset link:', resetLink);
+    // Get the host from the request, but make sure it's the correct format for Replit
+    const host = req.get('host');
+    const resetUrl = `https://${host}/reset-password?token=${resetToken}`;
 
     const msg = {
-      to: trimmedEmail,
-      from: 'noreply@elonm.live',
-      subject: '🚀 Reset Your Eloncrypto Password',
-      html: createResetEmailHTML('User', resetLink)
+      to: email,
+      from: {
+        email: 'noreply@elonm.live',
+        name: 'Eloncrypto Exchange'
+      },
+      subject: 'Reset Your Password - Eloncrypto Exchange',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 10px;">
+          <div style="background: white; padding: 30px; border-radius: 8px; text-align: center;">
+            <h1 style="color: #333; margin-bottom: 20px;">🔐 Password Reset Request</h1>
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+              We received a request to reset your password for your Eloncrypto Exchange account.
+            </p>
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+              Please click the link below to reset your password:
+            </p>
+            <a href="${resetUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block; margin: 20px 0;">
+              Reset Your Password
+            </a>
+            <p style="color: #999; font-size: 14px; margin-top: 30px;">
+              This link will expire in 1 hour for security reasons.
+            </p>
+            <p style="color: #999; font-size: 14px;">
+              If you didn't request this reset, please ignore this email.
+            </p>
+          </div>
+        </div>
+      `
     };
 
     // Send email if SendGrid is configured, otherwise log
@@ -108,15 +130,15 @@ app.post('/api/send-reset-email', async (req, res) => {
       try {
         console.log('📤 Attempting to send email with SendGrid...');
         console.log('📧 Email details:', {
-          to: trimmedEmail,
+          to: email,
           from: 'noreply@elonm.live',
           subject: msg.subject
         });
-        
+
         const result = await transporter.sendMail(msg);
-        console.log('✅ Password reset email sent successfully to:', trimmedEmail);
+        console.log('✅ Password reset email sent successfully to:', email);
         console.log('📬 SendGrid response:', result.messageId || 'Email queued');
-        
+
         res.json({ 
           success: true, 
           message: 'Password reset email sent successfully' 
@@ -124,20 +146,20 @@ app.post('/api/send-reset-email', async (req, res) => {
       } catch (error) {
         console.log('❌ Failed to send email:', error.message);
         console.log('🔍 Full error details:', JSON.stringify(error, null, 2));
-        
+
         // Check for specific SendGrid errors
         if (error.message.includes('string did not match the expected pattern')) {
           console.log('⚠️ Pattern validation error - this is likely a SendGrid domain/email verification issue');
           console.log('💡 Make sure your domain "elonm.live" is verified in SendGrid');
         }
-        
+
         return res.status(500).json({ 
           error: 'Failed to send password reset email. Please try again.',
           details: error.message
         });
       }
     } else {
-      console.log('📧 Email would be sent to:', trimmedEmail);
+      console.log('📧 Email would be sent to:', email);
       console.log('📄 Email content preview:', msg.subject);
       res.json({ 
         success: true, 
