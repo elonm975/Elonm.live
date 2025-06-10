@@ -14,7 +14,7 @@ language = "nodejs"
 deploymentTarget = "static"
 build = ["cd progressive-crypto-app && npm run build"]
 publicDir = "progressive-crypto-app/build"
-run = ["sh", "-c", "cd crypto-exchange-app && node server.js & cd crypto-exchange-app && npm run build && npx serve -s build -l 3000"]
+run = ["sh", "-c", "cd crypto-exchange-app && node server.js"]
 
 [[ports]]
 localPort = 3000
