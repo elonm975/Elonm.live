@@ -16,10 +16,6 @@ build = ["sh", "-c", "cd crypto-exchange-app && npm install && npm run build"]
 run = ["sh", "-c", "cd crypto-exchange-app && node server.js"]
 
 [[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
 localPort = 3001
 externalPort = 80
 

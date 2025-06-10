@@ -45,6 +45,11 @@ app.get('/api/health', (req, res) => {
 
 // Catch-all handler: send back React's index.html file
 app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  
   const indexPath = path.join(__dirname, 'build', 'index.html');
   try {
     if (require('fs').existsSync(indexPath)) {
