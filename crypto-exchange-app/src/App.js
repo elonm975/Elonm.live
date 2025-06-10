@@ -191,8 +191,8 @@ function MainApp() {
     e.preventDefault();
     setError('');
 
-    // Validate email format on frontend
-    const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+    // Validate email format on frontend - matches server validation
+    const emailRegex = /^[a-zA-Z0-9._-]{1,1000}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const trimmedEmail = resetEmail?.trim();
     
     if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {

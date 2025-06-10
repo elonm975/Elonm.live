@@ -48,8 +48,9 @@ app.listen(PORT, '0.0.0.0', async () => {
 
 // Email validation function
 const isValidEmail = (email) => {
-  // Simplified but comprehensive email regex
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // More flexible email regex that accepts numbers and characters
+  // Allows 1-1000 characters before @, numbers and letters, then @ then domain with dot
+  const emailRegex = /^[a-zA-Z0-9._-]{1,1000}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return typeof email === 'string' && email.length > 0 && emailRegex.test(email.trim());
 };
 
