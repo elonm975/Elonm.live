@@ -223,18 +223,30 @@ function MainApp() {
         })
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       const responseData = await response.json();
       console.log('Server response:', responseData);
 
       if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to send reset email');
+        console.error('Server error response:', responseData);
+        throw new Error(responseData.error || `Server error: ${response.status}`);
       }
 
-      setResetEmailSent(true);
-      setError('');
+      if (responseData.success) {
+        setResetEmailSent(true);
+        setError('');
+      } else {
+        throw new Error(responseData.error || 'Failed to send reset email');
+      }
     } catch (error) {
       console.error('Password reset error:', error);
-      setError(error.message || 'Failed to send reset email. Please try again.');
+      if (error.message.includes('Failed to fetch')) {
+        setError('Network error. Please check your connection and try again.');
+      } else {
+        setError(error.message || 'Failed to send reset email. Please try again.');
+      }
     }
   };
 

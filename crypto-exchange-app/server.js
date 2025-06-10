@@ -106,16 +106,34 @@ app.post('/api/send-reset-email', async (req, res) => {
     // Send email if SendGrid is configured, otherwise log
     if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'dummy-key') {
       try {
-        await transporter.sendMail(msg);
+        console.log('📤 Attempting to send email with SendGrid...');
+        console.log('📧 Email details:', {
+          to: trimmedEmail,
+          from: 'noreply@elonm.live',
+          subject: msg.subject
+        });
+        
+        const result = await transporter.sendMail(msg);
         console.log('✅ Password reset email sent successfully to:', trimmedEmail);
+        console.log('📬 SendGrid response:', result.messageId || 'Email queued');
+        
         res.json({ 
           success: true, 
           message: 'Password reset email sent successfully' 
         });
       } catch (error) {
         console.log('❌ Failed to send email:', error.message);
+        console.log('🔍 Full error details:', JSON.stringify(error, null, 2));
+        
+        // Check for specific SendGrid errors
+        if (error.message.includes('string did not match the expected pattern')) {
+          console.log('⚠️ Pattern validation error - this is likely a SendGrid domain/email verification issue');
+          console.log('💡 Make sure your domain "elonm.live" is verified in SendGrid');
+        }
+        
         return res.status(500).json({ 
-          error: 'Failed to send password reset email' 
+          error: 'Failed to send password reset email. Please try again.',
+          details: error.message
         });
       }
     } else {
