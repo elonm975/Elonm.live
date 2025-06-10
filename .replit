@@ -12,7 +12,7 @@ language = "nodejs"
 
 [deployment]
 deploymentTarget = "static"
-build = ["cd progressive-crypto-app && npm run build"]
+build = ["sh", "-c", "cd crypto-exchange-app && npm run build"]
 publicDir = "progressive-crypto-app/build"
 run = ["sh", "-c", "cd crypto-exchange-app && node server.js"]
 
