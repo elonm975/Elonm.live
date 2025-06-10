@@ -11,9 +11,8 @@ packages = ["nano"]
 language = "nodejs"
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "cloudrun"
 build = ["sh", "-c", "cd crypto-exchange-app && npm run build"]
-publicDir = "progressive-crypto-app/build"
 run = ["sh", "-c", "cd crypto-exchange-app && node server.js"]
 
 [[ports]]
