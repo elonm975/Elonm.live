@@ -48,8 +48,8 @@ app.listen(PORT, '0.0.0.0', async () => {
 
 // Email validation function
 const isValidEmail = (email) => {
-  // More comprehensive email regex that handles various valid email formats
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  // Simplified but comprehensive email regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return typeof email === 'string' && email.length > 0 && emailRegex.test(email.trim());
 };
 
@@ -70,12 +70,17 @@ app.post('/api/send-reset-email', async (req, res) => {
 
     // Trim email and validate format
     const trimmedEmail = email.trim();
+    console.log('Validating email:', trimmedEmail);
+    
     if (!isValidEmail(trimmedEmail)) {
       console.log('Email validation failed for:', trimmedEmail);
+      console.log('Email format check result:', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail));
       return res.status(400).json({ 
         error: 'Please enter a valid email address' 
       });
     }
+    
+    console.log('Email validation passed for:', trimmedEmail);
 
     if (!resetToken) {
       console.log('Reset token is missing');
