@@ -584,115 +584,407 @@ function MainApp() {
     );
   }
 
+  // State for navigation
+  const [activeTab, setActiveTab] = useState('home');
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+
+  const totalPortfolioValue = portfolio.reduce((total, asset) => {
+    const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
+    return total + (asset.amount * currentPrice);
+  }, 0);
+
+  const renderHome = () => (
+    <div className="home-tab">
+      <div className="welcome-section">
+        <h2>Welcome back, {userName || user.email?.split('@')[0]}</h2>
+        <div className="balance-overview">
+          <div className="total-balance-card">
+            <div className="balance-header">
+              <span className="balance-label">Total Balance</span>
+              <button className="eye-btn">👁</button>
+            </div>
+            <div className="balance-amount">${(balance + totalPortfolioValue).toLocaleString()}</div>
+            <div className="balance-change">
+              <span className="change-amount">+${(totalPortfolioValue * 0.024).toFixed(2)}</span>
+              <span className="change-percent">(+2.4% today)</span>
+            </div>
+          </div>
+          <div className="quick-stats">
+            <div className="stat-card">
+              <span className="stat-label">Available Balance</span>
+              <span className="stat-value">${balance.toLocaleString()}</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-label">Portfolio Value</span>
+              <span className="stat-value">${totalPortfolioValue.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="recent-activity">
+        <h3>Recent Activity</h3>
+        <div className="transactions-list">
+          {transactions.slice(0, 3).map(tx => (
+            <div key={tx.id} className="transaction-item">
+              <span className={`type-badge ${tx.type}`}>{tx.type.toUpperCase()}</span>
+              <div className="transaction-details">
+                <div className="crypto-name">{tx.cryptoName}</div>
+                <div className="amount">{tx.amount.toFixed(6)} • ${tx.total.toFixed(2)}</div>
+              </div>
+              <div className="timestamp">{new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAssets = () => (
+    <div className="assets-tab">
+      <div className="assets-header">
+        <h2>My Assets</h2>
+        <div className="balance-overview">
+          <div className="total-balance-card">
+            <div className="balance-header">
+              <span className="balance-label">Total Assets</span>
+              <button className="eye-btn">👁</button>
+            </div>
+            <div className="balance-amount">${(balance + totalPortfolioValue).toLocaleString()}</div>
+            <div className="balance-breakdown">
+              <div className="balance-item">
+                <span className="balance-type">Available</span>
+                <span className="balance-value">${balance.toLocaleString()}</span>
+              </div>
+              <div className="balance-item">
+                <span className="balance-type">In Orders</span>
+                <span className="balance-value">${totalPortfolioValue.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="asset-actions">
+        <button className="action-btn deposit-btn" onClick={() => setShowDeposit(true)}>
+          <span className="btn-icon">💳</span>
+          Deposit
+        </button>
+        <button className="action-btn withdraw-btn" onClick={() => setShowWithdraw(true)}>
+          <span className="btn-icon">💸</span>
+          Withdraw
+        </button>
+        <button className="action-btn transfer-btn">
+          <span className="btn-icon">🔄</span>
+          Transfer
+        </button>
+        <button className="action-btn buy-btn">
+          <span className="btn-icon">💰</span>
+          Buy
+        </button>
+      </div>
+
+      <div className="asset-tabs">
+        <button className="asset-tab-btn active">Spot</button>
+        <button className="asset-tab-btn">Futures</button>
+        <button className="asset-tab-btn">Funding</button>
+      </div>
+
+      <div className="portfolio-section">
+        <h3>Portfolio</h3>
+        {portfolio.length > 0 ? (
+          <div className="portfolio-list">
+            {portfolio.map(asset => {
+              const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
+              const currentValue = asset.amount * currentPrice;
+              const profit = currentValue - (asset.amount * asset.purchasePrice);
+              return (
+                <div key={asset.id} className="portfolio-item">
+                  <img src={`https://cryptoicons.org/api/icon/${asset.cryptoId}/32`} alt={asset.cryptoName} className="crypto-icon" />
+                  <div className="portfolio-details">
+                    <div className="crypto-name">{asset.cryptoName}</div>
+                    <div className="crypto-amount">{asset.amount.toFixed(6)}</div>
+                  </div>
+                  <div className="portfolio-value">
+                    <div className="value">${currentValue.toLocaleString()}</div>
+                    <div className={`change ${profit >= 0 ? 'positive' : 'negative'}`}>
+                      {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="empty-portfolio">
+            <p>No assets in your portfolio yet</p>
+          </div>
+        )}
+      </div>
+
+      <div className="recent-transactions">
+        <h3>Recent Transactions</h3>
+        <div className="transactions-list">
+          {transactions.slice(0, 5).map(tx => (
+            <div key={tx.id} className="transaction-item">
+              <span className={`type-badge ${tx.type}`}>{tx.type}</span>
+              <div className="transaction-details">
+                <div className="crypto-name">{tx.cryptoName}</div>
+                <div className="amount">{tx.amount.toFixed(6)}</div>
+              </div>
+              <div className="timestamp">{new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMarkets = () => (
+    <div className="markets-tab">
+      <div className="markets-header">
+        <h2>Markets</h2>
+        <div className="market-stats">
+          <div className="stat-item">
+            <span className="stat-label">24h Vol</span>
+            <span className="stat-value">$2.1B</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Market Cap</span>
+            <span className="stat-value">$1.2T</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="market-controls">
+        <div className="market-tabs">
+          <button className="market-tab-btn active">Spot</button>
+          <button className="market-tab-btn">Futures</button>
+          <button className="market-tab-btn">Options</button>
+        </div>
+        <div className="market-filters">
+          <div className="filter-buttons">
+            <button className="filter-btn active">All</button>
+            <button className="filter-btn">Favorites</button>
+            <button className="filter-btn">Innovation</button>
+            <button className="filter-btn">DeFi</button>
+          </div>
+          <div className="search-container">
+            <input 
+              type="text" 
+              placeholder="Search coins..." 
+              className="market-search"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="crypto-list">
+        {cryptoData.map((crypto, index) => (
+          <div key={crypto.id} className="crypto-item">
+            <span className="crypto-rank">{index + 1}</span>
+            <img src={`https://cryptoicons.org/api/icon/${crypto.id}/32`} alt={crypto.name} className="crypto-icon" />
+            <div className="crypto-details">
+              <div className="crypto-name">{crypto.name}</div>
+              <div className="crypto-symbol">{crypto.id.toUpperCase()}</div>
+            </div>
+            <div className="crypto-price-info">
+              <div className="price">${crypto.price.toLocaleString()}</div>
+              <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderTrade = () => (
+    <div className="trade-tab">
+      <div className="trade-header">
+        <h2>Trade</h2>
+        <p>Select a cryptocurrency to start trading</p>
+      </div>
+      
+      <div className="featured-cryptos">
+        <h3>Featured Pairs</h3>
+        <div className="crypto-grid">
+          {cryptoData.slice(0, 4).map(crypto => (
+            <div key={crypto.id} className="crypto-item">
+              <img src={`https://cryptoicons.org/api/icon/${crypto.id}/32`} alt={crypto.name} className="crypto-icon" />
+              <div className="crypto-details">
+                <div className="crypto-name">{crypto.name}</div>
+                <div className="price">${crypto.price.toLocaleString()}</div>
+                <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                  {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+                </div>
+              </div>
+              <button 
+                className="trade-btn"
+                onClick={() => {
+                  setSelectedCrypto(crypto);
+                  setShowTrade(true);
+                }}
+              >
+                Trade
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderMenu = () => (
+    <div className="menu-tab">
+      <div className="menu-header">
+        <div className="user-profile">
+          <div className="profile-avatar">
+            {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+          </div>
+          <div className="profile-info">
+            <h3>{userName || user.email?.split('@')[0]}</h3>
+            <p>Verified User</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="menu-sections">
+        <div className="menu-section">
+          <h4>Account</h4>
+          <div className="menu-items">
+            <div className="menu-item" onClick={() => setShowProfileSettings(true)}>
+              <span className="menu-icon">👤</span>
+              <span>Profile Settings</span>
+              <span className="arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔒</span>
+              <span>Security</span>
+              <span className="arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">📊</span>
+              <span>Trading History</span>
+              <span className="arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h4>Support</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">💬</span>
+              <span>Customer Support</span>
+              <span className="arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">❓</span>
+              <span>Help Center</span>
+              <span className="arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">📞</span>
+              <span>Contact Us</span>
+              <span className="arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h4>Settings</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">🌙</span>
+              <span>Dark Mode</span>
+              <div className="toggle active"></div>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔔</span>
+              <span>Notifications</span>
+              <div className="toggle"></div>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🌍</span>
+              <span>Language</span>
+              <span className="arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <div className="menu-items">
+            <div className="menu-item logout" onClick={() => signOut(auth)}>
+              <span className="menu-icon">🚪</span>
+              <span>Logout</span>
+              <span className="arrow">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="App">
-      <header className="app-nav">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <h1>⚡ Eloncrypto Exchange</h1>
-          <div className="nav-info">
-            <span>💰 ${balance.toLocaleString()}</span>
-            <span>👤 {user.email}</span>
-            <button onClick={() => signOut(auth)}>Sign Out</button>
+    <div className="App bybit-style">
+      <header className="app-header">
+        <div className="header-content">
+          <h1>Eloncrypto</h1>
+          <div className="balance-display">
+            ${balance.toLocaleString()}
           </div>
         </div>
       </header>
 
       <main className="main-content">
-        <div className="dashboard">
-          <div className="portfolio-section">
-            <h2>📊 Your Portfolio</h2>
-            <div className="portfolio-grid">
-              {portfolio.length > 0 ? (
-                portfolio.map(asset => {
-                  const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
-                  const currentValue = asset.amount * currentPrice;
-                  const profit = currentValue - (asset.amount * asset.purchasePrice);
-                  const profitPercentage = ((profit / (asset.amount * asset.purchasePrice)) * 100).toFixed(2);
-                  return (
-                    <div key={asset.id} className="portfolio-item">
-                      <h3>{asset.cryptoName}</h3>
-                      <p>Holdings: {asset.amount.toFixed(6)} coins</p>
-                      <p>Current Value: ${currentValue.toLocaleString()}</p>
-                      <p className={profit >= 0 ? 'profit' : 'loss'}>
-                        {profit >= 0 ? '+' : ''}${profit.toFixed(2)} ({profit >= 0 ? '+' : ''}{profitPercentage}%)
-                      </p>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="empty-portfolio">
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📈</div>
-                  <h3 style={{ color: 'white', marginBottom: '12px' }}>Start Your Crypto Journey</h3>
-                  <p>Your portfolio is empty. Begin trading to build your cryptocurrency portfolio!</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="crypto-section">
-            <h2>🌍 Live Market</h2>
-            <div className="crypto-grid">
-              {cryptoData.map(crypto => (
-                <div key={crypto.id} className="crypto-item">
-                  <h3>
-                    {crypto.name === 'Bitcoin' && '₿'} 
-                    {crypto.name === 'Ethereum' && 'Ξ'} 
-                    {crypto.name === 'Cardano' && '₳'} 
-                    {crypto.name === 'Polkadot' && '●'} 
-                    {crypto.name === 'Chainlink' && '🔗'} 
-                    {crypto.name}
-                  </h3>
-                  <p className="price">${crypto.price.toLocaleString()}</p>
-                  <p className={crypto.change >= 0 ? 'positive' : 'negative'}>
-                    {crypto.change >= 0 ? '📈 +' : '📉 '}{Math.abs(crypto.change).toFixed(2)}% (24h)
-                  </p>
-                  <button 
-                    className="trade-btn"
-                    onClick={() => {
-                      setSelectedCrypto(crypto);
-                      setShowTrade(true);
-                    }}
-                  >
-                    🚀 Trade Now
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="transactions-section">
-            <h2>📋 Transaction History</h2>
-            <div className="transactions-list">
-              {transactions.length > 0 ? (
-                transactions.slice(0, 5).map(tx => (
-                  <div key={tx.id} className="transaction-item">
-                    <span className={`transaction-type ${tx.type}`}>
-                      {tx.type === 'buy' ? '🟢 BUY' : '🔴 SELL'}
-                    </span>
-                    <span style={{ fontWeight: '600', color: 'white' }}>{tx.cryptoName}</span>
-                    <span style={{ color: '#94a3b8' }}>{tx.amount.toFixed(6)}</span>
-                    <span style={{ fontWeight: '700', color: 'white' }}>${tx.total.toLocaleString()}</span>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-                  <p>No transactions yet. Start trading to see your history!</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="action-buttons">
-          <button className="action-btn deposit" onClick={() => setShowDeposit(true)}>
-            💳 Add Funds
-          </button>
-          <button className="action-btn withdraw" onClick={() => setShowWithdraw(true)}>
-            💸 Withdraw
-          </button>
-        </div>
+        {activeTab === 'home' && renderHome()}
+        {activeTab === 'assets' && renderAssets()}
+        {activeTab === 'markets' && renderMarkets()}
+        {activeTab === 'trade' && renderTrade()}
+        {activeTab === 'menu' && renderMenu()}
       </main>
+
+      <nav className="bottom-navigation">
+        <div 
+          className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
+          onClick={() => setActiveTab('home')}
+        >
+          <span className="nav-icon">🏠</span>
+          <span className="nav-label">Home</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`}
+          onClick={() => setActiveTab('assets')}
+        >
+          <span className="nav-icon">💰</span>
+          <span className="nav-label">Assets</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'markets' ? 'active' : ''}`}
+          onClick={() => setActiveTab('markets')}
+        >
+          <span className="nav-icon">📈</span>
+          <span className="nav-label">Markets</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'trade' ? 'active' : ''}`}
+          onClick={() => setActiveTab('trade')}
+        >
+          <span className="nav-icon">⚡</span>
+          <span className="nav-label">Trade</span>
+        </div>
+        <div 
+          className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`}
+          onClick={() => setActiveTab('menu')}
+        >
+          <span className="nav-icon">☰</span>
+          <span className="nav-label">Menu</span>
+        </div>
+      </nav>
 
       {showTrade && selectedCrypto && (
         <div className="modal">
@@ -780,6 +1072,81 @@ function MainApp() {
           </div>
         </div>
       )}
+
+      {showProfileSettings && (
+        <div className="modal-overlay">
+          <div className="modal profile-modal">
+            <div className="modal-header">
+              <h3>Profile Settings</h3>
+              <button className="close-btn" onClick={() => setShowProfileSettings(false)}>×</button>
+            </div>
+            
+            <div className="profile-picture-section">
+              <div className="profile-picture-preview">
+                <div className="default-avatar">
+                  {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                </div>
+              </div>
+              <label className="upload-btn">
+                Choose Photo
+                <input type="file" className="file-input" accept="image/*" />
+              </label>
+            </div>
+
+            <div className="form-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="Enter your full name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                value={user.email}
+                disabled
+                style={{ opacity: 0.6, cursor: 'not-allowed' }}
+              />
+              <small>Email cannot be changed</small>
+            </div>
+
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input
+                type="tel"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            <div className="form-actions">
+              <button className="save-btn">Save Changes</button>
+              <button className="cancel-btn" onClick={() => setShowProfileSettings(false)}>Cancel</button>
+            </div>
+
+            <div className="password-section">
+              <h4>Change Password</h4>
+              <button className="change-password-btn">Change Password</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="whatsapp-support">
+        <a 
+          href="https://wa.me/1234567890?text=Hello, I need support with my Eloncrypto account" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="whatsapp-btn"
+        >
+          <span className="whatsapp-icon">💬</span>
+        </a>
+      </div>
     </div>
   );
 }
