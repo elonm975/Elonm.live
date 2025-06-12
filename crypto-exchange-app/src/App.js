@@ -76,6 +76,12 @@ function MainApp() {
   const [tradeAmount, setTradeAmount] = useState('');
   const [showTrade, setShowTrade] = useState(false);
 
+  // Navigation and UI state - moved before early returns
+  const [activeTab, setActiveTab] = useState('home');
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
   const bankDetails = {
@@ -583,12 +589,6 @@ function MainApp() {
       </div>
     );
   }
-
-  // State for navigation
-  const [activeTab, setActiveTab] = useState('home');
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userPhone, setUserPhone] = useState('');
 
   const totalPortfolioValue = portfolio.reduce((total, asset) => {
     const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
