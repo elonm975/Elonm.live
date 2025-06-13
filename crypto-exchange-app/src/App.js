@@ -82,6 +82,11 @@ function MainApp() {
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [fingerprintEnabled, setFingerprintEnabled] = useState(false);
+  const [faceIdEnabled, setFaceIdEnabled] = useState(false);
 
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -90,6 +95,97 @@ function MainApp() {
     accountNumber: "1234567890",
     bankName: "Crypto Bank",
     routingNumber: "021000021"
+  };
+
+  // Language data
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'zh', name: '中文', flag: '🇨🇳' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'ko', name: '한국어', flag: '🇰🇷' },
+    { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+    { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+    { code: 'pt', name: 'Português', flag: '🇧🇷' },
+    { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+    { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+    { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+    { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+    { code: 'th', name: 'ไทย', flag: '🇹🇭' },
+    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
+    { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
+    { code: 'ms', name: 'Bahasa Melayu', flag: '🇲🇾' },
+    { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+    { code: 'uk', name: 'Українська', flag: '🇺🇦' }
+  ];
+
+  // Biometric authentication functions
+  const enableFingerprint = async () => {
+    try {
+      if ('navigator' in window && 'credentials' in navigator) {
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            rp: { name: "Eloncrypto Exchange" },
+            user: {
+              id: new TextEncoder().encode(user.uid),
+              name: user.email,
+              displayName: userName || user.email
+            },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+            authenticatorSelection: {
+              authenticatorAttachment: "platform",
+              userVerification: "required"
+            }
+          }
+        });
+        
+        if (credential) {
+          setFingerprintEnabled(true);
+          alert('Fingerprint authentication enabled successfully!');
+        }
+      } else {
+        alert('Biometric authentication is not supported on this device');
+      }
+    } catch (error) {
+      console.error('Fingerprint setup failed:', error);
+      alert('Failed to set up fingerprint authentication. Please try again.');
+    }
+  };
+
+  const enableFaceId = async () => {
+    try {
+      if ('navigator' in window && 'credentials' in navigator) {
+        const credential = await navigator.credentials.create({
+          publicKey: {
+            challenge: new Uint8Array(32),
+            rp: { name: "Eloncrypto Exchange" },
+            user: {
+              id: new TextEncoder().encode(user.uid),
+              name: user.email,
+              displayName: userName || user.email
+            },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+            authenticatorSelection: {
+              authenticatorAttachment: "platform",
+              userVerification: "required"
+            }
+          }
+        });
+        
+        if (credential) {
+          setFaceIdEnabled(true);
+          alert('Face ID authentication enabled successfully!');
+        }
+      } else {
+        alert('Biometric authentication is not supported on this device');
+      }
+    } catch (error) {
+      console.error('Face ID setup failed:', error);
+      alert('Failed to set up Face ID authentication. Please try again.');
+    }
   };
 
   useEffect(() => {
@@ -966,10 +1062,34 @@ function MainApp() {
               <span>Notifications</span>
               <div className="toggle"></div>
             </div>
-            <div className="menu-item">
+            <div className="menu-item" onClick={() => setShowLanguageModal(true)}>
               <span className="menu-icon">🌍</span>
               <span>Language</span>
+              <div className="language-display">
+                {languages.find(lang => lang.code === selectedLanguage)?.flag} {languages.find(lang => lang.code === selectedLanguage)?.name}
+              </div>
               <span className="arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="menu-section">
+          <h4>Biometric Security</h4>
+          <div className="menu-items">
+            <div className="menu-item" onClick={enableFingerprint}>
+              <span className="menu-icon">👆</span>
+              <span>Fingerprint Login</span>
+              <div className={`toggle ${fingerprintEnabled ? 'active' : ''}`}></div>
+            </div>
+            <div className="menu-item" onClick={enableFaceId}>
+              <span className="menu-icon">👤</span>
+              <span>Face ID Login</span>
+              <div className={`toggle ${faceIdEnabled ? 'active' : ''}`}></div>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔐</span>
+              <span>2FA Authentication</span>
+              <div className="toggle"></div>
             </div>
           </div>
         </div>
@@ -1191,6 +1311,36 @@ function MainApp() {
                 <h4>Security Settings</h4>
                 <button className="change-password-btn">Change Password</button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLanguageModal && (
+        <div className="modal-overlay">
+          <div className="modal language-modal">
+            <div className="modal-header">
+              <h3>Select Language</h3>
+              <button className="close-btn" onClick={() => setShowLanguageModal(false)}>×</button>
+            </div>
+            
+            <div className="language-list">
+              {languages.map((language) => (
+                <div 
+                  key={language.code}
+                  className={`language-item ${selectedLanguage === language.code ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelectedLanguage(language.code);
+                    setShowLanguageModal(false);
+                  }}
+                >
+                  <span className="language-flag">{language.flag}</span>
+                  <span className="language-name">{language.name}</span>
+                  {selectedLanguage === language.code && (
+                    <span className="checkmark">✓</span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
