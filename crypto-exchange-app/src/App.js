@@ -853,11 +853,15 @@ function MainApp() {
 </div>
         </div>
 
-      <div className="recent-activity">
-        <h3>Recent Activity</h3>
-        <div className="transactions-list">
-          {transactions.slice(0, 3).map(tx => (
-            <div key={tx.id} className="transaction-item">
+        <div className="recent-activity">
+          <h3>Recent Activity</h3>
+          <div className="transactions-list">
+            {transactions.slice(0, 3).map(tx => (
+              <div key={tx.id} className="transaction-item"></div>
+            ))}
+          </div>
+        </div>
+      </div>
               <span className={`type-badge ${tx.type}`}>{tx.type.toUpperCase()}</span>
               <div className="transaction-details">
                 <div className="crypto-name">{tx.cryptoName}</div>
@@ -976,7 +980,7 @@ function MainApp() {
     const filteredCryptos = cryptoData.filter(crypto =>
       crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      crypto.id.toLowerCase().includes(searchQuery.toLowerCase())
+      crypto.id.toLowerCase().includes(searchQuery.toLowerCase())y.toLowerCase())
     );
 
     const totalVolume = cryptoData.reduce((total, crypto) => total + (crypto.volume || 0), 0);
