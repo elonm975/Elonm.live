@@ -1003,9 +1003,11 @@
 .crypto-item {
   display: flex;
   align-items: center;
-  padding: 16px 20px;
-  background: #1e1e1e;
-  cursor: pointer;
+  padding: 12px;
+  background: #2d2d2d;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #333;
   transition: background-color 0.2s ease;  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -2784,4 +2786,8 @@
 .resend-btn:hover {
   background: #4CAF50;
   color: white;
+}
+/* Home Tab */
+.home-tab {
+  padding: 0;
 }

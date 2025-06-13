@@ -64,7 +64,7 @@ function MainApp() {
   const [resetEmailSent, setResetEmailSent] = useState(false);
 
   // Portfolio state
-  const [balance, setBalance] = useState(10000);
+  const [balance, setBalance] = useState(0);
   const [portfolio, setPortfolio] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [showDeposit, setShowDeposit] = useState(false);
@@ -187,7 +187,7 @@ function MainApp() {
           attestation: "direct"
         }
       });
-      
+
       if (credential) {
         setFingerprintEnabled(true);
         localStorage.setItem('fingerprintEnabled', 'true');
@@ -196,7 +196,7 @@ function MainApp() {
     } catch (error) {
       console.error('Fingerprint setup failed:', error);
       let errorMessage = 'Failed to set up fingerprint authentication.';
-      
+
       if (error.name === 'NotSupportedError') {
         errorMessage = 'Fingerprint authentication is not supported on this device.';
       } else if (error.name === 'SecurityError') {
@@ -206,7 +206,7 @@ function MainApp() {
       } else if (error.name === 'AbortError') {
         errorMessage = 'Authentication was cancelled.';
       }
-      
+
       showNotification('Fingerprint Authentication Failed', errorMessage, 'error');
     }
   };
@@ -255,7 +255,7 @@ function MainApp() {
           attestation: "direct"
         }
       });
-      
+
       if (credential) {
         setFaceIdEnabled(true);
         localStorage.setItem('faceIdEnabled', 'true');
@@ -264,7 +264,7 @@ function MainApp() {
     } catch (error) {
       console.error('Face ID setup failed:', error);
       let errorMessage = 'Failed to set up Face ID authentication.';
-      
+
       if (error.name === 'NotSupportedError') {
         errorMessage = 'Face ID authentication is not supported on this device.';
       } else if (error.name === 'SecurityError') {
@@ -274,7 +274,7 @@ function MainApp() {
       } else if (error.name === 'AbortError') {
         errorMessage = 'Authentication was cancelled.';
       }
-      
+
       showNotification('Face ID Authentication Failed', errorMessage, 'error');
     }
   };
@@ -284,13 +284,13 @@ function MainApp() {
       if (user) {
         setUser(user);
         await loadUserData(user.uid);
-        
+
         // Load saved biometric settings
         const savedFingerprint = localStorage.getItem('fingerprintEnabled') === 'true';
         const savedFaceId = localStorage.getItem('faceIdEnabled') === 'true';
         setFingerprintEnabled(savedFingerprint);
         setFaceIdEnabled(savedFaceId);
-        
+
         // Request notification permission
         requestNotificationPermission();
       } else {
@@ -338,19 +338,19 @@ function MainApp() {
       // Initialize user data if it doesn't exist
       const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
       const userSnapshot = await getDocs(userQuery);
-      
+
       if (userSnapshot.empty) {
         // Create user document if it doesn't exist
         await addDoc(collection(db, 'users'), {
           userId: userId,
           email: user?.email || '',
-          balance: 10000,
+          balance: 0,
           createdAt: new Date()
         });
-        setBalance(10000);
+        setBalance(0);
       } else {
         const userData = userSnapshot.docs[0].data();
-        setBalance(userData.balance || 10000);
+        setBalance(userData.balance || 0);
       }
 
       // Load portfolio with error handling
@@ -377,7 +377,7 @@ function MainApp() {
 
     } catch (error) {
       console.warn('Error loading user data, using defaults:', error);
-      setBalance(10000);
+      setBalance(0);
       setPortfolio([]);
       setTransactions([]);
     }
@@ -410,7 +410,7 @@ function MainApp() {
       await addDoc(collection(db, 'users'), {
         userId: userCredential.user.uid,
         email: email,
-        balance: 10000,
+        balance: 0,
         createdAt: new Date()
       });
       setShowSignup(false);
@@ -429,7 +429,7 @@ function MainApp() {
     // Validate email format on frontend - matches server validation
     const emailRegex = /^[a-zA-Z0-9._-]{1,1000}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const trimmedEmail = resetEmail?.trim();
-    
+
     if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
       setError('Please enter a valid email address');
       return;
@@ -487,7 +487,7 @@ function MainApp() {
       console.error('Error type:', typeof error);
       console.error('Error message:', error.message);
       console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-      
+
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         setError('Network error. Please check your connection and try again.');
       } else if (error.message.includes('Failed to fetch')) {
@@ -832,7 +832,6 @@ function MainApp() {
           <div className="total-balance-card">
             <div className="balance-header">
               <span className="balance-label">Total Balance</span>
-              <button className="eye-btn">👁</button>
             </div>
             <div className="balance-amount">${(balance + totalPortfolioValue).toLocaleString()}</div>
             <div className="balance-change">
@@ -851,7 +850,8 @@ function MainApp() {
             </div>
           </div>
         </div>
-      </div>
+</div>
+        </div>
 
       <div className="recent-activity">
         <h3>Recent Activity</h3>
@@ -879,7 +879,6 @@ function MainApp() {
           <div className="total-balance-card">
             <div className="balance-header">
               <span className="balance-label">Total Assets</span>
-              <button className="eye-btn">👁</button>
             </div>
             <div className="balance-amount">${(balance + totalPortfolioValue).toLocaleString()}</div>
             <div className="balance-breakdown">
@@ -894,7 +893,8 @@ function MainApp() {
             </div>
           </div>
         </div>
-      </div>
+</div>
+        </div>
 
       <div className="asset-actions">
         <button className="action-btn deposit-btn" onClick={() => setShowDeposit(true)}>
@@ -909,7 +909,8 @@ function MainApp() {
           <span className="btn-icon">🔄</span>
           Transfer
         </button>
-        <button className="action-btn buy-btn">
+        <button```
+ className="action-btn buy-btn">
           <span className="btn-icon">💰</span>
           Buy
         </button>
@@ -1089,7 +1090,7 @@ function MainApp() {
         <h2>Trade</h2>
         <p>Select a cryptocurrency to start trading</p>
       </div>
-      
+
       <div className="featured-cryptos">
         <h3>Featured Pairs</h3>
         <div className="crypto-grid">
@@ -1390,7 +1391,7 @@ function MainApp() {
               <h3>Profile Settings</h3>
               <button className="close-btn" onClick={() => setShowProfileSettings(false)}>×</button>
             </div>
-            
+
             <div className="profile-modal-content">
               <div className="profile-picture-section">
                 <div className="profile-picture-preview">
@@ -1455,7 +1456,7 @@ function MainApp() {
               <h3>Select Language</h3>
               <button className="close-btn" onClick={() => setShowLanguageModal(false)}>×</button>
             </div>
-            
+
             <div className="language-list">
               {languages.map((language) => (
                 <div 
