@@ -81,6 +81,7 @@ function MainApp() {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -113,20 +114,25 @@ function MainApp() {
 
   const fetchCryptoData = async () => {
     try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,cardano,polkadot,chainlink&vs_currencies=usd&include_24hr_change=true');
-      const data = Object.entries(response.data).map(([id, info]) => ({
-        id,
-        name: id.charAt(0).toUpperCase() + id.slice(1),
-        price: info.usd,
-        change: info.usd_24h_change || 0
+      const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
+      const data = response.data.map(coin => ({
+        id: coin.id,
+        name: coin.name,
+        symbol: coin.symbol.toUpperCase(),
+        price: coin.current_price,
+        change: coin.price_change_percentage_24h || 0,
+        market_cap: coin.market_cap,
+        volume: coin.total_volume,
+        rank: coin.market_cap_rank,
+        image: coin.image
       }));
       setCryptoData(data);
     } catch (error) {
       console.error('Failed to fetch crypto data:', error);
       setCryptoData([
-        { id: 'bitcoin', name: 'Bitcoin', price: 45000, change: 2.5 },
-        { id: 'ethereum', name: 'Ethereum', price: 3000, change: -1.2 },
-        { id: 'cardano', name: 'Cardano', price: 0.5, change: 3.1 }
+        { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: 45000, change: 2.5, rank: 1 },
+        { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', price: 3000, change: -1.2, rank: 2 },
+        { id: 'cardano', name: 'Cardano', symbol: 'ADA', price: 0.5, change: 3.1, rank: 3 }
       ]);
     }
   };
@@ -742,65 +748,117 @@ function MainApp() {
     </div>
   );
 
-  const renderMarkets = () => (
-    <div className="markets-tab">
-      <div className="markets-header">
-        <h2>Markets</h2>
-        <div className="market-stats">
-          <div className="stat-item">
-            <span className="stat-label">24h Vol</span>
-            <span className="stat-value">$2.1B</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Market Cap</span>
-            <span className="stat-value">$1.2T</span>
-          </div>
-        </div>
-      </div>
+  const renderMarkets = () => {
+    const filteredCryptos = cryptoData.filter(crypto =>
+      crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      crypto.id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-      <div className="market-controls">
-        <div className="market-tabs">
-          <button className="market-tab-btn active">Spot</button>
-          <button className="market-tab-btn">Futures</button>
-          <button className="market-tab-btn">Options</button>
-        </div>
-        <div className="market-filters">
-          <div className="filter-buttons">
-            <button className="filter-btn active">All</button>
-            <button className="filter-btn">Favorites</button>
-            <button className="filter-btn">Innovation</button>
-            <button className="filter-btn">DeFi</button>
-          </div>
-          <div className="search-container">
-            <input 
-              type="text" 
-              placeholder="Search coins..." 
-              className="market-search"
-            />
-          </div>
-        </div>
-      </div>
+    const totalVolume = cryptoData.reduce((total, crypto) => total + (crypto.volume || 0), 0);
+    const totalMarketCap = cryptoData.reduce((total, crypto) => total + (crypto.market_cap || 0), 0);
 
-      <div className="crypto-list">
-        {cryptoData.map((crypto, index) => (
-          <div key={crypto.id} className="crypto-item">
-            <span className="crypto-rank">{index + 1}</span>
-            <img src={`https://cryptoicons.org/api/icon/${crypto.id}/32`} alt={crypto.name} className="crypto-icon" />
-            <div className="crypto-details">
-              <div className="crypto-name">{crypto.name}</div>
-              <div className="crypto-symbol">{crypto.id.toUpperCase()}</div>
+    return (
+      <div className="markets-tab">
+        <div className="markets-header">
+          <h2>Markets</h2>
+          <div className="market-stats">
+            <div className="stat-item">
+              <span className="stat-label">24h Vol</span>
+              <span className="stat-value">${(totalVolume / 1000000000).toFixed(1)}B</span>
             </div>
-            <div className="crypto-price-info">
-              <div className="price">${crypto.price.toLocaleString()}</div>
-              <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
-                {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+            <div className="stat-item">
+              <span className="stat-label">Market Cap</span>
+              <span className="stat-value">${(totalMarketCap / 1000000000000).toFixed(1)}T</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Coins</span>
+              <span className="stat-value">{filteredCryptos.length}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="market-controls">
+          <div className="market-tabs">
+            <button className="market-tab-btn active">Spot</button>
+            <button className="market-tab-btn">Futures</button>
+            <button className="market-tab-btn">Options</button>
+          </div>
+          <div className="market-filters">
+            <div className="filter-buttons">
+              <button className="filter-btn active">All</button>
+              <button className="filter-btn">Favorites</button>
+              <button className="filter-btn">Innovation</button>
+              <button className="filter-btn">DeFi</button>
+            </div>
+            <div className="search-container">
+              <input 
+                type="text" 
+                placeholder="Search coins..." 
+                className="market-search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button 
+                  className="clear-search"
+                  onClick={() => setSearchQuery('')}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="crypto-list">
+          {filteredCryptos.length > 0 ? (
+            filteredCryptos.map((crypto) => (
+              <div key={crypto.id} className="crypto-item">
+                <span className="crypto-rank">#{crypto.rank || 'N/A'}</span>
+                <img 
+                  src={crypto.image || `https://cryptoicons.org/api/icon/${crypto.id}/32`} 
+                  alt={crypto.name} 
+                  className="crypto-icon"
+                  onError={(e) => {
+                    e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
+                  }}
+                />
+                <div className="crypto-details">
+                  <div className="crypto-name">{crypto.name}</div>
+                  <div className="crypto-symbol">{crypto.symbol}</div>
+                </div>
+                <div className="crypto-price-info">
+                  <div className="price">
+                    ${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}
+                  </div>
+                  <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                    {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+                  </div>
+                </div>
+                <button 
+                  className="trade-quick-btn"
+                  onClick={() => {
+                    setSelectedCrypto(crypto);
+                    setShowTrade(true);
+                  }}
+                >
+                  Trade
+                </button>
               </div>
+            ))
+          ) : (
+            <div className="no-results">
+              <p>No cryptocurrencies found matching "{searchQuery}"</p>
+              <button onClick={() => setSearchQuery('')} className="clear-search-btn">
+                Clear Search
+              </button>
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderTrade = () => (
     <div className="trade-tab">
