@@ -1081,57 +1081,58 @@ function MainApp() {
               <button className="close-btn" onClick={() => setShowProfileSettings(false)}>×</button>
             </div>
             
-            <div className="profile-picture-section">
-              <div className="profile-picture-preview">
-                <div className="default-avatar">
-                  {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+            <div className="profile-modal-content">
+              <div className="profile-picture-section">
+                <div className="profile-picture-preview">
+                  <div className="default-avatar">
+                    {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                  </div>
                 </div>
+                <label className="upload-btn">
+                  Choose Photo
+                  <input type="file" className="file-input" accept="image/*" />
+                </label>
               </div>
-              <label className="upload-btn">
-                Choose Photo
-                <input type="file" className="file-input" accept="image/*" />
-              </label>
-            </div>
 
-            <div className="form-group">
-              <label>Full Name</label>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter your full name"
-              />
-            </div>
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Enter your full name"
+                />
+              </div>
 
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={user.email}
-                disabled
-                style={{ opacity: 0.6, cursor: 'not-allowed' }}
-              />
-              <small>Email cannot be changed</small>
-            </div>
+              <div className="form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  value={user.email}
+                  disabled
+                />
+                <small>Email cannot be changed</small>
+              </div>
 
-            <div className="form-group">
-              <label>Phone Number</label>
-              <input
-                type="tel"
-                value={userPhone}
-                onChange={(e) => setUserPhone(e.target.value)}
-                placeholder="Enter your phone number"
-              />
-            </div>
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  value={userPhone}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  placeholder="Enter your phone number"
+                />
+              </div>
 
-            <div className="form-actions">
-              <button className="save-btn">Save Changes</button>
-              <button className="cancel-btn" onClick={() => setShowProfileSettings(false)}>Cancel</button>
-            </div>
+              <div className="form-actions">
+                <button className="save-btn">Save Changes</button>
+                <button className="cancel-btn" onClick={() => setShowProfileSettings(false)}>Cancel</button>
+              </div>
 
-            <div className="password-section">
-              <h4>Change Password</h4>
-              <button className="change-password-btn">Change Password</button>
+              <div className="password-section">
+                <h4>Security Settings</h4>
+                <button className="change-password-btn">Change Password</button>
+              </div>
             </div>
           </div>
         </div>
