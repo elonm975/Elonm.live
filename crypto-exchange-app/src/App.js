@@ -121,70 +121,161 @@ function MainApp() {
     { code: 'uk', name: 'Українська', flag: '🇺🇦' }
   ];
 
-  // Biometric authentication functions
+  // Enhanced notification system
+  const showNotification = (title, message, type = 'info') => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, {
+        body: message,
+        icon: '/favicon.ico'
+      });
+    } else {
+      // Fallback to alert for now, can be replaced with custom toast
+      alert(`${title}: ${message}`);
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      return permission === 'granted';
+    }
+    return false;
+  };
+
+  // Enhanced biometric authentication functions
   const enableFingerprint = async () => {
     try {
-      if ('navigator' in window && 'credentials' in navigator) {
-        const credential = await navigator.credentials.create({
-          publicKey: {
-            challenge: new Uint8Array(32),
-            rp: { name: "Eloncrypto Exchange" },
-            user: {
-              id: new TextEncoder().encode(user.uid),
-              name: user.email,
-              displayName: userName || user.email
-            },
-            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-            authenticatorSelection: {
-              authenticatorAttachment: "platform",
-              userVerification: "required"
-            }
-          }
-        });
-        
-        if (credential) {
-          setFingerprintEnabled(true);
-          alert('Fingerprint authentication enabled successfully!');
+      // Check if WebAuthn is supported
+      if (!window.PublicKeyCredential) {
+        showNotification('Fingerprint Authentication', 'WebAuthn is not supported on this device. Please use a modern browser or device.', 'error');
+        return;
+      }
+
+      // Check if platform authenticator is available
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (!available) {
+        showNotification('Fingerprint Authentication', 'No biometric authenticator available on this device.', 'error');
+        return;
+      }
+
+      // Generate random challenge
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: challenge,
+          rp: { 
+            name: "Eloncrypto Exchange",
+            id: window.location.hostname
+          },
+          user: {
+            id: new TextEncoder().encode(user.uid),
+            name: user.email,
+            displayName: userName || user.email
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: "public-key" },
+            { alg: -257, type: "public-key" }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required",
+            requireResidentKey: false
+          },
+          timeout: 60000,
+          attestation: "direct"
         }
-      } else {
-        alert('Biometric authentication is not supported on this device');
+      });
+      
+      if (credential) {
+        setFingerprintEnabled(true);
+        localStorage.setItem('fingerprintEnabled', 'true');
+        showNotification('Success', 'Fingerprint authentication enabled successfully!', 'success');
       }
     } catch (error) {
       console.error('Fingerprint setup failed:', error);
-      alert('Failed to set up fingerprint authentication. Please try again.');
+      let errorMessage = 'Failed to set up fingerprint authentication.';
+      
+      if (error.name === 'NotSupportedError') {
+        errorMessage = 'Fingerprint authentication is not supported on this device.';
+      } else if (error.name === 'SecurityError') {
+        errorMessage = 'Security error: Please ensure you are using HTTPS.';
+      } else if (error.name === 'NotAllowedError') {
+        errorMessage = 'Permission denied. Please allow biometric access.';
+      } else if (error.name === 'AbortError') {
+        errorMessage = 'Authentication was cancelled.';
+      }
+      
+      showNotification('Fingerprint Authentication Failed', errorMessage, 'error');
     }
   };
 
   const enableFaceId = async () => {
     try {
-      if ('navigator' in window && 'credentials' in navigator) {
-        const credential = await navigator.credentials.create({
-          publicKey: {
-            challenge: new Uint8Array(32),
-            rp: { name: "Eloncrypto Exchange" },
-            user: {
-              id: new TextEncoder().encode(user.uid),
-              name: user.email,
-              displayName: userName || user.email
-            },
-            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-            authenticatorSelection: {
-              authenticatorAttachment: "platform",
-              userVerification: "required"
-            }
-          }
-        });
-        
-        if (credential) {
-          setFaceIdEnabled(true);
-          alert('Face ID authentication enabled successfully!');
+      // Check if WebAuthn is supported
+      if (!window.PublicKeyCredential) {
+        showNotification('Face ID Authentication', 'WebAuthn is not supported on this device. Please use a modern browser or device.', 'error');
+        return;
+      }
+
+      // Check if platform authenticator is available
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      if (!available) {
+        showNotification('Face ID Authentication', 'No biometric authenticator available on this device.', 'error');
+        return;
+      }
+
+      // Generate random challenge
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: challenge,
+          rp: { 
+            name: "Eloncrypto Exchange",
+            id: window.location.hostname
+          },
+          user: {
+            id: new TextEncoder().encode(user.uid),
+            name: user.email,
+            displayName: userName || user.email
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: "public-key" },
+            { alg: -257, type: "public-key" }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required",
+            requireResidentKey: false
+          },
+          timeout: 60000,
+          attestation: "direct"
         }
-      } else {
-        alert('Biometric authentication is not supported on this device');
+      });
+      
+      if (credential) {
+        setFaceIdEnabled(true);
+        localStorage.setItem('faceIdEnabled', 'true');
+        showNotification('Success', 'Face ID authentication enabled successfully!', 'success');
       }
     } catch (error) {
       console.error('Face ID setup failed:', error);
-      alert('Failed to set up Face ID authentication. Please try again.');
+      let errorMessage = 'Failed to set up Face ID authentication.';
+      
+      if (error.name === 'NotSupportedError') {
+        errorMessage = 'Face ID authentication is not supported on this device.';
+      } else if (error.name === 'SecurityError') {
+        errorMessage = 'Security error: Please ensure you are using HTTPS.';
+      } else if (error.name === 'NotAllowedError') {
+        errorMessage = 'Permission denied. Please allow biometric access.';
+      } else if (error.name === 'AbortError') {
+        errorMessage = 'Authentication was cancelled.';
+      }
+      
+      showNotification('Face ID Authentication Failed', errorMessage, 'error');
     }
   };
 
@@ -193,6 +284,15 @@ function MainApp() {
       if (user) {
         setUser(user);
         await loadUserData(user.uid);
+        
+        // Load saved biometric settings
+        const savedFingerprint = localStorage.getItem('fingerprintEnabled') === 'true';
+        const savedFaceId = localStorage.getItem('faceIdEnabled') === 'true';
+        setFingerprintEnabled(savedFingerprint);
+        setFaceIdEnabled(savedFaceId);
+        
+        // Request notification permission
+        requestNotificationPermission();
       } else {
         setUser(null);
       }
@@ -235,24 +335,51 @@ function MainApp() {
 
   const loadUserData = async (userId) => {
     try {
-      const portfolioQuery = query(collection(db, 'portfolios'), where('userId', '==', userId));
-      const portfolioSnapshot = await getDocs(portfolioQuery);
-      const portfolioData = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setPortfolio(portfolioData);
-
-      const transactionsQuery = query(collection(db, 'transactions'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
-      const transactionsSnapshot = await getDocs(transactionsQuery);
-      const transactionsData = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTransactions(transactionsData);
-
+      // Initialize user data if it doesn't exist
       const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
       const userSnapshot = await getDocs(userQuery);
-      if (!userSnapshot.empty) {
+      
+      if (userSnapshot.empty) {
+        // Create user document if it doesn't exist
+        await addDoc(collection(db, 'users'), {
+          userId: userId,
+          email: user?.email || '',
+          balance: 10000,
+          createdAt: new Date()
+        });
+        setBalance(10000);
+      } else {
         const userData = userSnapshot.docs[0].data();
         setBalance(userData.balance || 10000);
       }
+
+      // Load portfolio with error handling
+      try {
+        const portfolioQuery = query(collection(db, 'portfolios'), where('userId', '==', userId));
+        const portfolioSnapshot = await getDocs(portfolioQuery);
+        const portfolioData = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setPortfolio(portfolioData);
+      } catch (portfolioError) {
+        console.warn('Portfolio data not accessible, using empty portfolio:', portfolioError);
+        setPortfolio([]);
+      }
+
+      // Load transactions with error handling
+      try {
+        const transactionsQuery = query(collection(db, 'transactions'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
+        const transactionsSnapshot = await getDocs(transactionsQuery);
+        const transactionsData = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setTransactions(transactionsData);
+      } catch (transactionError) {
+        console.warn('Transaction data not accessible, using empty transactions:', transactionError);
+        setTransactions([]);
+      }
+
     } catch (error) {
-      console.error('Error loading user data:', error);
+      console.warn('Error loading user data, using defaults:', error);
+      setBalance(10000);
+      setPortfolio([]);
+      setTransactions([]);
     }
   };
 
@@ -1057,10 +1184,15 @@ function MainApp() {
               <span>Dark Mode</span>
               <div className="toggle active"></div>
             </div>
-            <div className="menu-item">
+            <div className="menu-item" onClick={async () => {
+              const granted = await requestNotificationPermission();
+              if (granted) {
+                showNotification('Notifications Enabled', 'You will now receive push notifications');
+              }
+            }}>
               <span className="menu-icon">🔔</span>
               <span>Notifications</span>
-              <div className="toggle"></div>
+              <div className={`toggle ${Notification.permission === 'granted' ? 'active' : ''}`}></div>
             </div>
             <div className="menu-item" onClick={() => setShowLanguageModal(true)}>
               <span className="menu-icon">🌍</span>
