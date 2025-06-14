@@ -1518,128 +1518,120 @@ function ResetPassword() {
 
   if (success) {
     return (
-      
-        
-          
-            
-            
-            
-            
-            
-            
-            
-            
-          
-        
+      <div className="bybit-login-page">
+        <div className="animated-background">
+          <div className="floating-shape shape-1"></div>
+          <div className="floating-shape shape-2"></div>
+          <div className="floating-shape shape-3"></div>
+          <div className="floating-shape shape-4"></div>
+          <div className="floating-shape shape-5"></div>
+          <div className="floating-shape shape-6"></div>
+          <div className="gradient-orb orb-1"></div>
+          <div className="gradient-orb orb-2"></div>
+          <div className="gradient-orb orb-3"></div>
+        </div>
 
-        
-          
-            
-              
-                
-                  
-                    ₿
-                  
-                  <h1>Eloncrypto</h1>
-                  
-                
-              
-            
+        <div className="login-container">
+          <div className="login-card">
+            <div className="login-header">
+              <div className="logo-container">
+                <div className="crypto-logo">
+                  <span className="logo-icon">₿</span>
+                </div>
+                <h1>Eloncrypto</h1>
+                <p className="tagline">Advanced Crypto Trading Platform</p>
+              </div>
+            </div>
 
-            
-              
-                
-                  
-                    ✅
-                  
+            <div className="auth-form-container">
+              <div className="auth-form modern">
+                <div className="reset-success">
+                  <div className="success-icon">✅</div>
                   <h2>Password Changed Successfully!</h2>
                   <p>Your password has been updated successfully.</p>
                   <p className="form-subtitle">You can now login with your new password.</p>
-                  
-                    
+                  <div className="form-actions">
+                    <button className="submit-btn" onClick={() => navigate('/')}>
                       Back to Login
-                    
-                  
-                
-              
-            
-          
-        
-      
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    
-      
-        
-          
-            
-            
-            
-            
-            
-            
-            
-            
-          
-        
+    <div className="bybit-login-page">
+      <div className="animated-background">
+        <div className="floating-shape shape-1"></div>
+        <div className="floating-shape shape-2"></div>
+        <div className="floating-shape shape-3"></div>
+        <div className="floating-shape shape-4"></div>
+        <div className="floating-shape shape-5"></div>
+        <div className="floating-shape shape-6"></div>
+        <div className="gradient-orb orb-1"></div>
+        <div className="gradient-orb orb-2"></div>
+        <div className="gradient-orb orb-3"></div>
+      </div>
 
-        
-          
-            
-              
-                
-                  
-                    ₿
-                  
-                  <h1>Eloncrypto</h1>
-                  
-                
-              
-            
+      <div className="login-container">
+        <div className="login-card">
+          <div className="login-header">
+            <div className="logo-container">
+              <div className="crypto-logo">
+                <span className="logo-icon">₿</span>
+              </div>
+              <h1>Eloncrypto</h1>
+              <p className="tagline">Advanced Crypto Trading Platform</p>
+            </div>
+          </div>
 
-            
-              
-                
-                  
-                    <h2>Create New Password</h2>
-                    Enter your new password below
-                    
-                      
-                        
-                          
-                          
-                          required
-                          
-                        
-                      
-                      
-                        
-                          
-                          
-                          required
-                          
-                        
-                      
-                    
-                    {error && }
-                    
-                      Reset Password
-                    
-                    
-                      
-                        ← Back to Login
-                      
-                    
-                  
-                
-              
-            
-          
-        
-      
-    
+          <div className="auth-form-container">
+            <div className="auth-form modern">
+              <form onSubmit={handleResetPassword} className="modern-form">
+                <h2>Create New Password</h2>
+                <p className="form-subtitle">Enter your new password below</p>
+                <div className="form-fields">
+                  <div className="input-group">
+                    <input
+                      type="password"
+                      placeholder="New Password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      className="modern-input"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <input
+                      type="password"
+                      placeholder="Confirm New Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      className="modern-input"
+                    />
+                  </div>
+                </div>
+                {error && <div className="error-message">{error}</div>}
+                <button type="submit" className="submit-btn">
+                  Reset Password
+                </button>
+                <div className="form-footer">
+                  <button type="button" className="back-btn" onClick={() => navigate('/')}>
+                    ← Back to Login
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
