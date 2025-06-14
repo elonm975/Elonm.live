@@ -850,18 +850,13 @@ function MainApp() {
             </div>
           </div>
         </div>
-</div>
-        </div>
-
-        <div className="recent-activity">
-          <h3>Recent Activity</h3>
-          <div className="transactions-list">
-            {transactions.slice(0, 3).map(tx => (
-              <div key={tx.id} className="transaction-item"></div>
-            ))}
-          </div>
-        </div>
       </div>
+
+      <div className="recent-activity">
+        <h3>Recent Activity</h3>
+        <div className="transactions-list">
+          {transactions.slice(0, 3).map(tx => (
+            <div key={tx.id} className="transaction-item">
               <span className={`type-badge ${tx.type}`}>{tx.type.toUpperCase()}</span>
               <div className="transaction-details">
                 <div className="crypto-name">{tx.cryptoName}</div>
