@@ -124,6 +124,12 @@ function MainApp() {
     { code: 'uk', name: 'Українська', flag: '🇺🇦' }
   ];
 
+  // Close welcome message handler
+  const closeWelcomeMessage = () => {
+    setShowWelcomeMessage(false);
+    localStorage.setItem(`welcomeSeen_${user.uid}`, 'true');
+  };
+
   // Enhanced notification system
   const showNotification = (title, message, type = 'info') => {
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -1851,6 +1857,9 @@ function MainApp() {
       {showWelcomeMessage && (
         <div className="welcome-overlay">
           <div className="welcome-message-container">
+            <button className="welcome-close-x" onClick={closeWelcomeMessage}>
+              ✕
+            </button>
             <div className="welcome-message-content">
               <div className="welcome-header">
                 <div className="elon-avatar">🚀</div>
@@ -1900,10 +1909,7 @@ function MainApp() {
               
               <button 
                 className="welcome-close-btn"
-                onClick={() => {
-                  setShowWelcomeMessage(false);
-                  localStorage.setItem(`welcomeSeen_${user.uid}`, 'true');
-                }}
+                onClick={closeWelcomeMessage}
               >
                 Start Trading 🚀
               </button>

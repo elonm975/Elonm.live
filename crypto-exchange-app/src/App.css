@@ -2041,9 +2041,35 @@
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
-  border: 2px solid #F0B90B;
+  border: 2px solid #10b981;
   animation: welcomeSlideUp 0.6s ease-out;
   position: relative;
+}
+
+.welcome-close-x {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid #10b981;
+  color: #10b981;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.welcome-close-x:hover {
+  background: #10b981;
+  color: #000;
+  transform: scale(1.1);
 }
 
 @keyframes welcomeSlideUp {
@@ -2072,7 +2098,7 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  background: linear-gradient(135deg, #10b981, #22c55e);
   border-radius: 50%;
   font-size: 36px;
   margin-bottom: 16px;
@@ -2088,7 +2114,7 @@
   margin: 0;
   font-size: 22px;
   font-weight: 700;
-  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  background: linear-gradient(135deg, #10b981, #22c55e);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2100,8 +2126,8 @@
 }
 
 .profit-highlight {
-  background: linear-gradient(135deg, rgba(240, 185, 11, 0.1), rgba(252, 213, 53, 0.1));
-  border: 1px solid rgba(240, 185, 11, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(34, 197, 94, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
@@ -2116,7 +2142,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(240, 185, 11, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(16, 185, 129, 0.1), transparent);
   animation: welcomeShine 3s linear infinite;
 }
 
@@ -2141,10 +2167,10 @@
 }
 
 .massive-profits {
-  color: #F0B90B;
+  color: #10b981;
   font-weight: 700;
   font-size: 18px;
-  text-shadow: 0 0 10px rgba(240, 185, 11, 0.5);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
 .platform-info {
@@ -2182,8 +2208,8 @@
 }
 
 .welcome-stats .stat {
-  background: rgba(240, 185, 11, 0.1);
-  border: 1px solid rgba(240, 185, 11, 0.3);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 12px;
   padding: 16px 12px;
   text-align: center;
@@ -2192,7 +2218,7 @@
 .stat-number {
   font-size: 20px;
   font-weight: 700;
-  color: #F0B90B;
+  color: #10b981;
   margin-bottom: 4px;
 }
 
@@ -2212,7 +2238,7 @@
 .welcome-close-btn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  background: linear-gradient(135deg, #10b981, #22c55e);
   color: #000;
   border: none;
   border-radius: 12px;
@@ -2220,13 +2246,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(240, 185, 11, 0.3);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
 }
 
 .welcome-close-btn:hover {
-  background: linear-gradient(135deg, #FCD535, #F0B90B);
+  background: linear-gradient(135deg, #22c55e, #10b981);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(240, 185, 11, 0.4);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
 }
 
 .all-trading-pairs {
