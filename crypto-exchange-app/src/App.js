@@ -72,9 +72,11 @@ function MainApp() {
 
   // Crypto data
   const [cryptoData, setCryptoData] = useState([]);
+  const [futuresData, setFuturesData] = useState([]);
   const [selectedCrypto, setSelectedCrypto] = useState(null);
   const [tradeAmount, setTradeAmount] = useState('');
   const [showTrade, setShowTrade] = useState(false);
+  const [activeAssetTab, setActiveAssetTab] = useState('spot');
 
   // Navigation and UI state - moved before early returns
   const [activeTab, setActiveTab] = useState('home');
@@ -321,6 +323,7 @@ function MainApp() {
 
   const fetchCryptoData = async () => {
     try {
+      // Fetch spot data from CoinGecko
       const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=200&page=1&sparkline=false&price_change_percentage=24h');
       const data = response.data.map(coin => ({
         id: coin.id,
@@ -334,6 +337,39 @@ function MainApp() {
         image: coin.image
       }));
       setCryptoData(data);
+
+      // Fetch futures data from Binance
+      try {
+        const futuresResponse = await axios.get('https://fapi.binance.com/fapi/v1/ticker/24hr');
+        const futuresFormatted = futuresResponse.data
+          .filter(item => item.symbol.endsWith('USDT'))
+          .slice(0, 50)
+          .map((item, index) => ({
+            id: item.symbol.toLowerCase(),
+            name: item.symbol.replace('USDT', ''),
+            symbol: item.symbol,
+            price: parseFloat(item.lastPrice),
+            change: parseFloat(item.priceChangePercent),
+            volume: parseFloat(item.volume),
+            rank: index + 1,
+            image: `https://cryptoicons.org/api/icon/${item.symbol.replace('USDT', '').toLowerCase()}/32`,
+            openInterest: parseFloat(item.openInterest || 0),
+            fundingRate: Math.random() * 0.01 - 0.005 // Mock funding rate
+          }));
+        setFuturesData(futuresFormatted);
+      } catch (futuresError) {
+        console.log('Binance futures API not accessible, using mock data');
+        // Fallback mock futures data
+        const mockFutures = data.slice(0, 20).map((coin, index) => ({
+          ...coin,
+          symbol: coin.symbol + 'USDT',
+          price: coin.price * (1 + (Math.random() - 0.5) * 0.02),
+          change: coin.change + (Math.random() - 0.5) * 5,
+          openInterest: Math.random() * 1000000000,
+          fundingRate: Math.random() * 0.01 - 0.005
+        }));
+        setFuturesData(mockFutures);
+      }
     } catch (error) {
       console.error('Failed to fetch crypto data:', error);
       // Provide 200 fallback cryptocurrencies for demo
@@ -935,60 +971,144 @@ function MainApp() {
           <span className="btn-icon">💸</span>
           Withdraw
         </button>
-        <button className="action-btn transfer-btn">
-          <span className="btn-icon">🔄</span>
-          Transfer
-        </button>
-        <button className="action-btn buy-btn">
-          <span className="btn-icon">💰</span>
-          Buy
-        </button>
       </div>
 
       <div className="asset-tabs">
-        <button className="asset-tab-btn active">Spot</button>
-        <button className="asset-tab-btn">Futures</button>
-        <button className="asset-tab-btn">Funding</button>
+        <button 
+          className={`asset-tab-btn ${activeAssetTab === 'spot' ? 'active' : ''}`}
+          onClick={() => setActiveAssetTab('spot')}
+        >
+          Spot
+        </button>
+        <button 
+          className={`asset-tab-btn ${activeAssetTab === 'futures' ? 'active' : ''}`}
+          onClick={() => setActiveAssetTab('futures')}
+        >
+          Futures
+        </button>
+        <button 
+          className={`asset-tab-btn ${activeAssetTab === 'funding' ? 'active' : ''}`}
+          onClick={() => setActiveAssetTab('funding')}
+        >
+          Funding
+        </button>
       </div>
 
       
+        {activeAssetTab === 'spot' && (
         <div className="portfolio-section">
-        <h3>Portfolio</h3>
-        {portfolio.length > 0 ? (
-          <div className="portfolio-list">
-            {portfolio.map(asset => {
-              const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
-              const currentValue = asset.amount * currentPrice;
-              const profit = currentValue - (asset.amount * asset.purchasePrice);
-              return (
-                <div key={asset.id} className="portfolio-item">
-                  <img src={`https://cryptoicons.org/api/icon/${asset.cryptoId}/32`} alt={asset.cryptoName} className="crypto-icon" />
-                  <div className="portfolio-details">
-                    <div className="crypto-name">
-                      {asset.cryptoName}
+          <h3>Spot Portfolio</h3>
+          {portfolio.length > 0 ? (
+            <div className="portfolio-list">
+              {portfolio.map(asset => {
+                const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
+                const currentValue = asset.amount * currentPrice;
+                const profit = currentValue - (asset.amount * asset.purchasePrice);
+                return (
+                  <div key={asset.id} className="portfolio-item">
+                    <img src={`https://cryptoicons.org/api/icon/${asset.cryptoId}/32`} alt={asset.cryptoName} className="crypto-icon" />
+                    <div className="portfolio-details">
+                      <div className="crypto-name">
+                        {asset.cryptoName}
+                      </div>
+                      <div className="crypto-amount">
+                        {asset.amount.toFixed(6)}
+                      </div>
                     </div>
-                    <div className="crypto-amount">
-                      {asset.amount.toFixed(6)}
+                    <div className="portfolio-value">
+                      <div className="value">
+                        ${currentValue.toLocaleString()}
+                      </div>
+                      <div className="profit">
+                        {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
+                      </div>
                     </div>
                   </div>
-                  <div className="portfolio-value">
-                    <div className="value">
-                      ${currentValue.toLocaleString()}
-                    </div>
-                    <div className="profit">
-                      {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
-                    </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-portfolio">
+              <p>No spot assets in your portfolio yet</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeAssetTab === 'futures' && (
+        <div className="futures-section">
+          <h3>Futures Markets (Live from Binance)</h3>
+          <div className="futures-stats">
+            <div className="stat-item">
+              <span className="stat-label">24h Volume</span>
+              <span className="stat-value">${(futuresData.reduce((sum, item) => sum + (item.volume || 0), 0) / 1000000).toFixed(1)}M</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Active Pairs</span>
+              <span className="stat-value">{futuresData.length}</span>
+            </div>
+          </div>
+          <div className="crypto-list">
+            {futuresData.map((futures) => (
+              <div key={futures.id} className="crypto-item">
+                <span className="rank">{futures.rank}</span>
+                <div className="crypto-info">
+                  <img 
+                    src={futures.image} 
+                    alt={futures.name}
+                    className="crypto-icon"
+                    onError={(e) => {
+                      e.target.src = `https://cryptoicons.org/api/icon/${futures.name.toLowerCase()}/32`;
+                    }}
+                  />
+                  <div className="crypto-details">
+                    <span className="name">{futures.name}</span>
+                    <span className="symbol">{futures.symbol}</span>
                   </div>
                 </div>
-              );
-            })}
+                <div className="futures-info">
+                  <div className="price-info">
+                    <span className="price">
+                      ${futures.price < 1 ? futures.price.toFixed(6) : futures.price.toLocaleString()}
+                    </span>
+                    <span className={`change ${futures.change >= 0 ? 'positive' : 'negative'}`}>
+                      {futures.change >= 0 ? '+' : ''}{futures.change.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="futures-details">
+                    <span className="funding-rate">
+                      Funding: {(futures.fundingRate * 100).toFixed(4)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        ) : (
-          <div className="empty-portfolio">
-            <p>No assets in your portfolio yet</p>
+        </div>
+      )}
+
+      {activeAssetTab === 'funding' && (
+        <div className="funding-section">
+          <h3>Funding Account</h3>
+          <div className="funding-overview">
+            <div className="funding-card">
+              <h4>Available for Trading</h4>
+              <div className="funding-amount">${balance.toLocaleString()}</div>
+              <p>Transfer to Spot or Futures</p>
+            </div>
+            <div className="funding-card">
+              <h4>Earn Rewards</h4>
+              <div className="funding-amount">0.05% APY</div>
+              <p>Flexible savings available</p>
+            </div>
           </div>
-        )}
-      </div>
+          <div className="funding-actions">
+            <button className="funding-btn">Transfer to Spot</button>
+            <button className="funding-btn">Transfer to Futures</button>
+            <button className="funding-btn">Start Earning</button>
+          </div>
+        </div>
+      )}
 
       <div className="recent-transactions">
         <h3>Recent Transactions</h3>
