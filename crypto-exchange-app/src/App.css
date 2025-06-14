@@ -768,6 +768,15 @@
   z-index: 100;
 }
 
+.nav-items {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+}
+
 .nav-item {
   display: flex;
   flex-direction: column;
@@ -776,6 +785,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   min-width: 80px;
+  flex: 1;
 }
 
 .nav-item.active {
