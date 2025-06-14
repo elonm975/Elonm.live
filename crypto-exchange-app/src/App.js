@@ -152,7 +152,7 @@ function MainApp() {
       }
 
       // Check if platform authenticator is available
-      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       if (!available) {
         showNotification('Fingerprint Authentication', 'No biometric authenticator available on this device.', 'error');
         return;
@@ -220,7 +220,7 @@ function MainApp() {
       }
 
       // Check if platform authenticator is available
-      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       if (!available) {
         showNotification('Face ID Authentication', 'No biometric authenticator available on this device.', 'error');
         return;
