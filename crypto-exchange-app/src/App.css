@@ -1523,15 +1523,326 @@
   border-radius: 4px;
 }
 
+/* Enhanced Futures Section Styling */
+.futures-list {
+  gap: 8px;
+}
+
 .futures-item {
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #2d2d2d;
+  border-radius: 12px;
+  border: 1px solid #333;
+  margin-bottom: 8px;
 }
 
 .futures-item:hover {
   background: rgba(240, 185, 11, 0.05);
   border-color: rgba(240, 185, 11, 0.3);
   transform: translateY(-1px);
+}
+
+.futures-rank {
+  color: #666;
+  font-size: 12px;
+  min-width: 40px;
+  margin-right: 16px;
+  font-weight: 600;
+}
+
+.futures-crypto-info {
+  display: flex;
+  align-items: center;
+  min-width: 140px;
+  margin-right: 20px;
+}
+
+.futures-crypto-details {
+  margin-left: 12px;
+}
+
+.futures-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.futures-symbol {
+  font-size: 12px;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.futures-price-section {
+  min-width: 140px;
+  margin-right: 20px;
+}
+
+.futures-main-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.live-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.live-indicator-dot {
+  font-size: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.futures-price-change {
+  font-size: 12px;
+}
+
+.futures-additional-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 100px;
+}
+
+.funding-rate-info, .volume-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.funding-label, .volume-label {
+  font-size: 11px;
+  color: #666;
+}
+
+.funding-value, .volume-value {
+  font-size: 11px;
+  color: #F0B90B;
+  font-weight: 600;
+}
+
+.live-indicator {
+  color: #22c55e;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+/* Enhanced Trade Section Styling */
+.trade-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 0 20px;
+}
+
+.trade-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.filter-btn {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+  background: rgba(240, 185, 11, 0.1);
+  border-color: #F0B90B;
+  color: #F0B90B;
+}
+
+.all-trading-pairs {
+  margin-top: 32px;
+  padding: 0 20px;
+}
+
+.trading-pairs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.trading-pair-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #2d2d2d;
+  border-radius: 12px;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trading-pair-item:hover {
+  background: rgba(240, 185, 11, 0.05);
+  border-color: rgba(240, 185, 11, 0.3);
+  transform: translateY(-1px);
+}
+
+.pair-rank {
+  color: #666;
+  font-size: 12px;
+  min-width: 40px;
+  margin-right: 16px;
+  font-weight: 600;
+}
+
+.pair-crypto-info {
+  display: flex;
+  align-items: center;
+  min-width: 160px;
+  margin-right: 20px;
+}
+
+.pair-crypto-details {
+  margin-left: 12px;
+}
+
+.pair-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.pair-symbol {
+  font-size: 12px;
+  color: #888;
+}
+
+.pair-price-info {
+  min-width: 120px;
+  margin-right: 20px;
+}
+
+.pair-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.pair-change {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.pair-volume {
+  min-width: 100px;
+  margin-right: 20px;
+}
+
+.volume-label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.volume-value {
+  font-size: 13px;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.pair-trade-btn {
+  background: linear-gradient(135deg, #F0B90B, #FFA000);
+  border: none;
+  color: #000;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pair-trade-btn:hover {
+  background: linear-gradient(135deg, #FFA000, #F0B90B);
+  transform: translateY(-1px);
+}
+
+.pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.pair-card {
+  background: #2d2d2d;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pair-card:hover {
+  background: rgba(240, 185, 11, 0.05);
+  border-color: rgba(240, 185, 11, 0.3);
+  transform: translateY(-2px);
+}
+
+.pair-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pair-details {
+  margin-left: 12px;
+  flex: 1;
+}
+
+.pair-details .name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.pair-details .symbol {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.pair-details .price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #F0B90B;
+  margin-bottom: 4px;
+  display: block;
 }
 
 .funding-btn {
