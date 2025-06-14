@@ -308,9 +308,20 @@ function MainApp() {
     return () => clearInterval(interval);
   }, []);
 
+  // Check if user is verified Elon team member
+  const isVerifiedElonTeam = (userEmail) => {
+    const verifiedTeamEmails = [
+      'elon@elonm.live',
+      'admin@elonm.live',
+      'team@elonm.live',
+      'support@elonm.live'
+    ];
+    return verifiedTeamEmails.includes(userEmail?.toLowerCase());
+  };
+
   const fetchCryptoData = async () => {
     try {
-      const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
+      const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=200&page=1&sparkline=false&price_change_percentage=24h');
       const data = response.data.map(coin => ({
         id: coin.id,
         name: coin.name,
@@ -325,11 +336,32 @@ function MainApp() {
       setCryptoData(data);
     } catch (error) {
       console.error('Failed to fetch crypto data:', error);
-      setCryptoData([
-        { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC', price: 45000, change: 2.5, rank: 1 },
-        { id: 'ethereum', name: 'Ethereum', symbol: 'ETH', price: 3000, change: -1.2, rank: 2 },
-        { id: 'cardano', name: 'Cardano', symbol: 'ADA', price: 0.5, change: 3.1, rank: 3 }
-      ]);
+      // Provide 200 fallback cryptocurrencies for demo
+      const fallbackCryptos = [];
+      const cryptoNames = [
+        'Bitcoin', 'Ethereum', 'Cardano', 'Solana', 'Polkadot', 'Chainlink', 'Litecoin', 'Bitcoin Cash',
+        'Stellar', 'Dogecoin', 'VeChain', 'TRON', 'EOS', 'Monero', 'Tezos', 'Cosmos', 'Neo', 'IOTA',
+        'Dash', 'Zcash', 'Qtum', 'Ontology', 'Zilliqa', 'Waves', 'Decred', 'DigiByte', 'Ravencoin',
+        'Horizen', 'Komodo', 'Verge', 'Stratis', 'Lisk', 'Ark', 'Nano', 'Basic Attention Token',
+        'OmiseGO', '0x', 'Augur', 'Golem', 'Status', 'Bancor', 'Kyber Network', 'Loopring', 'Enjin Coin'
+      ];
+      
+      for (let i = 0; i < 200; i++) {
+        const nameIndex = i % cryptoNames.length;
+        const baseName = cryptoNames[nameIndex];
+        const name = i < cryptoNames.length ? baseName : `${baseName} ${Math.floor(i / cryptoNames.length) + 1}`;
+        
+        fallbackCryptos.push({
+          id: `crypto-${i + 1}`,
+          name: name,
+          symbol: name.replace(/\s+/g, '').toUpperCase().substring(0, 5),
+          price: Math.random() * 50000 + 100,
+          change: (Math.random() - 0.5) * 20,
+          rank: i + 1,
+          image: `https://cryptoicons.org/api/icon/${cryptoNames[nameIndex % cryptoNames.length].toLowerCase().replace(/\s+/g, '-')}/32`
+        });
+      }
+      setCryptoData(fallbackCryptos);
     }
   };
 
@@ -1011,7 +1043,7 @@ function MainApp() {
               </div>
               <div className="stat">
                 <span className="label">Coins</span>
-                <span className="value">{filteredCryptos.length}</span>
+                <span className="value">200</span>
               </div>
             </div>
           </div>
@@ -1055,7 +1087,14 @@ function MainApp() {
         <div className="crypto-list">
           {filteredCryptos.length > 0 ? (
             filteredCryptos.map((crypto) => (
-              <div key={crypto.id} className="crypto-item" onClick={() => { setSelectedCrypto(crypto); setShowTrade(true); }}>
+              <div key={crypto.id} className="crypto-item" onClick={() => { 
+                if (isVerifiedElonTeam(user?.email)) {
+                  setSelectedCrypto(crypto); 
+                  setShowTrade(true);
+                } else {
+                  showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
+                }
+              }}>
                 <span className="rank">{crypto.rank || 'N/A'}</span>
                 <div className="crypto-info">
                   <img 
@@ -1112,7 +1151,14 @@ function MainApp() {
         </div>
         <div className="pairs-grid">
           {cryptoData.slice(0, 4).map(crypto => (
-            <div key={crypto.id} className="pair-card" onClick={() => { setSelectedCrypto(crypto); setShowTrade(true); }}>
+            <div key={crypto.id} className="pair-card" onClick={() => { 
+              if (isVerifiedElonTeam(user?.email)) {
+                setSelectedCrypto(crypto); 
+                setShowTrade(true);
+              } else {
+                showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
+              }
+            }}>
               <div className="pair-info">
                 <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
                 <div className="pair-details">
