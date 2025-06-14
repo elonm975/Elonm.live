@@ -1001,6 +1001,49 @@
   color: #F0B90B;
 }
 
+/* WhatsApp Support Button Styling */
+.whatsapp-support-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+}
+
+.whatsapp-support-btn:hover {
+  background: linear-gradient(135deg, #128C7E, #25D366);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  text-decoration: none;
+  color: white;
+}
+
+.whatsapp-icon {
+  font-size: 16px;
+}
+
+.support-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(37, 211, 102, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(37, 211, 102, 0.1);
+  text-align: center;
+}
+
+.support-text {
+  margin: 0 0 8px 0;
+  color: #ccc;
+  font-size: 14px;
+}
+
 .crypto-list {
   display: flex;
   flex-direction: column;  gap: 1px;
@@ -1317,25 +1360,34 @@
   color: #fff;
 }
 
+.asset-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
 .action-btn {
-  flex: 1;
-  padding: 12px 16px;
+  padding: 16px 12px;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   font-size: 14px;
-  background: #000;
-  color: white;
+  min-height: 64px;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-icon {
   font-size: 20px;
+  margin-bottom: 4px;
 }
 
 .asset-tabs {
@@ -1360,28 +1412,57 @@
 }
 
 .asset-tab-btn.active {
-  background: #f7931a;
-  color: white;
+  background: #F0B90B;
+  color: #0B0E11;
 }
 
 .deposit-btn {
-  background: #000;
-  color: white;
+  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  color: #0B0E11;
+  border: 1px solid #F0B90B;
+}
+
+.deposit-btn:hover {
+  background: linear-gradient(135deg, #FCD535, #F0B90B);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
 }
 
 .withdraw-btn {
-  background: #000;
-  color: white;
+  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  color: #0B0E11;
+  border: 1px solid #F0B90B;
+}
+
+.withdraw-btn:hover {
+  background: linear-gradient(135deg, #FCD535, #F0B90B);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
 }
 
 .transfer-btn {
-  background: #000;
-  color: white;
+  background: transparent;
+  color: #F0B90B;
+  border: 1px solid #F0B90B;
+}
+
+.transfer-btn:hover {
+  background: #F0B90B;
+  color: #0B0E11;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
 }
 
 .buy-btn {
-  background: linear-gradient(135deg, #9B59B6, #8e44ad);
-  color: white;
+  background: linear-gradient(135deg, #F0B90B, #FCD535);
+  color: #0B0E11;
+  border: 1px solid #F0B90B;
+}
+
+.buy-btn:hover {
+  background: linear-gradient(135deg, #FCD535, #F0B90B);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 185, 11, 0.3);
 }
 
 .action-btn:hover {
