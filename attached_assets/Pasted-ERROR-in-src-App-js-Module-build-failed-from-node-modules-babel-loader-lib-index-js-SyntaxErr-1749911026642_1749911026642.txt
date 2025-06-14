@@ -1,0 +1,65 @@
+ERROR in ./src/App.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /home/runner/workspace/crypto-exchange-app/src/App.js: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (856:8)
+
+  854 |         </div>
+  855 |
+> 856 |         <div className="recent-activity">
+      |         ^
+  857 |           <h3>Recent Activity</h3>
+  858 |           <div className="transactions-list">
+  859 |             {transactions.slice(0, 3).map(tx => (
+    at constructor (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:363:19)
+    at FlowParserMixin.raise (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:6609:19)
+    at FlowParserMixin.jsxParseElementAt (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4754:18)
+    at FlowParserMixin.jsxParseElement (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4761:17)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4771:19)
+    at FlowParserMixin.parseExprSubscripts (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11012:23)
+    at FlowParserMixin.parseUpdate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10997:21)
+    at FlowParserMixin.parseMaybeUnary (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10977:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10830:61)
+    at FlowParserMixin.parseExprOps (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10835:23)
+    at FlowParserMixin.parseMaybeConditional (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10812:23)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10765:21)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3510:39
+    at FlowParserMixin.tryParse (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:6918:20)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3510:18)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10734:39
+    at FlowParserMixin.allowInAnd (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12361:12)
+    at FlowParserMixin.parseMaybeAssignAllowIn (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10734:17)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11608:28)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3603:18)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11262:23)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4776:20)
+    at FlowParserMixin.parseExprSubscripts (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11012:23)
+    at FlowParserMixin.parseUpdate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10997:21)
+    at FlowParserMixin.parseMaybeUnary (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10977:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10830:61)
+    at FlowParserMixin.parseExprOps (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10835:23)
+    at FlowParserMixin.parseMaybeConditional (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10812:23)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10765:21)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3561:18)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12028:24)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2902:63
+    at FlowParserMixin.forwardNoArrowParamsConversionAt (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3078:16)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2902:12)
+    at FlowParserMixin.parseArrowExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12010:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11620:12)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3603:18)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11262:23)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4776:20)
+    at FlowParserMixin.parseExprSubscripts (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11012:23)
+    at FlowParserMixin.parseUpdate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10997:21)
+    at FlowParserMixin.parseMaybeUnary (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10977:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10830:61)
+    at FlowParserMixin.parseExprOps (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10835:23)
+    at FlowParserMixin.parseMaybeConditional (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10812:23)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10765:21)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3561:18)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10734:39
+    at FlowParserMixin.allowInAnd (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12356:16)
+    at FlowParserMixin.parseMaybeAssignAllowIn (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10734:17)
+ERROR
+[eslint] 
+src/App.js
+  Line 856:8:  Parsing error: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (856:8)
