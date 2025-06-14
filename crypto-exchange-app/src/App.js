@@ -892,8 +892,7 @@ function MainApp() {
             </div>
           </div>
         </div>
-</div>
-        </div>
+      </div>
 
       <div className="asset-actions">
         <button className="action-btn deposit-btn" onClick={() => setShowDeposit(true)}>
@@ -921,62 +920,66 @@ function MainApp() {
       </div>
 
       
+        <div className="portfolio-section">
         <h3>Portfolio</h3>
         {portfolio.length > 0 ? (
-          
+          <div className="portfolio-list">
             {portfolio.map(asset => {
               const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
               const currentValue = asset.amount * currentPrice;
               const profit = currentValue - (asset.amount * asset.purchasePrice);
               return (
-                
+                <div key={asset.id} className="portfolio-item">
                   <img src={`https://cryptoicons.org/api/icon/${asset.cryptoId}/32`} alt={asset.cryptoName} className="crypto-icon" />
-                  
-                    
+                  <div className="portfolio-details">
+                    <div className="crypto-name">
                       {asset.cryptoName}
-                    
-                    
+                    </div>
+                    <div className="crypto-amount">
                       {asset.amount.toFixed(6)}
-                    
-                  
-                  
-                    
+                    </div>
+                  </div>
+                  <div className="portfolio-value">
+                    <div className="value">
                       ${currentValue.toLocaleString()}
-                    
-                    
+                    </div>
+                    <div className="profit">
                       {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
-                    
-                  
-                
+                    </div>
+                  </div>
+                </div>
               );
             })}
-          
+          </div>
         ) : (
-          
+          <div className="empty-portfolio">
             <p>No assets in your portfolio yet</p>
-          
+          </div>
         )}
-      
+      </div>
 
-      
+      <div className="recent-transactions">
         <h3>Recent Transactions</h3>
-        
+        <div className="transactions-list">
           {transactions.slice(0, 5).map(tx => (
-            
-              
+            <div key={tx.id} className="transaction-item">
+              <span className={`type-badge ${tx.type}`}>
                 {tx.type}
-              
-              
-                
+              </span>
+              <div className="transaction-details">
+                <div className="crypto-name">
                   {tx.cryptoName}
-                
-                
+                </div>
+                <div className="amount">
                   {tx.amount.toFixed(6)}
-                
-              
-              {new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}
-            
+                </div>
+              </div>
+              <div className="timestamp">{new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}</div>
+            </div>
           ))}
+        </div>
+      </div>
+    </div>
         
       
     
@@ -986,527 +989,492 @@ function MainApp() {
     const filteredCryptos = cryptoData.filter(crypto =>
       crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      crypto.id.toLowerCase().includes(searchQuery.toLowerCase())y.toLowerCase())
+      crypto.id.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const totalVolume = cryptoData.reduce((total, crypto) => total + (crypto.volume || 0), 0);
     const totalMarketCap = cryptoData.reduce((total, crypto) => total + (crypto.market_cap || 0), 0);
 
     return (
-      
-        
-          
+      <div className="markets-tab">
+        <div className="markets-header">
+          <div className="header-content">
             <h2>Markets</h2>
-            
-              
-                
-                  24h Vol
-                  ${(totalVolume / 1000000000).toFixed(1)}B
-                
-                
-                  Market Cap
-                  ${(totalMarketCap / 1000000000000).toFixed(1)}T
-                
-                
-                  Coins
-                  {filteredCryptos.length}
-                
-              
-            
-          
-        
+            <div className="market-stats">
+              <div className="stat">
+                <span className="label">24h Vol</span>
+                <span className="value">${(totalVolume / 1000000000).toFixed(1)}B</span>
+              </div>
+              <div className="stat">
+                <span className="label">Market Cap</span>
+                <span className="value">${(totalMarketCap / 1000000000000).toFixed(1)}T</span>
+              </div>
+              <div className="stat">
+                <span className="label">Coins</span>
+                <span className="value">{filteredCryptos.length}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        
-          
-            
-              
-                Spot
-                Futures
-                Options
-              
-            
-            
-              
-                
-                  All
-                  Favorites
-                  Innovation
-                  DeFi
-                
-              
-              
-                
-                  
-                  {searchQuery && (
-                    
-                      ×
-                    
-                  )}
-                
-              
-            
-          
-        
+        <div className="market-controls">
+          <div className="market-tabs">
+            <div className="tab-group">
+              <button className="tab-btn active">Spot</button>
+              <button className="tab-btn">Futures</button>
+              <button className="tab-btn">Options</button>
+            </div>
+            <div className="filter-controls">
+              <div className="category-filters">
+                <button className="filter-btn active">All</button>
+                <button className="filter-btn">Favorites</button>
+                <button className="filter-btn">Innovation</button>
+                <button className="filter-btn">DeFi</button>
+              </div>
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Search coins..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="clear-search"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
 
-        
+        <div className="crypto-list">
           {filteredCryptos.length > 0 ? (
             filteredCryptos.map((crypto) => (
-              
-                {crypto.rank || 'N/A'}
-                
-                  
-                  onError={(e) => {
-                    e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
-                  }}
-                  
-                
-                
-                  
-                    {crypto.name}
-                  
-                  
-                    {crypto.symbol}
-                  
-                
-                
-                  
+              <div key={crypto.id} className="crypto-item" onClick={() => { setSelectedCrypto(crypto); setShowTrade(true); }}>
+                <span className="rank">{crypto.rank || 'N/A'}</span>
+                <div className="crypto-info">
+                  <img 
+                    src={crypto.image} 
+                    alt={crypto.name}
+                    className="crypto-icon"
+                    onError={(e) => {
+                      e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
+                    }}
+                  />
+                  <div className="crypto-details">
+                    <span className="name">{crypto.name}</span>
+                    <span className="symbol">{crypto.symbol}</span>
+                  </div>
+                </div>
+                <div className="price-info">
+                  <span className="price">
                     ${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}
-                  
-                  
+                  </span>
+                  <span className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
                     {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
-                  
-                
-                
+                  </span>
+                </div>
+                <button className="trade-btn">
                   Trade
-                
-              
+                </button>
+              </div>
             ))
           ) : (
-            
-              
-                No cryptocurrencies found matching "{searchQuery}"
-                
-                  Clear Search
-                
-              
-            
+            <div className="no-results">
+              <p>No cryptocurrencies found matching "{searchQuery}"</p>
+              <button onClick={() => setSearchQuery('')} className="clear-btn">
+                Clear Search
+              </button>
+            </div>
           )}
-        
-      
+        </div>
+      </div>
     );
   };
 
   const renderTrade = () => (
-    
-      
-        
+    <div className="trade-tab">
+      <div className="trade-header">
+        <div className="header-content">
           <h2>Trade</h2>
           <p>Select a cryptocurrency to start trading</p>
-        
-      
+        </div>
+      </div>
 
-      
-        
+      <div className="featured-pairs">
+        <div className="section-header">
           <h3>Featured Pairs</h3>
-          
-            {cryptoData.slice(0, 4).map(crypto => (
-              
-                
-                  
-                  
-                    {crypto.name}
-                  
-                  
-                    ${crypto.price.toLocaleString()}
-                  
-                  
+        </div>
+        <div className="pairs-grid">
+          {cryptoData.slice(0, 4).map(crypto => (
+            <div key={crypto.id} className="pair-card" onClick={() => { setSelectedCrypto(crypto); setShowTrade(true); }}>
+              <div className="pair-info">
+                <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
+                <div className="pair-details">
+                  <span className="name">{crypto.name}</span>
+                  <span className="price">${crypto.price.toLocaleString()}</span>
+                  <span className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
                     {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
-                  
-                
-                
-                  Trade
-                
-              
-            ))}
-          
-        
-      
-    
+                  </span>
+                </div>
+              </div>
+              <button className="trade-btn">
+                Trade
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 
   const renderMenu = () => (
-    
-      
-        
-          
-            
-              {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
-            
-            
-              
-                {userName || user.email?.split('@')[0]}
-                Verified User
-              
-            
-          
-        
-      
+    <div className="menu-tab">
+      <div className="menu-header">
+        <div className="user-profile">
+          <div className="profile-avatar">
+            {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+          </div>
+          <div className="profile-info">
+            <h3>{userName || user.email?.split('@')[0]}</h3>
+            <p>Verified User</p>
+          </div>
+        </div>
+      </div>
 
-      
-        
-          
-            
-              
-                Account
-                
-                  
-                    👤
-                    Profile Settings
-                    ›
-                  
-                  
-                    🔒
-                    Security
-                    ›
-                  
-                  
-                    📊
-                    Trading History
-                    ›
-                  
-                
-              
-            
+      <div className="menu-sections">
+        <div className="menu-section">
+          <h4>Account</h4>
+          <div className="menu-items">
+            <div className="menu-item" onClick={() => setShowProfileSettings(true)}>
+              <span className="menu-icon">👤</span>
+              <span className="menu-text">Profile Settings</span>
+              <span className="menu-arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔒</span>
+              <span className="menu-text">Security</span>
+              <span className="menu-arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">📊</span>
+              <span className="menu-text">Trading History</span>
+              <span className="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
 
-            
-              
-                Support
-                
-                  
-                    💬
-                    Customer Support
-                    ›
-                  
-                  
-                    ❓
-                    Help Center
-                    ›
-                  
-                  
-                    📞
-                    Contact Us
-                    ›
-                  
-                
-              
-            
+        <div className="menu-section">
+          <h4>Support</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">💬</span>
+              <span className="menu-text">Customer Support</span>
+              <span className="menu-arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">❓</span>
+              <span className="menu-text">Help Center</span>
+              <span className="menu-arrow">›</span>
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">📞</span>
+              <span className="menu-text">Contact Us</span>
+              <span className="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
 
-            
-              
-                Settings
-                
-                  
-                    🌙
-                    Dark Mode
-                    
-                  
-                  
-                    🔔
-                    Notifications
-                    
-                  
-                  
-                    🌍
-                    Language
-                    {languages.find(lang => lang.code === selectedLanguage)?.flag} {languages.find(lang => lang.code === selectedLanguage)?.name}
-                    ›
-                  
-                
-              
-            
+        <div className="menu-section">
+          <h4>Settings</h4>
+          <div className="menu-items">
+            <div className="menu-item">
+              <span className="menu-icon">🌙</span>
+              <span className="menu-text">Dark Mode</span>
+              <input type="checkbox" className="toggle-switch" />
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔔</span>
+              <span className="menu-text">Notifications</span>
+              <input type="checkbox" className="toggle-switch" />
+            </div>
+            <div className="menu-item" onClick={() => setShowLanguageModal(true)}>
+              <span className="menu-icon">🌍</span>
+              <span className="menu-text">Language</span>
+              <span className="menu-value">{languages.find(lang => lang.code === selectedLanguage)?.flag} {languages.find(lang => lang.code === selectedLanguage)?.name}</span>
+              <span className="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
 
-            
-              
-                Biometric Security
-                
-                  
-                    👆
-                    Fingerprint Login
-                    
-                  
-                  
-                    👤
-                    Face ID Login
-                    
-                  
-                  
-                    🔐
-                    2FA Authentication
-                    
-                  
-                
-              
-            
+        <div className="menu-section">
+          <h4>Biometric Security</h4>
+          <div className="menu-items">
+            <div className="menu-item" onClick={enableFingerprint}>
+              <span className="menu-icon">👆</span>
+              <span className="menu-text">Fingerprint Login</span>
+              <input type="checkbox" checked={fingerprintEnabled} readOnly className="toggle-switch" />
+            </div>
+            <div className="menu-item" onClick={enableFaceId}>
+              <span className="menu-icon">👤</span>
+              <span className="menu-text">Face ID Login</span>
+              <input type="checkbox" checked={faceIdEnabled} readOnly className="toggle-switch" />
+            </div>
+            <div className="menu-item">
+              <span className="menu-icon">🔐</span>
+              <span className="menu-text">2FA Authentication</span>
+              <input type="checkbox" className="toggle-switch" />
+            </div>
+          </div>
+        </div>
 
-            
-              
-                
-                  
-                    🚪
-                    Logout
-                    ›
-                  
-                
-              
-            
-          
-        
-      
-    
+        <div className="menu-section">
+          <div className="menu-items">
+            <div className="menu-item" onClick={() => signOut(auth)}>
+              <span className="menu-icon">🚪</span>
+              <span className="menu-text">Logout</span>
+              <span className="menu-arrow">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    
-      
-        
-          
-            <h1>Eloncrypto</h1>
-            
-              ${balance.toLocaleString()}
-            
-          
-        
-      
+    <div className="App">
+      <div className="header">
+        <div className="header-content">
+          <h1>Eloncrypto</h1>
+          <div className="balance-display">
+            ${balance.toLocaleString()}
+          </div>
+        </div>
+      </div>
 
-      
+      <div className="main-content">
         {activeTab === 'home' && renderHome()}
         {activeTab === 'assets' && renderAssets()}
         {activeTab === 'markets' && renderMarkets()}
         {activeTab === 'trade' && renderTrade()}
         {activeTab === 'menu' && renderMenu()}
-      
+      </div>
 
-      
-        
-          
-            
-              🏠
-              Home
-            
-          
-          
-            
-              💰
-              Assets
-            
-          
-          
-            
-              📈
-              Markets
-            
-          
-          
-            
-              ⚡
-              Trade
-            
-          
-          
-            
-              ☰
-              Menu
+      <div className="bottom-nav">
+        <div className="nav-items">
+          <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
+            <span className="nav-icon">🏠</span>
+            <span className="nav-label">Home</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
+            <span className="nav-icon">💰</span>
+            <span className="nav-label">Assets</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'markets' ? 'active' : ''}`} onClick={() => setActiveTab('markets')}>
+            <span className="nav-icon">📈</span>
+            <span className="nav-label">Markets</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'trade' ? 'active' : ''}`} onClick={() => setActiveTab('trade')}>
+            <span className="nav-icon">⚡</span>
+            <span className="nav-label">Trade</span>
+          </div>
+          <div className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`} onClick={() => setActiveTab('menu')}>
+            <span className="nav-icon">☰</span>
+            <span className="nav-label">Menu</span>
+          </div>
+        </div>
+      </div>
             
           
         
       
 
       {showTrade && selectedCrypto && (
-        
-          
-            
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
               <h3>Trade {selectedCrypto.name}</h3>
               <p>Current Price: ${selectedCrypto.price.toLocaleString()}</p>
-              
+              <input
+                type="number"
+                placeholder="Amount"
+                value={tradeAmount}
+                onChange={(e) => setTradeAmount(e.target.value)}
+                className="trade-input"
+              />
               {tradeAmount && (
-                
+                <p>Total: ${(parseFloat(tradeAmount) * selectedCrypto.price).toFixed(2)}</p>
               )}
-              {error && }
-              
-                
+              {error && <div className="error-message">{error}</div>}
+              <div className="trade-buttons">
+                <button className="buy-btn" onClick={() => handleTrade('buy')}>
                   Buy
-                
-                
+                </button>
+                <button className="sell-btn" onClick={() => handleTrade('sell')}>
                   Sell
-                
-              
-              
+                </button>
+              </div>
+              <button className="cancel-btn" onClick={() => setShowTrade(false)}>
                 Cancel
-              
-            
-          
-        
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showDeposit && (
-        
-          
-            
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
               <h3>Deposit Funds</h3>
-              
-                
-                  
-                    Bitcoin Deposit
-                    
-                      Send Bitcoin to this address:
-                      
-                        
-                          {bitcoinAddress}
-                          Copy
-                        
-                        ⚠️ Only send Bitcoin to this address.
-                      
-                    
-                  
-                  
-                    Bank Transfer
-                    
-                      
-                        
-                          <strong>Account Name:</strong> {bankDetails.accountName}
-                        
-                        
-                          <strong>Account Number:</strong> {bankDetails.accountNumber}
-                        
-                        
-                          <strong>Bank Name:</strong> {bankDetails.bankName}
-                        
-                        
-                          <strong>Routing Number:</strong> {bankDetails.routingNumber}
-                        
-                      
-                    
-                  
-                
-              
-              
+              <div className="deposit-options">
+                <div className="deposit-option">
+                  <h4>Bitcoin Deposit</h4>
+                  <div className="bitcoin-info">
+                    <p>Send Bitcoin to this address:</p>
+                    <div className="address-container">
+                      <code className="bitcoin-address">{bitcoinAddress}</code>
+                      <button onClick={() => copyToClipboard(bitcoinAddress)} className="copy-btn">Copy</button>
+                    </div>
+                    <p className="warning">⚠️ Only send Bitcoin to this address.</p>
+                  </div>
+                </div>
+                <div className="deposit-option">
+                  <h4>Bank Transfer</h4>
+                  <div className="bank-details">
+                    <div className="bank-detail">
+                      <strong>Account Name:</strong> {bankDetails.accountName}
+                    </div>
+                    <div className="bank-detail">
+                      <strong>Account Number:</strong> {bankDetails.accountNumber}
+                    </div>
+                    <div className="bank-detail">
+                      <strong>Bank Name:</strong> {bankDetails.bankName}
+                    </div>
+                    <div className="bank-detail">
+                      <strong>Routing Number:</strong> {bankDetails.routingNumber}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button className="close-btn" onClick={() => setShowDeposit(false)}>
                 Close
-              
-            
-          
-        
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showWithdraw && (
-        
-          
-            
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
               <h3>Withdraw Funds</h3>
               <p>Available Balance: ${balance.toLocaleString()}</p>
               <p>Contact support to process withdrawals to your registered bank account.</p>
-              
+              <button className="close-btn" onClick={() => setShowWithdraw(false)}>
                 Close
-              
-            
-          
-        
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showProfileSettings && (
-        
-          
-            
-              
-                
-                  
-                    Profile Settings
-                    
-                      ×
-                    
-                  
-                
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Profile Settings</h3>
+                <button className="close-btn" onClick={() => setShowProfileSettings(false)}>
+                  ×
+                </button>
+              </div>
 
-                
-                  
-                    
-                      
-                        
-                          {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
-                        
-                      
-                      
-                        Choose Photo
-                        
-                      
-                    
-                    
-                      Full Name
-                      
-                    
-                    
-                      Email Address
-                      
-                      Email cannot be changed
-                    
-                    
-                      Phone Number
-                      
-                    
-                    
-                      Save Changes
-                      Cancel
-                    
-                    
-                      <h4>Security Settings</h4>
-                      Change Password
-                    
-                  
-                
-              
-            
-          
-        
+              <div className="profile-form">
+                <div className="profile-section">
+                  <div className="avatar-section">
+                    <div className="current-avatar">
+                      {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                    </div>
+                    <button className="choose-photo-btn">
+                      Choose Photo
+                      <input type="file" accept="image/*" hidden />
+                    </button>
+                  </div>
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <input type="text" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <input type="email" value={user.email} disabled />
+                    <small>Email cannot be changed</small>
+                  </div>
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" value={userPhone} onChange={(e) => setUserPhone(e.target.value)} />
+                  </div>
+                  <div className="form-actions">
+                    <button className="save-btn">Save Changes</button>
+                    <button className="cancel-btn" onClick={() => setShowProfileSettings(false)}>Cancel</button>
+                  </div>
+                  <div className="security-section">
+                    <h4>Security Settings</h4>
+                    <button className="change-password-btn">Change Password</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {showLanguageModal && (
-        
-          
-            
-              
-                
-                  Select Language
-                  
-                    ×
-                  
-                
-              
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Select Language</h3>
+                <button className="close-btn" onClick={() => setShowLanguageModal(false)}>
+                  ×
+                </button>
+              </div>
 
-              
+              <div className="language-list">
                 {languages.map((language) => (
-                  
-                    
-                      {language.flag}
-                      {language.name}
-                      {selectedLanguage === language.code && (
-                        ✓
-                      )}
-                    
-                  
+                  <div 
+                    key={language.code}
+                    className={`language-item ${selectedLanguage === language.code ? 'selected' : ''}`}
+                    onClick={() => {
+                      setSelectedLanguage(language.code);
+                      setShowLanguageModal(false);
+                    }}
+                  >
+                    <span className="flag">{language.flag}</span>
+                    <span className="name">{language.name}</span>
+                    {selectedLanguage === language.code && (
+                      <span className="checkmark">✓</span>
+                    )}
+                  </div>
                 ))}
-              
-            
-          
-        
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
-      
-        
-          
-            💬
-          
-        
-      
-    
+      <div className="floating-chat">
+        <button className="chat-btn">
+          <span className="chat-icon">💬</span>
+        </button>
+      </div>
+    </div>
   );
 }
 
