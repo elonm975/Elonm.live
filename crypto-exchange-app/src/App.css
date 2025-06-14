@@ -1003,8 +1003,7 @@
 
 .crypto-list {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  flex-direction: column;  gap: 1px;
   background: #333;
   border-radius: 12px;
   overflow: hidden;
@@ -1318,25 +1317,21 @@
   color: #fff;
 }
 
-.asset-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin: 20px 0;
-}
-
 .action-btn {
-  padding: 16px 12px;
+  flex: 1;
+  padding: 12px 16px;
   border: none;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  background: #000;
+  color: white;
 }
 
 .btn-icon {
@@ -1370,22 +1365,22 @@
 }
 
 .deposit-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: #000;
   color: white;
 }
 
 .withdraw-btn {
-  background: linear-gradient(135deg, #ff6b35, #ff4500);
+  background: #000;
   color: white;
 }
 
 .transfer-btn {
-  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  background: #000;
   color: white;
 }
 
 .buy-btn {
-  background: linear-gradient(135deg, #2196F3, #1976D2);
+  background: linear-gradient(135deg, #9B59B6, #8e44ad);
   color: white;
 }
 

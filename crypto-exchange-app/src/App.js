@@ -1406,6 +1406,18 @@ function MainApp() {
                       <strong>Routing Number:</strong> {bankDetails.routingNumber}
                     </div>
                   </div>
+                  <div className="support-section">
+                    <p className="support-text">Need help with bank transfer?</p>
+                    <a 
+                      href="https://wa.me/4915210305922?text=Hello%2C%20I%20need%20help%20with%20bank%20transfer%20deposit%20on%20Eloncrypto%20Exchange" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="whatsapp-support-btn"
+                    >
+                      <span className="whatsapp-icon">💬</span>
+                      Contact Support on WhatsApp
+                    </a>
+                  </div>
                 </div>
               </div>
               <button className="close-btn" onClick={() => setShowDeposit(false)}>
