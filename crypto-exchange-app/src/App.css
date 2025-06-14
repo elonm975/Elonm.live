@@ -1523,6 +1523,35 @@
   border-radius: 4px;
 }
 
+.futures-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.futures-item:hover {
+  background: rgba(240, 185, 11, 0.05);
+  border-color: rgba(240, 185, 11, 0.3);
+  transform: translateY(-1px);
+}
+
+.funding-btn {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.funding-btn:hover {
+  background: rgba(240, 185, 11, 0.1);
+  border-color: #F0B90B;
+  color: #F0B90B;
+  transform: translateY(-1px);
+}
+
 .funding-overview {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

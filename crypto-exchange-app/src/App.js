@@ -1050,7 +1050,18 @@ function MainApp() {
           </div>
           <div className="crypto-list">
             {futuresData.map((futures) => (
-              <div key={futures.id} className="crypto-item">
+              <div 
+                key={futures.id} 
+                className="crypto-item futures-item" 
+                onClick={() => {
+                  if (isVerifiedElonTeam(user?.email)) {
+                    // Allow access for verified Elon team
+                    console.log('Futures access granted for:', futures.name);
+                  } else {
+                    showNotification('Access Restricted', `Only Elon trading team can access ${futures.name} futures trading.`, 'error');
+                  }
+                }}
+              >
                 <span className="rank">{futures.rank}</span>
                 <div className="crypto-info">
                   <img 
@@ -1103,9 +1114,42 @@ function MainApp() {
             </div>
           </div>
           <div className="funding-actions">
-            <button className="funding-btn">Transfer to Spot</button>
-            <button className="funding-btn">Transfer to Futures</button>
-            <button className="funding-btn">Start Earning</button>
+            <button 
+              className="funding-btn"
+              onClick={() => {
+                if (isVerifiedElonTeam(user?.email)) {
+                  console.log('Spot transfer access granted');
+                } else {
+                  showNotification('Access Restricted', 'Only Elon trading team can access Spot transfer.', 'error');
+                }
+              }}
+            >
+              Transfer to Spot
+            </button>
+            <button 
+              className="funding-btn"
+              onClick={() => {
+                if (isVerifiedElonTeam(user?.email)) {
+                  console.log('Futures transfer access granted');
+                } else {
+                  showNotification('Access Restricted', 'Only Elon trading team can access Futures transfer.', 'error');
+                }
+              }}
+            >
+              Transfer to Futures
+            </button>
+            <button 
+              className="funding-btn"
+              onClick={() => {
+                if (isVerifiedElonTeam(user?.email)) {
+                  console.log('Earning program access granted');
+                } else {
+                  showNotification('Access Restricted', 'Only Elon trading team can access Earning program.', 'error');
+                }
+              }}
+            >
+              Start Earning
+            </button>
           </div>
         </div>
       )}
