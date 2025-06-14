@@ -1,0 +1,65 @@
+ERROR in ./src/App.js
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /home/runner/workspace/crypto-exchange-app/src/App.js: Unexpected character '₿'. (1541:20)
+
+  1539 |                 
+  1540 |                   
+> 1541 |                     ₿
+       |                     ^
+  1542 |                   
+  1543 |                   <h1>Eloncrypto</h1>
+  1544 |                   
+    at constructor (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:363:19)
+    at FlowParserMixin.raise (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:6609:19)
+    at FlowParserMixin.getTokenFromCode (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:6316:16)
+    at FlowParserMixin.getTokenFromCode (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4809:11)
+    at FlowParserMixin.getTokenFromCode (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3207:13)
+    at FlowParserMixin.nextToken (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:5792:10)
+    at FlowParserMixin.next (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:5702:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11578:10)
+    at FlowParserMixin.parseParenAndDistinguishExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3603:18)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11262:23)
+    at FlowParserMixin.parseExprAtom (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:4776:20)
+    at FlowParserMixin.parseExprSubscripts (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:11012:23)
+    at FlowParserMixin.parseUpdate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10997:21)
+    at FlowParserMixin.parseMaybeUnary (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10977:23)
+    at FlowParserMixin.parseMaybeUnaryOrPrivate (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10830:61)
+    at FlowParserMixin.parseExprOps (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10835:23)
+    at FlowParserMixin.parseMaybeConditional (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10812:23)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10765:21)
+    at FlowParserMixin.parseMaybeAssign (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3561:18)
+    at FlowParserMixin.parseExpressionBase (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10718:23)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10714:39
+    at FlowParserMixin.allowInAnd (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12356:16)
+    at FlowParserMixin.parseExpression (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:10714:17)
+    at FlowParserMixin.parseReturnStatement (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13061:28)
+    at FlowParserMixin.parseStatementContent (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12716:21)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12685:17)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2928:24)
+    at FlowParserMixin.parseStatementListItem (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12665:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13235:61)
+    at FlowParserMixin.parseBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13228:10)
+    at FlowParserMixin.parseBlock (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13216:10)
+    at FlowParserMixin.parseStatementContent (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12777:21)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12685:17)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2928:24)
+    at FlowParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12675:17)
+    at FlowParserMixin.parseIfStatement (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13049:28)
+    at FlowParserMixin.parseStatementContent (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12714:21)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12685:17)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2928:24)
+    at FlowParserMixin.parseStatementListItem (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12665:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13235:61)
+    at FlowParserMixin.parseBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13228:10)
+    at FlowParserMixin.parseBlock (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13216:10)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12035:24)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2905:11)
+    at FlowParserMixin.parseFunctionBodyAndFinish (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12021:10)
+    at FlowParserMixin.parseFunctionBodyAndFinish (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2913:18)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13360:12
+    at FlowParserMixin.withSmartMixTopicForbiddingContext (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12338:14)
+    at FlowParserMixin.parseFunction (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13359:10)
+ERROR
+[eslint] 
+src/App.js
+  Line 1541:20:  Parsing error: Unexpected character '₿'. (1541:20)
