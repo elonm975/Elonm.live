@@ -1637,14 +1637,14 @@ function ResetPassword() {
 
 function App() {
   return (
-    
-      
-        
-          
-          
-        
-      
-    
+    <ErrorBoundary>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Routes>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
