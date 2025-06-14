@@ -913,8 +913,7 @@ function MainApp() {
           <span className="btn-icon">🔄</span>
           Transfer
         </button>
-        <button```
- className="action-btn buy-btn">
+        <button className="action-btn buy-btn">
           <span className="btn-icon">💰</span>
           Buy
         </button>
@@ -926,54 +925,66 @@ function MainApp() {
         <button className="asset-tab-btn">Funding</button>
       </div>
 
-      <div className="portfolio-section">
+      
         <h3>Portfolio</h3>
         {portfolio.length > 0 ? (
-          <div className="portfolio-list">
+          
             {portfolio.map(asset => {
               const currentPrice = cryptoData.find(c => c.id === asset.cryptoId)?.price || asset.purchasePrice;
               const currentValue = asset.amount * currentPrice;
               const profit = currentValue - (asset.amount * asset.purchasePrice);
               return (
-                <div key={asset.id} className="portfolio-item">
+                
                   <img src={`https://cryptoicons.org/api/icon/${asset.cryptoId}/32`} alt={asset.cryptoName} className="crypto-icon" />
-                  <div className="portfolio-details">
-                    <div className="crypto-name">{asset.cryptoName}</div>
-                    <div className="crypto-amount">{asset.amount.toFixed(6)}</div>
-                  </div>
-                  <div className="portfolio-value">
-                    <div className="value">${currentValue.toLocaleString()}</div>
-                    <div className={`change ${profit >= 0 ? 'positive' : 'negative'}`}>
+                  
+                    
+                      {asset.cryptoName}
+                    
+                    
+                      {asset.amount.toFixed(6)}
+                    
+                  
+                  
+                    
+                      ${currentValue.toLocaleString()}
+                    
+                    
                       {profit >= 0 ? '+' : ''}${profit.toFixed(2)}
-                    </div>
-                  </div>
-                </div>
+                    
+                  
+                
               );
             })}
-          </div>
+          
         ) : (
-          <div className="empty-portfolio">
+          
             <p>No assets in your portfolio yet</p>
-          </div>
+          
         )}
-      </div>
+      
 
-      <div className="recent-transactions">
+      
         <h3>Recent Transactions</h3>
-        <div className="transactions-list">
+        
           {transactions.slice(0, 5).map(tx => (
-            <div key={tx.id} className="transaction-item">
-              <span className={`type-badge ${tx.type}`}>{tx.type}</span>
-              <div className="transaction-details">
-                <div className="crypto-name">{tx.cryptoName}</div>
-                <div className="amount">{tx.amount.toFixed(6)}</div>
-              </div>
-              <div className="timestamp">{new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}</div>
-            </div>
+            
+              
+                {tx.type}
+              
+              
+                
+                  {tx.cryptoName}
+                
+                
+                  {tx.amount.toFixed(6)}
+                
+              
+              {new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}
+            
           ))}
-        </div>
-      </div>
-    </div>
+        
+      
+    
   );
 
   const renderMarkets = () => {
@@ -987,513 +998,520 @@ function MainApp() {
     const totalMarketCap = cryptoData.reduce((total, crypto) => total + (crypto.market_cap || 0), 0);
 
     return (
-      <div className="markets-tab">
-        <div className="markets-header">
-          <h2>Markets</h2>
-          <div className="market-stats">
-            <div className="stat-item">
-              <span className="stat-label">24h Vol</span>
-              <span className="stat-value">${(totalVolume / 1000000000).toFixed(1)}B</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Market Cap</span>
-              <span className="stat-value">${(totalMarketCap / 1000000000000).toFixed(1)}T</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Coins</span>
-              <span className="stat-value">{filteredCryptos.length}</span>
-            </div>
-          </div>
-        </div>
+      
+        
+          
+            <h2>Markets</h2>
+            
+              
+                
+                  24h Vol
+                  ${(totalVolume / 1000000000).toFixed(1)}B
+                
+                
+                  Market Cap
+                  ${(totalMarketCap / 1000000000000).toFixed(1)}T
+                
+                
+                  Coins
+                  {filteredCryptos.length}
+                
+              
+            
+          
+        
 
-        <div className="market-controls">
-          <div className="market-tabs">
-            <button className="market-tab-btn active">Spot</button>
-            <button className="market-tab-btn">Futures</button>
-            <button className="market-tab-btn">Options</button>
-          </div>
-          <div className="market-filters">
-            <div className="filter-buttons">
-              <button className="filter-btn active">All</button>
-              <button className="filter-btn">Favorites</button>
-              <button className="filter-btn">Innovation</button>
-              <button className="filter-btn">DeFi</button>
-            </div>
-            <div className="search-container">
-              <input 
-                type="text" 
-                placeholder="Search coins..." 
-                className="market-search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button 
-                  className="clear-search"
-                  onClick={() => setSearchQuery('')}
-                >
-                  ×
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+        
+          
+            
+              
+                Spot
+                Futures
+                Options
+              
+            
+            
+              
+                
+                  All
+                  Favorites
+                  Innovation
+                  DeFi
+                
+              
+              
+                
+                  
+                  {searchQuery && (
+                    
+                      ×
+                    
+                  )}
+                
+              
+            
+          
+        
 
-        <div className="crypto-list">
+        
           {filteredCryptos.length > 0 ? (
             filteredCryptos.map((crypto) => (
-              <div key={crypto.id} className="crypto-item">
-                <span className="crypto-rank">#{crypto.rank || 'N/A'}</span>
-                <img 
-                  src={crypto.image || `https://cryptoicons.org/api/icon/${crypto.id}/32`} 
-                  alt={crypto.name} 
-                  className="crypto-icon"
+              
+                {crypto.rank || 'N/A'}
+                
+                  
                   onError={(e) => {
                     e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
                   }}
-                />
-                <div className="crypto-details">
-                  <div className="crypto-name">{crypto.name}</div>
-                  <div className="crypto-symbol">{crypto.symbol}</div>
-                </div>
-                <div className="crypto-price-info">
-                  <div className="price">
+                  
+                
+                
+                  
+                    {crypto.name}
+                  
+                  
+                    {crypto.symbol}
+                  
+                
+                
+                  
                     ${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}
-                  </div>
-                  <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                  
+                  
                     {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
-                  </div>
-                </div>
-                <button 
-                  className="trade-quick-btn"
-                  onClick={() => {
-                    setSelectedCrypto(crypto);
-                    setShowTrade(true);
-                  }}
-                >
+                  
+                
+                
                   Trade
-                </button>
-              </div>
+                
+              
             ))
           ) : (
-            <div className="no-results">
-              <p>No cryptocurrencies found matching "{searchQuery}"</p>
-              <button onClick={() => setSearchQuery('')} className="clear-search-btn">
-                Clear Search
-              </button>
-            </div>
+            
+              
+                No cryptocurrencies found matching "{searchQuery}"
+                
+                  Clear Search
+                
+              
+            
           )}
-        </div>
-      </div>
+        
+      
     );
   };
 
   const renderTrade = () => (
-    <div className="trade-tab">
-      <div className="trade-header">
-        <h2>Trade</h2>
-        <p>Select a cryptocurrency to start trading</p>
-      </div>
+    
+      
+        
+          <h2>Trade</h2>
+          <p>Select a cryptocurrency to start trading</p>
+        
+      
 
-      <div className="featured-cryptos">
-        <h3>Featured Pairs</h3>
-        <div className="crypto-grid">
-          {cryptoData.slice(0, 4).map(crypto => (
-            <div key={crypto.id} className="crypto-item">
-              <img src={`https://cryptoicons.org/api/icon/${crypto.id}/32`} alt={crypto.name} className="crypto-icon" />
-              <div className="crypto-details">
-                <div className="crypto-name">{crypto.name}</div>
-                <div className="price">${crypto.price.toLocaleString()}</div>
-                <div className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
-                  {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
-                </div>
-              </div>
-              <button 
-                className="trade-btn"
-                onClick={() => {
-                  setSelectedCrypto(crypto);
-                  setShowTrade(true);
-                }}
-              >
-                Trade
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+      
+        
+          <h3>Featured Pairs</h3>
+          
+            {cryptoData.slice(0, 4).map(crypto => (
+              
+                
+                  
+                  
+                    {crypto.name}
+                  
+                  
+                    ${crypto.price.toLocaleString()}
+                  
+                  
+                    {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
+                  
+                
+                
+                  Trade
+                
+              
+            ))}
+          
+        
+      
+    
   );
 
   const renderMenu = () => (
-    <div className="menu-tab">
-      <div className="menu-header">
-        <div className="user-profile">
-          <div className="profile-avatar">
-            {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
-          </div>
-          <div className="profile-info">
-            <h3>{userName || user.email?.split('@')[0]}</h3>
-            <p>Verified User</p>
-          </div>
-        </div>
-      </div>
+    
+      
+        
+          
+            
+              {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+            
+            
+              
+                {userName || user.email?.split('@')[0]}
+                Verified User
+              
+            
+          
+        
+      
 
-      <div className="menu-sections">
-        <div className="menu-section">
-          <h4>Account</h4>
-          <div className="menu-items">
-            <div className="menu-item" onClick={() => setShowProfileSettings(true)}>
-              <span className="menu-icon">👤</span>
-              <span>Profile Settings</span>
-              <span className="arrow">›</span>
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">🔒</span>
-              <span>Security</span>
-              <span className="arrow">›</span>
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">📊</span>
-              <span>Trading History</span>
-              <span className="arrow">›</span>
-            </div>
-          </div>
-        </div>
+      
+        
+          
+            
+              
+                Account
+                
+                  
+                    👤
+                    Profile Settings
+                    ›
+                  
+                  
+                    🔒
+                    Security
+                    ›
+                  
+                  
+                    📊
+                    Trading History
+                    ›
+                  
+                
+              
+            
 
-        <div className="menu-section">
-          <h4>Support</h4>
-          <div className="menu-items">
-            <div className="menu-item">
-              <span className="menu-icon">💬</span>
-              <span>Customer Support</span>
-              <span className="arrow">›</span>
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">❓</span>
-              <span>Help Center</span>
-              <span className="arrow">›</span>
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">📞</span>
-              <span>Contact Us</span>
-              <span className="arrow">›</span>
-            </div>
-          </div>
-        </div>
+            
+              
+                Support
+                
+                  
+                    💬
+                    Customer Support
+                    ›
+                  
+                  
+                    ❓
+                    Help Center
+                    ›
+                  
+                  
+                    📞
+                    Contact Us
+                    ›
+                  
+                
+              
+            
 
-        <div className="menu-section">
-          <h4>Settings</h4>
-          <div className="menu-items">
-            <div className="menu-item">
-              <span className="menu-icon">🌙</span>
-              <span>Dark Mode</span>
-              <div className="toggle active"></div>
-            </div>
-            <div className="menu-item" onClick={async () => {
-              const granted = await requestNotificationPermission();
-              if (granted) {
-                showNotification('Notifications Enabled', 'You will now receive push notifications');
-              }
-            }}>
-              <span className="menu-icon">🔔</span>
-              <span>Notifications</span>
-              <div className={`toggle ${Notification.permission === 'granted' ? 'active' : ''}`}></div>
-            </div>
-            <div className="menu-item" onClick={() => setShowLanguageModal(true)}>
-              <span className="menu-icon">🌍</span>
-              <span>Language</span>
-              <div className="language-display">
-                {languages.find(lang => lang.code === selectedLanguage)?.flag} {languages.find(lang => lang.code === selectedLanguage)?.name}
-              </div>
-              <span className="arrow">›</span>
-            </div>
-          </div>
-        </div>
+            
+              
+                Settings
+                
+                  
+                    🌙
+                    Dark Mode
+                    
+                  
+                  
+                    🔔
+                    Notifications
+                    
+                  
+                  
+                    🌍
+                    Language
+                    {languages.find(lang => lang.code === selectedLanguage)?.flag} {languages.find(lang => lang.code === selectedLanguage)?.name}
+                    ›
+                  
+                
+              
+            
 
-        <div className="menu-section">
-          <h4>Biometric Security</h4>
-          <div className="menu-items">
-            <div className="menu-item" onClick={enableFingerprint}>
-              <span className="menu-icon">👆</span>
-              <span>Fingerprint Login</span>
-              <div className={`toggle ${fingerprintEnabled ? 'active' : ''}`}></div>
-            </div>
-            <div className="menu-item" onClick={enableFaceId}>
-              <span className="menu-icon">👤</span>
-              <span>Face ID Login</span>
-              <div className={`toggle ${faceIdEnabled ? 'active' : ''}`}></div>
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">🔐</span>
-              <span>2FA Authentication</span>
-              <div className="toggle"></div>
-            </div>
-          </div>
-        </div>
+            
+              
+                Biometric Security
+                
+                  
+                    👆
+                    Fingerprint Login
+                    
+                  
+                  
+                    👤
+                    Face ID Login
+                    
+                  
+                  
+                    🔐
+                    2FA Authentication
+                    
+                  
+                
+              
+            
 
-        <div className="menu-section">
-          <div className="menu-items">
-            <div className="menu-item logout" onClick={() => signOut(auth)}>
-              <span className="menu-icon">🚪</span>
-              <span>Logout</span>
-              <span className="arrow">›</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            
+              
+                
+                  
+                    🚪
+                    Logout
+                    ›
+                  
+                
+              
+            
+          
+        
+      
+    
   );
 
   return (
-    <div className="App bybit-style">
-      <header className="app-header">
-        <div className="header-content">
-          <h1>Eloncrypto</h1>
-          <div className="balance-display">
-            ${balance.toLocaleString()}
-          </div>
-        </div>
-      </header>
+    
+      
+        
+          
+            <h1>Eloncrypto</h1>
+            
+              ${balance.toLocaleString()}
+            
+          
+        
+      
 
-      <main className="main-content">
+      
         {activeTab === 'home' && renderHome()}
         {activeTab === 'assets' && renderAssets()}
         {activeTab === 'markets' && renderMarkets()}
         {activeTab === 'trade' && renderTrade()}
         {activeTab === 'menu' && renderMenu()}
-      </main>
+      
 
-      <nav className="bottom-navigation">
-        <div 
-          className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
-          onClick={() => setActiveTab('home')}
-        >
-          <span className="nav-icon">🏠</span>
-          <span className="nav-label">Home</span>
-        </div>
-        <div 
-          className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`}
-          onClick={() => setActiveTab('assets')}
-        >
-          <span className="nav-icon">💰</span>
-          <span className="nav-label">Assets</span>
-        </div>
-        <div 
-          className={`nav-item ${activeTab === 'markets' ? 'active' : ''}`}
-          onClick={() => setActiveTab('markets')}
-        >
-          <span className="nav-icon">📈</span>
-          <span className="nav-label">Markets</span>
-        </div>
-        <div 
-          className={`nav-item ${activeTab === 'trade' ? 'active' : ''}`}
-          onClick={() => setActiveTab('trade')}
-        >
-          <span className="nav-icon">⚡</span>
-          <span className="nav-label">Trade</span>
-        </div>
-        <div 
-          className={`nav-item ${activeTab === 'menu' ? 'active' : ''}`}
-          onClick={() => setActiveTab('menu')}
-        >
-          <span className="nav-icon">☰</span>
-          <span className="nav-label">Menu</span>
-        </div>
-      </nav>
+      
+        
+          
+            
+              🏠
+              Home
+            
+          
+          
+            
+              💰
+              Assets
+            
+          
+          
+            
+              📈
+              Markets
+            
+          
+          
+            
+              ⚡
+              Trade
+            
+          
+          
+            
+              ☰
+              Menu
+            
+          
+        
+      
 
       {showTrade && selectedCrypto && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Trade {selectedCrypto.name}</h3>
-            <p>Current Price: ${selectedCrypto.price.toLocaleString()}</p>
-            <input
-              type="number"
-              placeholder="Amount to trade"
-              value={tradeAmount}
-              onChange={(e) => setTradeAmount(e.target.value)}
-              step="0.000001"
-            />
-            {tradeAmount && (
-              <p>Total: ${(parseFloat(tradeAmount) * selectedCrypto.price).toFixed(2)}</p>
-            )}
-            {error && <div className="error">{error}</div>}
-            <div className="trade-buttons">
-              <button 
-                className="buy-btn"
-                onClick={() => handleTrade('buy')}
-              >
-                Buy
-              </button>
-              <button 
-                className="sell-btn"
-                onClick={() => handleTrade('sell')}
-              >
-                Sell
-              </button>
-            </div>
-            <button onClick={() => {
-              setShowTrade(false);
-              setSelectedCrypto(null);
-              setTradeAmount('');
-              setError('');
-            }}>
-              Cancel
-            </button>
-          </div>
-        </div>
+        
+          
+            
+              <h3>Trade {selectedCrypto.name}</h3>
+              <p>Current Price: ${selectedCrypto.price.toLocaleString()}</p>
+              
+              {tradeAmount && (
+                
+              )}
+              {error && }
+              
+                
+                  Buy
+                
+                
+                  Sell
+                
+              
+              
+                Cancel
+              
+            
+          
+        
       )}
 
       {showDeposit && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Deposit Funds</h3>
-            <div className="deposit-methods">
-              <div className="deposit-method">
-                <h4>Bitcoin Deposit</h4>
-                <div className="payment-info">
-                  <p>Send Bitcoin to this address:</p>
-                  <div className="address-container">
-                    <span className="address">{bitcoinAddress}</span>
-                    <button onClick={() => copyToClipboard(bitcoinAddress)}>Copy</button>
-                  </div>
-                  <p className="instruction">⚠️ Only send Bitcoin to this address.</p>
-                </div>
-              </div>
-
-              <div className="deposit-method">
-                <h4>Bank Transfer</h4>
-                <div className="payment-info">
-                  <div className="bank-details">
-                    <p><strong>Account Name:</strong> {bankDetails.accountName}</p>
-                    <p><strong>Account Number:</strong> {bankDetails.accountNumber}</p>
-                    <p><strong>Bank Name:</strong> {bankDetails.bankName}</p>
-                    <p><strong>Routing Number:</strong> {bankDetails.routingNumber}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button onClick={() => setShowDeposit(false)}>Close</button>
-          </div>
-        </div>
+        
+          
+            
+              <h3>Deposit Funds</h3>
+              
+                
+                  
+                    Bitcoin Deposit
+                    
+                      Send Bitcoin to this address:
+                      
+                        
+                          {bitcoinAddress}
+                          Copy
+                        
+                        ⚠️ Only send Bitcoin to this address.
+                      
+                    
+                  
+                  
+                    Bank Transfer
+                    
+                      
+                        
+                          <strong>Account Name:</strong> {bankDetails.accountName}
+                        
+                        
+                          <strong>Account Number:</strong> {bankDetails.accountNumber}
+                        
+                        
+                          <strong>Bank Name:</strong> {bankDetails.bankName}
+                        
+                        
+                          <strong>Routing Number:</strong> {bankDetails.routingNumber}
+                        
+                      
+                    
+                  
+                
+              
+              
+                Close
+              
+            
+          
+        
       )}
 
       {showWithdraw && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Withdraw Funds</h3>
-            <p>Available Balance: ${balance.toLocaleString()}</p>
-            <p>Contact support to process withdrawals to your registered bank account.</p>
-            <button onClick={() => setShowWithdraw(false)}>Close</button>
-          </div>
-        </div>
+        
+          
+            
+              <h3>Withdraw Funds</h3>
+              <p>Available Balance: ${balance.toLocaleString()}</p>
+              <p>Contact support to process withdrawals to your registered bank account.</p>
+              
+                Close
+              
+            
+          
+        
       )}
 
       {showProfileSettings && (
-        <div className="modal-overlay">
-          <div className="modal profile-modal">
-            <div className="modal-header">
-              <h3>Profile Settings</h3>
-              <button className="close-btn" onClick={() => setShowProfileSettings(false)}>×</button>
-            </div>
+        
+          
+            
+              
+                
+                  
+                    Profile Settings
+                    
+                      ×
+                    
+                  
+                
 
-            <div className="profile-modal-content">
-              <div className="profile-picture-section">
-                <div className="profile-picture-preview">
-                  <div className="default-avatar">
-                    {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
-                  </div>
-                </div>
-                <label className="upload-btn">
-                  Choose Photo
-                  <input type="file" className="file-input" accept="image/*" />
-                </label>
-              </div>
-
-              <div className="form-group">
-                <label>Full Name</label>
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  placeholder="Enter your full name"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Email Address</label>
-                <input
-                  type="email"
-                  value={user.email}
-                  disabled
-                />
-                <small>Email cannot be changed</small>
-              </div>
-
-              <div className="form-group">
-                <label>Phone Number</label>
-                <input
-                  type="tel"
-                  value={userPhone}
-                  onChange={(e) => setUserPhone(e.target.value)}
-                  placeholder="Enter your phone number"
-                />
-              </div>
-
-              <div className="form-actions">
-                <button className="save-btn">Save Changes</button>
-                <button className="cancel-btn" onClick={() => setShowProfileSettings(false)}>Cancel</button>
-              </div>
-
-              <div className="password-section">
-                <h4>Security Settings</h4>
-                <button className="change-password-btn">Change Password</button>
-              </div>
-            </div>
-          </div>
-        </div>
+                
+                  
+                    
+                      
+                        
+                          {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                        
+                      
+                      
+                        Choose Photo
+                        
+                      
+                    
+                    
+                      Full Name
+                      
+                    
+                    
+                      Email Address
+                      
+                      Email cannot be changed
+                    
+                    
+                      Phone Number
+                      
+                    
+                    
+                      Save Changes
+                      Cancel
+                    
+                    
+                      <h4>Security Settings</h4>
+                      Change Password
+                    
+                  
+                
+              
+            
+          
+        
       )}
 
       {showLanguageModal && (
-        <div className="modal-overlay">
-          <div className="modal language-modal">
-            <div className="modal-header">
-              <h3>Select Language</h3>
-              <button className="close-btn" onClick={() => setShowLanguageModal(false)}>×</button>
-            </div>
+        
+          
+            
+              
+                
+                  Select Language
+                  
+                    ×
+                  
+                
+              
 
-            <div className="language-list">
-              {languages.map((language) => (
-                <div 
-                  key={language.code}
-                  className={`language-item ${selectedLanguage === language.code ? 'selected' : ''}`}
-                  onClick={() => {
-                    setSelectedLanguage(language.code);
-                    setShowLanguageModal(false);
-                  }}
-                >
-                  <span className="language-flag">{language.flag}</span>
-                  <span className="language-name">{language.name}</span>
-                  {selectedLanguage === language.code && (
-                    <span className="checkmark">✓</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              
+                {languages.map((language) => (
+                  
+                    
+                      {language.flag}
+                      {language.name}
+                      {selectedLanguage === language.code && (
+                        ✓
+                      )}
+                    
+                  
+                ))}
+              
+            
+          
+        
       )}
 
-      <div className="whatsapp-support">
-        <a 
-          href="https://wa.me/1234567890?text=Hello, I need support with my Eloncrypto account" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="whatsapp-btn"
-        >
-          <span className="whatsapp-icon">💬</span>
-        </a>
-      </div>
-    </div>
+      
+        
+          
+            💬
+          
+        
+      
+    
   );
 }
 
@@ -1537,134 +1555,141 @@ function ResetPassword() {
 
   if (success) {
     return (
-      <div className="bybit-login-page">
-        <div className="animated-background">
-          <div className="floating-shape shape-1"></div>
-          <div className="floating-shape shape-2"></div>
-          <div className="floating-shape shape-3"></div>
-          <div className="floating-shape shape-4"></div>
-          <div className="floating-shape shape-5"></div>
-          <div className="floating-shape shape-6"></div>
-          <div className="gradient-orb orb-1"></div>
-          <div className="gradient-orb orb-2"></div>
-          <div className="gradient-orb orb-3"></div>
-        </div>
+      
+        
+          
+            
+            
+            
+            
+            
+            
+            
+            
+          
+        
 
-        <div className="login-container">
-          <div className="login-card">
-            <div className="login-header">
-              <div className="logo-container">
-                <div className="crypto-logo">
-                  <span className="logo-icon">₿</span>
-                </div>
-                <h1>Eloncrypto</h1>
-                <p className="tagline">Advanced Crypto Trading Platform</p>
-              </div>
-            </div>
+        
+          
+            
+              
+                
+                  
+                    ₿
+                  
+                  <h1>Eloncrypto</h1>
+                  
+                
+              
+            
 
-            <div className="auth-form-container">
-              <div className="reset-success">
-                <div className="success-icon">✅</div>
-                <h2>Password Changed Successfully!</h2>
-                <p>Your password has been updated successfully.</p>
-                <p className="form-subtitle">You can now login with your new password.</p>
-                <div className="form-actions">
-                  <button 
-                    className="submit-btn floating-reset-btn"
-                    onClick={() => navigate('/')}
-                  >
-                    Back to Login
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            
+              
+                
+                  
+                    ✅
+                  
+                  <h2>Password Changed Successfully!</h2>
+                  <p>Your password has been updated successfully.</p>
+                  <p className="form-subtitle">You can now login with your new password.</p>
+                  
+                    
+                      Back to Login
+                    
+                  
+                
+              
+            
+          
+        
+      
     );
   }
 
   return (
-    <div className="bybit-login-page">
-      <div className="animated-background">
-        <div className="floating-shape shape-1"></div>
-        <div className="floating-shape shape-2"></div>
-        <div className="floating-shape shape-3"></div>
-        <div className="floating-shape shape-4"></div>
-        <div className="floating-shape shape-5"></div>
-        <div className="floating-shape shape-6"></div>
-        <div className="gradient-orb orb-1"></div>
-        <div className="gradient-orb orb-2"></div>
-        <div className="gradient-orb orb-3"></div>
-      </div>
+    
+      
+        
+          
+            
+            
+            
+            
+            
+            
+            
+            
+          
+        
 
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="logo-container">
-              <div className="crypto-logo">
-                <span className="logo-icon">₿</span>
-              </div>
-              <h1>Eloncrypto</h1>
-              <p className="tagline">Reset Your Password</p>
-            </div>
-          </div>
+        
+          
+            
+              
+                
+                  
+                    ₿
+                  
+                  <h1>Eloncrypto</h1>
+                  
+                
+              
+            
 
-          <div className="auth-form-container">
-            <div className="auth-form modern">
-              <h2>Create New Password</h2>
-              <p className="form-subtitle">Enter your new password below</p>
-              <form onSubmit={handleResetPassword} className="modern-form">
-                <div className="form-fields">
-                  <div className="input-group">
-                    <input
-                      type="password"
-                      placeholder="New Password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                      className="modern-input"
-                    />
-                  </div>
-                  <div className="input-group">
-                    <input
-                      type="password"
-                      placeholder="Confirm Password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                      className="modern-input"
-                    />
-                  </div>
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                <button type="submit" className="submit-btn floating-reset-btn">
-                  Reset Password
-                </button>
-                <div className="form-footer">
-                  <button type="button" className="back-btn" onClick={() => navigate('/')}>
-                    ← Back to Login
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            
+              
+                
+                  
+                    <h2>Create New Password</h2>
+                    Enter your new password below
+                    
+                      
+                        
+                          
+                          
+                          required
+                          
+                        
+                      
+                      
+                        
+                          
+                          
+                          required
+                          
+                        
+                      
+                    
+                    {error && }
+                    
+                      Reset Password
+                    
+                    
+                      
+                        ← Back to Login
+                      
+                    
+                  
+                
+              
+            
+          
+        
+      
+    
   );
 }
 
 function App() {
   return (
-    <ErrorBoundary>
-      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <Routes>
-          <Route path="/" element={<MainApp />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Routes>
-      </Router>
-    </ErrorBoundary>
+    
+      
+        
+          
+          
+        
+      
+    
   );
 }
 
