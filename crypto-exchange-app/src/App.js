@@ -89,6 +89,7 @@ function MainApp() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [fingerprintEnabled, setFingerprintEnabled] = useState(false);
   const [faceIdEnabled, setFaceIdEnabled] = useState(false);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
 
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -286,6 +287,12 @@ function MainApp() {
       if (user) {
         setUser(user);
         await loadUserData(user.uid);
+
+        // Check if this is first login for welcome message
+        const hasSeenWelcome = localStorage.getItem(`welcomeSeen_${user.uid}`);
+        if (!hasSeenWelcome) {
+          setShowWelcomeMessage(true);
+        }
 
         // Load saved biometric settings
         const savedFingerprint = localStorage.getItem('fingerprintEnabled') === 'true';
@@ -1343,81 +1350,73 @@ function MainApp() {
     );
 
     return (
-      <div className="trade-tab">
-        <div className="trade-header">
-          <div className="header-content">
-            <h2>Trade</h2>
-            <p>Over {cryptoData.length} cryptocurrencies available for trading</p>
-          </div>
-        </div>
-
-        <div className="trade-controls">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search coins to trade..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery('')}
-                className="clear-search"
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <div className="trade-filters">
-            <button className="filter-btn active">All</button>
-            <button className="filter-btn">Top Gainers</button>
-            <button className="filter-btn">Top Losers</button>
-            <button className="filter-btn">High Volume</button>
-          </div>
-        </div>
-
-        <div className="featured-pairs">
-          <div className="section-header">
-            <h3>Featured Pairs</h3>
-          </div>
-          <div className="pairs-grid">
-            {cryptoData.slice(0, 6).map(crypto => (
-              <div key={crypto.id} className="pair-card" onClick={() => { 
-                if (isVerifiedElonTeam(user?.email)) {
-                  setSelectedCrypto(crypto); 
-                  setShowTrade(true);
-                } else {
-                  showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
-                }
-              }}>
-                <div className="pair-info">
-                  <img src={crypto.image} alt={crypto.name} className="crypto-icon" />
-                  <div className="pair-details">
-                    <span className="name">{crypto.name}</span>
-                    <span className="symbol">{crypto.symbol}</span>
-                    <span className="price">${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}</span>
-                    <span className={`change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
-                      {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
-                    </span>
-                  </div>
-                </div>
-                <button className="trade-btn">
-                  Trade
-                </button>
+      <div className="binance-trade-tab">
+        <div className="binance-trade-header">
+          <div className="trade-title-section">
+            <h2>🚀 Spot Trading</h2>
+            <div className="trade-stats">
+              <div className="stat-item">
+                <span className="stat-label">24h Change</span>
+                <span className="stat-value positive">+2.34%</span>
               </div>
-            ))}
+              <div className="stat-item">
+                <span className="stat-label">24h Volume</span>
+                <span className="stat-value">₿45,234.56</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Available Pairs</span>
+                <span className="stat-value">{cryptoData.length}</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="all-trading-pairs">
-          <div className="section-header">
-            <h3>All Trading Pairs ({filteredTradeCoins.length})</h3>
+        <div className="binance-controls">
+          <div className="market-type-tabs">
+            <button className="market-tab active">Spot</button>
+            <button className="market-tab">Margin</button>
+            <button className="market-tab">Futures</button>
+            <button className="market-tab">Options</button>
           </div>
-          <div className="trading-pairs-list">
+          
+          <div className="search-and-filters">
+            <div className="search-wrapper">
+              <input
+                type="text"
+                placeholder="🔍 Search coins..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="binance-search"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="clear-search">×</button>
+              )}
+            </div>
+            
+            <div className="filter-tabs">
+              <button className="filter-tab active">All</button>
+              <button className="filter-tab">⭐ Favorites</button>
+              <button className="filter-tab">📈 Gainers</button>
+              <button className="filter-tab">📉 Losers</button>
+              <button className="filter-tab">🔥 Hot</button>
+              <button className="filter-tab">🆕 New</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="binance-market-list">
+          <div className="market-headers">
+            <div className="header-col pair-header">Pair</div>
+            <div className="header-col price-header">Last Price</div>
+            <div className="header-col change-header">24h Change %</div>
+            <div className="header-col volume-header">24h Volume</div>
+            <div className="header-col action-header">Action</div>
+          </div>
+
+          <div className="market-rows">
             {filteredTradeCoins.length > 0 ? (
-              filteredTradeCoins.map((crypto) => (
-                <div key={crypto.id} className="trading-pair-item" onClick={() => { 
+              filteredTradeCoins.map((crypto, index) => (
+                <div key={crypto.id} className="market-row" onClick={() => { 
                   if (isVerifiedElonTeam(user?.email)) {
                     setSelectedCrypto(crypto); 
                     setShowTrade(true);
@@ -1425,48 +1424,81 @@ function MainApp() {
                     showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
                   }
                 }}>
-                  <div className="pair-rank">#{crypto.rank}</div>
-                  <div className="pair-crypto-info">
-                    <img 
-                      src={crypto.image} 
-                      alt={crypto.name}
-                      className="crypto-icon"
-                      onError={(e) => {
-                        e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
-                      }}
-                    />
-                    <div className="pair-crypto-details">
-                      <div className="pair-name">{crypto.name}</div>
-                      <div className="pair-symbol">{crypto.symbol}/USDT</div>
+                  <div className="pair-col">
+                    <div className="pair-info">
+                      <img 
+                        src={crypto.image} 
+                        alt={crypto.name}
+                        className="pair-icon"
+                        onError={(e) => {
+                          e.target.src = `https://cryptoicons.org/api/icon/${crypto.id}/32`;
+                        }}
+                      />
+                      <div className="pair-details">
+                        <div className="pair-name">{crypto.symbol}/USDT</div>
+                        <div className="pair-subtitle">{crypto.name}</div>
+                      </div>
+                      {index < 10 && <div className="hot-badge">🔥</div>}
                     </div>
                   </div>
-                  <div className="pair-price-info">
-                    <div className="pair-price">
+                  
+                  <div className="price-col">
+                    <div className="current-price">
+                      {crypto.price < 1 ? crypto.price.toFixed(8) : crypto.price.toLocaleString()}
+                    </div>
+                    <div className="price-usd">
                       ${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}
                     </div>
-                    <div className={`pair-change ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                  </div>
+                  
+                  <div className="change-col">
+                    <div className={`change-percent ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
                       {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
                     </div>
+                    <div className={`change-amount ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
+                      {crypto.change >= 0 ? '+' : ''}${(crypto.price * crypto.change / 100).toFixed(4)}
+                    </div>
                   </div>
-                  <div className="pair-volume">
-                    <div className="volume-label">24h Volume</div>
-                    <div className="volume-value">
+                  
+                  <div className="volume-col">
+                    <div className="volume-crypto">
+                      {crypto.volume ? (crypto.volume / 1000000).toFixed(2) + 'M' : 'N/A'} {crypto.symbol}
+                    </div>
+                    <div className="volume-usd">
                       ${crypto.volume ? (crypto.volume / 1000000).toFixed(1) + 'M' : 'N/A'}
                     </div>
                   </div>
-                  <button className="pair-trade-btn">
-                    Trade
-                  </button>
+                  
+                  <div className="action-col">
+                    <button className="trade-now-btn">Trade</button>
+                  </div>
                 </div>
               ))
             ) : (
-              <div className="no-results">
-                <p>No trading pairs found matching "{searchQuery}"</p>
-                <button onClick={() => setSearchQuery('')} className="clear-btn">
+              <div className="no-results-binance">
+                <div className="no-results-icon">🔍</div>
+                <div className="no-results-title">No trading pairs found</div>
+                <div className="no-results-subtitle">Try adjusting your search or filters</div>
+                <button onClick={() => setSearchQuery('')} className="clear-filters-btn">
                   Clear Search
                 </button>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="trade-info-footer">
+          <div className="info-item">
+            <span className="info-icon">ℹ️</span>
+            <span className="info-text">Real-time market data powered by Binance API</span>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">⚡</span>
+            <span className="info-text">Ultra-low latency trading engine</span>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">🔒</span>
+            <span className="info-text">Bank-level security & insurance</span>
           </div>
         </div>
       </div>
@@ -1600,7 +1632,6 @@ function MainApp() {
       <div className="main-content">
         {activeTab === 'home' && renderHome()}
         {activeTab === 'assets' && renderAssets()}
-        {activeTab === 'markets' && renderMarkets()}
         {activeTab === 'trade' && renderTrade()}
         {activeTab === 'menu' && renderMenu()}
       </div>
@@ -1614,10 +1645,6 @@ function MainApp() {
           <div className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
             <span className="nav-icon">💰</span>
             <span className="nav-label">Assets</span>
-          </div>
-          <div className={`nav-item ${activeTab === 'markets' ? 'active' : ''}`} onClick={() => setActiveTab('markets')}>
-            <span className="nav-icon">📈</span>
-            <span className="nav-label">Markets</span>
           </div>
           <div className={`nav-item ${activeTab === 'trade' ? 'active' : ''}`} onClick={() => setActiveTab('trade')}>
             <span className="nav-icon">⚡</span>
@@ -1816,6 +1843,70 @@ function MainApp() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showWelcomeMessage && (
+        <div className="welcome-overlay">
+          <div className="welcome-message-container">
+            <div className="welcome-message-content">
+              <div className="welcome-header">
+                <div className="elon-avatar">🚀</div>
+                <h2>Welcome to the Official Elon Musk Investment Platform!</h2>
+              </div>
+              
+              <div className="welcome-body">
+                <div className="profit-highlight">
+                  <span className="profit-icon">💰</span>
+                  <p>Where <strong>ALL trading clients</strong> make <span className="massive-profits">MASSIVE PROFITS</span> within a short period of time!</p>
+                </div>
+                
+                <div className="platform-info">
+                  <div className="info-item">
+                    <span className="info-icon">🏆</span>
+                    <span>Founded by Elon Musk</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-icon">🔒</span>
+                    <span>Most Secured Exchange</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-icon">📈</span>
+                    <span>Most Profitable Platform</span>
+                  </div>
+                </div>
+                
+                <div className="welcome-stats">
+                  <div className="stat">
+                    <div className="stat-number">99.9%</div>
+                    <div className="stat-label">Success Rate</div>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-number">500%+</div>
+                    <div className="stat-label">Average Returns</div>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-number">24/7</div>
+                    <div className="stat-label">Trading Support</div>
+                  </div>
+                </div>
+                
+                <div className="welcome-footer">
+                  <p>🎯 <strong>Start your journey to financial freedom today!</strong></p>
+                </div>
+              </div>
+              
+              <button 
+                className="welcome-close-btn"
+                onClick={() => {
+                  setShowWelcomeMessage(false);
+                  localStorage.setItem(`welcomeSeen_${user.uid}`, 'true');
+                }}
+              >
+                Start Trading 🚀
+              </button>
             </div>
           </div>
         </div>
