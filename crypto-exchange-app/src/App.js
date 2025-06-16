@@ -1557,7 +1557,10 @@ function MainApp() {
         <div className="menu-section">
           <h4>Support</h4>
           <div className="menu-items">
-            <div className="menu-item">
+            <div 
+              className="menu-item" 
+              onClick={() => window.open('https://wa.me/4915210305922?text=Hello%2C%20I%20need%20help%20with%20my%20Eloncrypto%20Exchange%20account', '_blank')}
+            >
               <span className="menu-icon">💬</span>
               <span className="menu-text">Customer Support</span>
               <span className="menu-arrow">›</span>
