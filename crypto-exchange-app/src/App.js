@@ -1596,26 +1596,7 @@ function MainApp() {
           </div>
         </div>
 
-        <div className="menu-section">
-          <h4>Biometric Security</h4>
-          <div className="menu-items">
-            <div className="menu-item" onClick={enableFingerprint}>
-              <span className="menu-icon">👆</span>
-              <span className="menu-text">Fingerprint Login</span>
-              <input type="checkbox" checked={fingerprintEnabled} readOnly className="toggle-switch" />
-            </div>
-            <div className="menu-item" onClick={enableFaceId}>
-              <span className="menu-icon">👤</span>
-              <span className="menu-text">Face ID Login</span>
-              <input type="checkbox" checked={faceIdEnabled} readOnly className="toggle-switch" />
-            </div>
-            <div className="menu-item">
-              <span className="menu-icon">🔐</span>
-              <span className="menu-text">2FA Authentication</span>
-              <input type="checkbox" className="toggle-switch" />
-            </div>
-          </div>
-        </div>
+        
 
         <div className="menu-section">
           <div className="menu-items">
