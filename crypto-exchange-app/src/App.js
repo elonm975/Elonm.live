@@ -1449,7 +1449,6 @@ function MainApp() {
             <div className="header-col pair-header">Pair</div>
             <div className="header-col price-header">Last Price</div>
             <div className="header-col change-header">24h Change %</div>
-            <div className="header-col volume-header">24h Volume</div>
             <div className="header-col action-header">Action</div>
           </div>
 
@@ -1497,16 +1496,6 @@ function MainApp() {
                     <div className={`change-amount ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
                       {crypto.change >= 0 ? '+' : ''}${(crypto.price * crypto.change / 100).toFixed(4)}
                     </div>
-                  </div>
-                  
-                  <div className="volume-col" onClick={() => showVolumeDetails(crypto)}>
-                    <div className="volume-crypto">
-                      {crypto.volume ? (crypto.volume / 1000000).toFixed(2) + 'M' : 'N/A'} {crypto.symbol}
-                    </div>
-                    <div className="volume-usd">
-                      ${crypto.volume ? (crypto.volume / 1000000).toFixed(1) + 'M' : 'N/A'}
-                    </div>
-                    <div className="live-volume-indicator">🔴 LIVE</div>
                   </div>
                   
                   <div className="action-col">
