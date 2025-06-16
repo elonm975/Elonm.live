@@ -93,6 +93,7 @@ function MainApp() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [showVolumeModal, setShowVolumeModal] = useState(false);
   const [selectedVolumeData, setSelectedVolumeData] = useState(null);
+  const [showTradingHistory, setShowTradingHistory] = useState(false);
 
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -1545,7 +1546,7 @@ function MainApp() {
               <span className="menu-text">Security</span>
               <span className="menu-arrow">›</span>
             </div>
-            <div className="menu-item">
+            <div className="menu-item" onClick={() => setShowTradingHistory(true)}>
               <span className="menu-icon">📊</span>
               <span className="menu-text">Trading History</span>
               <span className="menu-arrow">›</span>
@@ -1885,6 +1886,125 @@ function MainApp() {
               </div>
 
               <button className="close-btn" onClick={() => setShowVolumeModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTradingHistory && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Trading History</h3>
+                <button className="close-btn" onClick={() => setShowTradingHistory(false)}>
+                  ×
+                </button>
+              </div>
+
+              <div className="trading-history-content">
+                <div className="history-tabs">
+                  <button className="history-tab active">All Transactions</button>
+                  <button className="history-tab">Deposits</button>
+                  <button className="history-tab">Withdrawals</button>
+                </div>
+
+                <div className="transaction-history-list">
+                  {transactions.length > 0 ? (
+                    <div className="history-transactions">
+                      <div className="history-header">
+                        <span className="history-col">Type</span>
+                        <span className="history-col">Asset</span>
+                        <span className="history-col">Amount</span>
+                        <span className="history-col">Status</span>
+                        <span className="history-col">Date</span>
+                      </div>
+                      {transactions.map(tx => (
+                        <div key={tx.id} className="history-row">
+                          <div className="history-col">
+                            <span className={`history-type-badge ${tx.type}`}>
+                              {tx.type === 'buy' ? '💰 Deposit' : 
+                               tx.type === 'sell' ? '💸 Withdrawal' : 
+                               tx.type}
+                            </span>
+                          </div>
+                          <div className="history-col">
+                            <div className="history-asset">
+                              <span className="asset-name">{tx.cryptoName}</span>
+                            </div>
+                          </div>
+                          <div className="history-col">
+                            <div className="history-amount">
+                              <span className="amount-crypto">{tx.amount.toFixed(6)}</span>
+                              <span className="amount-usd">${tx.total.toFixed(2)}</span>
+                            </div>
+                          </div>
+                          <div className="history-col">
+                            <span className="status-badge successful">
+                              ✅ Successful
+                            </span>
+                          </div>
+                          <div className="history-col">
+                            <span className="history-date">
+                              {new Date(tx.timestamp?.seconds * 1000).toLocaleDateString()}
+                            </span>
+                            <span className="history-time">
+                              {new Date(tx.timestamp?.seconds * 1000).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-history">
+                      <div className="no-history-icon">📊</div>
+                      <h4>No Transactions Yet</h4>
+                      <p>You haven't made any deposits or withdrawals yet.</p>
+                      <p>Start trading to see your transaction history here.</p>
+                      <div className="history-actions">
+                        <button className="history-action-btn deposit" onClick={() => {
+                          setShowTradingHistory(false);
+                          setShowDeposit(true);
+                        }}>
+                          Make a Deposit
+                        </button>
+                        <button className="history-action-btn trade" onClick={() => {
+                          setShowTradingHistory(false);
+                          setActiveTab('trade');
+                        }}>
+                          Start Trading
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="history-summary">
+                  <div className="summary-item">
+                    <span className="summary-label">Total Deposits</span>
+                    <span className="summary-value">
+                      ${transactions.filter(tx => tx.type === 'buy').reduce((sum, tx) => sum + tx.total, 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="summary-item">
+                    <span className="summary-label">Total Withdrawals</span>
+                    <span className="summary-value">
+                      ${transactions.filter(tx => tx.type === 'sell').reduce((sum, tx) => sum + tx.total, 0).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="summary-item">
+                    <span className="summary-label">Net Flow</span>
+                    <span className="summary-value positive">
+                      +${(transactions.filter(tx => tx.type === 'buy').reduce((sum, tx) => sum + tx.total, 0) - 
+                           transactions.filter(tx => tx.type === 'sell').reduce((sum, tx) => sum + tx.total, 0)).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button className="close-btn" onClick={() => setShowTradingHistory(false)}>
                 Close
               </button>
             </div>
