@@ -90,6 +90,9 @@ function MainApp() {
   const [fingerprintEnabled, setFingerprintEnabled] = useState(false);
   const [faceIdEnabled, setFaceIdEnabled] = useState(false);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [showVolumeModal, setShowVolumeModal] = useState(false);
+  const [selectedVolumeData, setSelectedVolumeData] = useState(null);
 
   // Deposit/Withdraw info
   const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
@@ -1350,10 +1353,35 @@ function MainApp() {
   };
 
   const renderTrade = () => {
-    const filteredTradeCoins = cryptoData.filter(crypto =>
-      crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter logic for different categories
+    const getFilteredCoins = () => {
+      let filtered = cryptoData.filter(crypto =>
+        crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      switch (activeFilter) {
+        case 'gainers':
+          return filtered.filter(crypto => crypto.change > 0).sort((a, b) => b.change - a.change);
+        case 'losers':
+          return filtered.filter(crypto => crypto.change < 0).sort((a, b) => a.change - b.change);
+        case 'hot':
+          return filtered.filter((crypto, index) => index < 50); // Top 50 as "hot"
+        case 'favorites':
+          return filtered.filter(crypto => ['bitcoin', 'ethereum', 'cardano', 'solana', 'polkadot'].includes(crypto.id));
+        case 'new':
+          return filtered.filter((crypto, index) => index >= 200); // Last 50 as "new"
+        default:
+          return filtered;
+      }
+    };
+
+    const filteredTradeCoins = getFilteredCoins();
+
+    const showVolumeDetails = (crypto) => {
+      setSelectedVolumeData(crypto);
+      setShowVolumeModal(true);
+    };
 
     return (
       <div className="binance-trade-tab">
@@ -1371,7 +1399,7 @@ function MainApp() {
               </div>
               <div className="stat-item">
                 <span className="stat-label">Available Pairs</span>
-                <span className="stat-value">{cryptoData.length}</span>
+                <span className="stat-value">{filteredTradeCoins.length}</span>
               </div>
             </div>
           </div>
@@ -1400,12 +1428,42 @@ function MainApp() {
             </div>
             
             <div className="filter-tabs">
-              <button className="filter-tab active">All</button>
-              <button className="filter-tab">⭐ Favorites</button>
-              <button className="filter-tab">📈 Gainers</button>
-              <button className="filter-tab">📉 Losers</button>
-              <button className="filter-tab">🔥 Hot</button>
-              <button className="filter-tab">🆕 New</button>
+              <button 
+                className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('all')}
+              >
+                All
+              </button>
+              <button 
+                className={`filter-tab ${activeFilter === 'favorites' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('favorites')}
+              >
+                ⭐ Favorites
+              </button>
+              <button 
+                className={`filter-tab ${activeFilter === 'gainers' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('gainers')}
+              >
+                📈 Gainers
+              </button>
+              <button 
+                className={`filter-tab ${activeFilter === 'losers' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('losers')}
+              >
+                📉 Losers
+              </button>
+              <button 
+                className={`filter-tab ${activeFilter === 'hot' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('hot')}
+              >
+                🔥 Hot
+              </button>
+              <button 
+                className={`filter-tab ${activeFilter === 'new' ? 'active' : ''}`}
+                onClick={() => setActiveFilter('new')}
+              >
+                🆕 New
+              </button>
             </div>
           </div>
         </div>
@@ -1444,7 +1502,7 @@ function MainApp() {
                         <div className="pair-name">{crypto.symbol}/USDT</div>
                         <div className="pair-subtitle">{crypto.name}</div>
                       </div>
-                      {index < 10 && <div className="hot-badge">🔥</div>}
+                      {(activeFilter === 'hot' || index < 50) && <div className="hot-badge">🔥</div>}
                     </div>
                   </div>
                   
@@ -1466,13 +1524,14 @@ function MainApp() {
                     </div>
                   </div>
                   
-                  <div className="volume-col">
+                  <div className="volume-col" onClick={() => showVolumeDetails(crypto)}>
                     <div className="volume-crypto">
                       {crypto.volume ? (crypto.volume / 1000000).toFixed(2) + 'M' : 'N/A'} {crypto.symbol}
                     </div>
                     <div className="volume-usd">
                       ${crypto.volume ? (crypto.volume / 1000000).toFixed(1) + 'M' : 'N/A'}
                     </div>
+                    <div className="live-volume-indicator">🔴 LIVE</div>
                   </div>
                   
                   <div className="action-col">
@@ -1849,6 +1908,67 @@ function MainApp() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showVolumeModal && selectedVolumeData && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h3>Live 24h Volume - {selectedVolumeData.name}</h3>
+                <button className="close-btn" onClick={() => setShowVolumeModal(false)}>
+                  ×
+                </button>
+              </div>
+
+              <div className="volume-details">
+                <div className="volume-overview">
+                  <div className="volume-card">
+                    <div className="volume-icon">📊</div>
+                    <h4>24h Trading Volume</h4>
+                    <div className="volume-amount">{selectedVolumeData.volume ? (selectedVolumeData.volume / 1000000).toFixed(2) + 'M' : 'N/A'} {selectedVolumeData.symbol}</div>
+                    <div className="volume-usd">${selectedVolumeData.volume ? (selectedVolumeData.volume / 1000000).toFixed(1) + 'M USD' : 'N/A'}</div>
+                  </div>
+                  
+                  <div className="volume-stats">
+                    <div className="stat-row">
+                      <span className="stat-label">Market Cap</span>
+                      <span className="stat-value">${selectedVolumeData.market_cap ? (selectedVolumeData.market_cap / 1000000000).toFixed(2) + 'B' : 'N/A'}</span>
+                    </div>
+                    <div className="stat-row">
+                      <span className="stat-label">Current Price</span>
+                      <span className="stat-value">${selectedVolumeData.price ? selectedVolumeData.price.toLocaleString() : 'N/A'}</span>
+                    </div>
+                    <div className="stat-row">
+                      <span className="stat-label">24h Change</span>
+                      <span className={`stat-value ${selectedVolumeData.change >= 0 ? 'positive' : 'negative'}`}>
+                        {selectedVolumeData.change >= 0 ? '+' : ''}{selectedVolumeData.change.toFixed(2)}%
+                      </span>
+                    </div>
+                    <div className="stat-row">
+                      <span className="stat-label">Market Rank</span>
+                      <span className="stat-value">#{selectedVolumeData.rank || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="live-indicator-section">
+                  <div className="live-status">
+                    <span className="live-dot">🔴</span>
+                    <span className="live-text">LIVE DATA - Updates every 10 seconds</span>
+                  </div>
+                  <div className="last-updated">
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+
+              <button className="close-btn" onClick={() => setShowVolumeModal(false)}>
+                Close
+              </button>
             </div>
           </div>
         </div>
