@@ -1562,11 +1562,6 @@ function MainApp() {
               <span className="menu-arrow">›</span>
             </div>
             <div className="menu-item">
-              <span className="menu-icon">❓</span>
-              <span className="menu-text">Help Center</span>
-              <span className="menu-arrow">›</span>
-            </div>
-            <div className="menu-item">
               <span className="menu-icon">📞</span>
               <span className="menu-text">Contact Us</span>
               <span className="menu-arrow">›</span>
@@ -1577,11 +1572,6 @@ function MainApp() {
         <div className="menu-section">
           <h4>Settings</h4>
           <div className="menu-items">
-            <div className="menu-item">
-              <span className="menu-icon">🌙</span>
-              <span className="menu-text">Dark Mode</span>
-              <input type="checkbox" className="toggle-switch" />
-            </div>
             <div className="menu-item">
               <span className="menu-icon">🔔</span>
               <span className="menu-text">Notifications</span>
