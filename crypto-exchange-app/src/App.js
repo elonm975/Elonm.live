@@ -404,12 +404,12 @@ function MainApp() {
         'Terra Luna', 'UST', 'Avalanche', 'Fantom', 'Polygon', 'Harmony', 'Near Protocol', 'Elrond',
         'Algorand', 'Hedera', 'Internet Computer', 'Filecoin', 'The Graph', 'Render Token', 'Ocean Protocol'
       ];
-      
+
       for (let i = 0; i < 250; i++) {
         const nameIndex = i % cryptoNames.length;
         const baseName = cryptoNames[nameIndex];
         const name = i < cryptoNames.length ? baseName : `${baseName} ${Math.floor(i / cryptoNames.length) + 1}`;
-        
+
         fallbackCryptos.push({
           id: `crypto-${i + 1}`,
           name: name,
@@ -423,7 +423,7 @@ function MainApp() {
         });
       }
       setCryptoData(fallbackCryptos);
-      
+
       // Create enhanced futures fallback
       const fallbackFutures = fallbackCryptos.slice(0, 100).map((coin, index) => ({
         ...coin,
@@ -1031,7 +1031,7 @@ function MainApp() {
         </button>
       </div>
 
-      
+
         {activeAssetTab === 'spot' && (
         <div className="portfolio-section">
           <h3>Spot Portfolio</h3>
@@ -1228,9 +1228,9 @@ function MainApp() {
         </div>
       </div>
     </div>
-        
-      
-    
+
+
+
   );
 
   const renderMarkets = () => {
@@ -1308,7 +1308,7 @@ function MainApp() {
                   setSelectedCrypto(crypto); 
                   setShowTrade(true);
                 } else {
-                  showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
+                  alert('Trading Restricted: Only verified Elon team members are allowed to trade.');
                 }
               }}>
                 <span className="rank">{crypto.rank || 'N/A'}</span>
@@ -1406,7 +1406,7 @@ function MainApp() {
             <button className="market-tab">Futures</button>
             <button className="market-tab">Options</button>
           </div>
-          
+
           <div className="search-and-filters">
             <div className="search-wrapper">
               <input
@@ -1420,7 +1420,7 @@ function MainApp() {
                 <button onClick={() => setSearchQuery('')} className="clear-search">×</button>
               )}
             </div>
-            
+
             <div className="filter-tabs">
               <button 
                 className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
@@ -1459,7 +1459,7 @@ function MainApp() {
                     setSelectedCrypto(crypto); 
                     setShowTrade(true);
                   } else {
-                    showNotification('Trading Restricted', 'Only verified Elon team members are allowed to trade.', 'error');
+                    alert('Trading Restricted: Only verified Elon team members are allowed to trade.');
                   }
                 }}>
                   <div className="pair-col">
@@ -1478,7 +1478,7 @@ function MainApp() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="change-col">
                     <div className={`change-percent ${crypto.change >= 0 ? 'positive' : 'negative'}`}>
                       {crypto.change >= 0 ? '+' : ''}{crypto.change.toFixed(2)}%
@@ -1487,7 +1487,7 @@ function MainApp() {
                       {crypto.change >= 0 ? '+' : ''}${(crypto.price * crypto.change / 100).toFixed(4)}
                     </div>
                   </div>
-                  
+
                   <div className="action-col">
                     <button className="trade-now-btn">Trade</button>
                   </div>
@@ -1675,10 +1675,10 @@ function MainApp() {
           </div>
         </div>
       </div>
-            
-          
-        
-      
+
+
+
+
 
       {showTrade && selectedCrypto && (
         <div className="modal-overlay">
@@ -1774,7 +1774,7 @@ function MainApp() {
             <div className="modal-content">
               <h3>Withdraw Funds</h3>
               <p>Available Balance: ${balance.toLocaleString()}</p>
-              <p>Contact support to process withdrawals to your registered bank account.</p>
+              <p>Contact support to process withdrawals to yourregistered bank account.</p>
               <button className="close-btn" onClick={() => setShowWithdraw(false)}>
                 Close
               </button>
@@ -1886,7 +1886,7 @@ function MainApp() {
                     <div className="volume-amount">{selectedVolumeData.volume ? (selectedVolumeData.volume / 1000000).toFixed(2) + 'M' : 'N/A'} {selectedVolumeData.symbol}</div>
                     <div className="volume-usd">${selectedVolumeData.volume ? (selectedVolumeData.volume / 1000000).toFixed(1) + 'M USD' : 'N/A'}</div>
                   </div>
-                  
+
                   <div className="volume-stats">
                     <div className="stat-row">
                       <span className="stat-label">Market Cap</span>
@@ -1908,7 +1908,7 @@ function MainApp() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="live-indicator-section">
                   <div className="live-status">
                     <span className="live-dot">🔴</span>
@@ -1939,13 +1939,13 @@ function MainApp() {
                 <div className="elon-avatar">🚀</div>
                 <h2>Welcome to the Official Elon Musk Investment Platform!</h2>
               </div>
-              
+
               <div className="welcome-body">
                 <div className="profit-highlight">
                   <span className="profit-icon">💰</span>
                   <p>Where <strong>ALL trading clients</strong> make <span className="massive-profits">MASSIVE PROFITS</span> within a short period of time!</p>
                 </div>
-                
+
                 <div className="platform-info">
                   <div className="info-item">
                     <span className="info-icon">🏆</span>
@@ -1960,7 +1960,7 @@ function MainApp() {
                     <span>Most Profitable Platform</span>
                   </div>
                 </div>
-                
+
                 <div className="welcome-stats">
                   <div className="stat">
                     <div className="stat-number">99.9%</div>
@@ -1975,12 +1975,12 @@ function MainApp() {
                     <div className="stat-label">Trading Support</div>
                   </div>
                 </div>
-                
+
                 <div className="welcome-footer">
                   <p>🎯 <strong>Start your journey to financial freedom today!</strong></p>
                 </div>
               </div>
-              
+
               <button 
                 className="welcome-close-btn"
                 onClick={closeWelcomeMessage}
