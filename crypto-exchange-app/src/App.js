@@ -1400,10 +1400,6 @@ function MainApp() {
         </div>
 
         <div className="binance-controls">
-          <div className="market-type-tabs">
-            <button className="market-tab active">Spot</button>
-          </div>
-
           <div className="search-and-filters">
             <div className="search-wrapper">
               <input
