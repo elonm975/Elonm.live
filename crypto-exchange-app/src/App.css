@@ -1729,18 +1729,20 @@
 
 .search-wrapper {
   position: relative;
-  width: 100%;
+  width: 250px;
+  max-width: 300px;
 }
 
 .binance-search {
-  width: 100%;
-  padding: 14px 20px;
-  background: #1a1a1a;
+  background: #2d2d2d;
   border: 1px solid #333;
   border-radius: 8px;
-  color: white;
-  font-size: 16px;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 14px;
   transition: all 0.3s ease;
+  width: 250px;
+  max-width: 300px;
 }
 
 .binance-search:focus {
