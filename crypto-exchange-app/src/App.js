@@ -1365,12 +1365,6 @@ function MainApp() {
           return filtered.filter(crypto => crypto.change > 0).sort((a, b) => b.change - a.change);
         case 'losers':
           return filtered.filter(crypto => crypto.change < 0).sort((a, b) => a.change - b.change);
-        case 'hot':
-          return filtered.filter((crypto, index) => index < 50); // Top 50 as "hot"
-        case 'favorites':
-          return filtered.filter(crypto => ['bitcoin', 'ethereum', 'cardano', 'solana', 'polkadot'].includes(crypto.id));
-        case 'new':
-          return filtered.filter((crypto, index) => index >= 200); // Last 50 as "new"
         default:
           return filtered;
       }
@@ -1435,12 +1429,6 @@ function MainApp() {
                 All
               </button>
               <button 
-                className={`filter-tab ${activeFilter === 'favorites' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('favorites')}
-              >
-                ⭐ Favorites
-              </button>
-              <button 
                 className={`filter-tab ${activeFilter === 'gainers' ? 'active' : ''}`}
                 onClick={() => setActiveFilter('gainers')}
               >
@@ -1451,18 +1439,6 @@ function MainApp() {
                 onClick={() => setActiveFilter('losers')}
               >
                 📉 Losers
-              </button>
-              <button 
-                className={`filter-tab ${activeFilter === 'hot' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('hot')}
-              >
-                🔥 Hot
-              </button>
-              <button 
-                className={`filter-tab ${activeFilter === 'new' ? 'active' : ''}`}
-                onClick={() => setActiveFilter('new')}
-              >
-                🆕 New
               </button>
             </div>
           </div>
@@ -1502,7 +1478,6 @@ function MainApp() {
                         <div className="pair-name">{crypto.symbol}/USDT</div>
                         <div className="pair-subtitle">{crypto.name}</div>
                       </div>
-                      {(activeFilter === 'hot' || index < 50) && <div className="hot-badge">🔥</div>}
                     </div>
                   </div>
                   
