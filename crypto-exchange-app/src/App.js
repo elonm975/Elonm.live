@@ -1447,7 +1447,6 @@ function MainApp() {
         <div className="binance-market-list">
           <div className="market-headers">
             <div className="header-col pair-header">Pair</div>
-            <div className="header-col price-header">Last Price</div>
             <div className="header-col change-header">24h Change %</div>
             <div className="header-col action-header">Action</div>
           </div>
@@ -1477,15 +1476,6 @@ function MainApp() {
                         <div className="pair-name">{crypto.symbol}/USDT</div>
                         <div className="pair-subtitle">{crypto.name}</div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="price-col">
-                    <div className="current-price">
-                      {crypto.price < 1 ? crypto.price.toFixed(8) : crypto.price.toLocaleString()}
-                    </div>
-                    <div className="price-usd">
-                      ${crypto.price < 1 ? crypto.price.toFixed(6) : crypto.price.toLocaleString()}
                     </div>
                   </div>
                   
