@@ -1402,9 +1402,6 @@ function MainApp() {
         <div className="binance-controls">
           <div className="market-type-tabs">
             <button className="market-tab active">Spot</button>
-            <button className="market-tab">Margin</button>
-            <button className="market-tab">Futures</button>
-            <button className="market-tab">Options</button>
           </div>
 
           <div className="search-and-filters">
