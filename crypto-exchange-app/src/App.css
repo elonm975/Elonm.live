@@ -3682,17 +3682,357 @@
   color: white;
 }
 
-/* Enhanced Profile Settings Modal */
-.profile-modal {
-  background: linear-gradient(145deg, #1a1d29 0%, #2d3748 100%);
-  border-radius: 20px;
+/* Trust Wallet Style Profile Settings */
+.trust-profile-modal {
+  background: #1a1a1a;
+  border-radius: 20px 20px 0 0;
   padding: 0;
-  width: 90%;
-  max-width: 500px;
+  width: 100%;
+  max-width: 420px;
   max-height: 90vh;
   overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid #2d2d2d;
+  animation: trustSlideUp 0.3s ease-out;
+}
+
+@keyframes trustSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.trust-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #2d2d2d;
+  background: #1a1a1a;
+}
+
+.trust-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.trust-close-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.trust-close-btn:hover {
+  background: #2d2d2d;
+  color: #fff;
+}
+
+.trust-profile-content {
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+.trust-avatar-section {
+  text-align: center;
+  padding: 32px 24px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border-bottom: 1px solid #2d2d2d;
+}
+
+.trust-avatar-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.trust-current-avatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.trust-edit-avatar {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  background: #3b82f6;
+  border: 2px solid #1a1a1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.trust-edit-avatar:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.edit-icon {
+  font-size: 12px;
+}
+
+.trust-username {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.trust-user-id {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.trust-settings-list {
+  padding: 0 24px;
+}
+
+.trust-setting-group {
+  margin-bottom: 32px;
+}
+
+.trust-group-title {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.trust-setting-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #2d2d2d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin-bottom: 1px;
+}
+
+.trust-setting-item:hover {
+  background: rgba(59, 130, 246, 0.05);
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.trust-setting-item:last-child {
+  border-bottom: none;
+}
+
+.trust-setting-icon {
+  width: 40px;
+  height: 40px;
+  background: #2d2d2d;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-right: 16px;
+  flex-shrink: 0;
+}
+
+.trust-setting-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trust-setting-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.trust-setting-value {
+  font-size: 14px;
+  color: #888;
+}
+
+.trust-setting-desc {
+  font-size: 13px;
+  color: #666;
+}
+
+.trust-setting-arrow {
+  color: #666;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.trust-verified-badge {
+  background: #10b981;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trust-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #374151;
+  border-radius: 12px;
+  transition: background 0.3s ease;
+  cursor: pointer;
+}
+
+.trust-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.trust-toggle-input:checked + .trust-toggle-slider {
+  background: #10b981;
+}
+
+.trust-toggle-input:checked + .trust-toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.trust-toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #374151;
+  border-radius: 12px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.trust-toggle-slider:before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.trust-logout-section {
+  padding: 24px;
+  border-top: 1px solid #2d2d2d;
+  margin-top: 8px;
+}
+
+.trust-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trust-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  transform: translateY(-1px);
+}
+
+.logout-icon {
+  font-size: 18px;
+}
+
+/* Responsive Design for Trust Wallet Style */
+@media (max-width: 480px) {
+  .trust-profile-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 20px 20px 0 0;
+    margin: 0;
+  }
+
+  .trust-modal-header {
+    padding: 16px 20px;
+  }
+
+  .trust-avatar-section {
+    padding: 24px 20px;
+  }
+
+  .trust-current-avatar {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+
+  .trust-settings-list {
+    padding: 0 20px;
+  }
+
+  .trust-setting-item {
+    padding: 14px 0;
+  }
+
+  .trust-setting-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    margin-right: 12px;
+  }
+
+  .trust-logout-section {
+    padding: 20px;
+  }
 }
 
 /* Language Modal Styles */
