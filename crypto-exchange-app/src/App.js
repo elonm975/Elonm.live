@@ -533,26 +533,26 @@ function MainApp() {
     try {
       // Import Firebase auth function
       const { sendPasswordResetEmail } = await import('firebase/auth');
-      
+
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
-        url: `${window.location.origin}`,
-        handleCodeInApp: false,
+        url: window.location.origin,
+        handleCodeInApp: true,
       };
 
       // Send password reset email using Firebase
       await sendPasswordResetEmail(auth, user.email, actionCodeSettings);
-      
+
       setShowProfileSettings(false);
       alert('Password reset link has been sent to your email address. Please check your email and click the link to reset your password.');
     } catch (error) {
       console.error('Firebase change password error:', error);
       let errorMessage = 'Failed to send password reset email. Please try again.';
-      
+
       if (error.code === 'auth/too-many-requests') {
         errorMessage = 'Too many requests. Please try again later.';
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -573,22 +573,22 @@ function MainApp() {
     try {
       // Import Firebase auth function
       const { sendPasswordResetEmail } = await import('firebase/auth');
-      
+
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
-        url: `${window.location.origin}`,
-        handleCodeInApp: false,
+        url: window.location.origin,
+        handleCodeInApp: true,
       };
 
       // Send password reset email using Firebase
       await sendPasswordResetEmail(auth, trimmedEmail, actionCodeSettings);
-      
+
       setResetEmailSent(true);
       setError('');
     } catch (error) {
       console.error('Firebase password reset error:', error);
       let errorMessage = 'Failed to send reset email. Please try again.';
-      
+
       if (error.code === 'auth/user-not-found') {
         errorMessage = 'No account found with this email address.';
       } else if (error.code === 'auth/invalid-email') {
@@ -596,7 +596,7 @@ function MainApp() {
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = 'Too many requests. Please try again later.';
       }
-      
+
       setError(errorMessage);
     }
   };
@@ -846,6 +846,8 @@ function MainApp() {
                         <button type="button" className="link-btn" onClick={() => { setShowSignup(false); setShowLogin(true); setError(''); }}>
                           Sign in
                         </button>
+                      ```text
+
                       </p>
                       <button type="button" className="back-btn" onClick={() => { setShowSignup(false); setError(''); }}>
                         ← Back
@@ -1587,7 +1589,7 @@ function MainApp() {
           </div>
         </div>
 
-        
+
 
         <div className="menu-section">
           <div className="menu-items">
@@ -1775,7 +1777,7 @@ function MainApp() {
               <div className="trust-settings-list">
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Personal Information</h5>
-                  
+
                   <div className="trust-setting-item" onClick={() => {}}>
                     <div className="trust-setting-icon">👤</div>
                     <div className="trust-setting-content">
@@ -1806,7 +1808,7 @@ function MainApp() {
 
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Security</h5>
-                  
+
                   <div className="trust-setting-item" onClick={() => handleChangePassword()}>
                     <div className="trust-setting-icon">🔒</div>
                     <div className="trust-setting-content">
@@ -1840,7 +1842,7 @@ function MainApp() {
 
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Preferences</h5>
-                  
+
                   <div className="trust-setting-item" onClick={() => setShowLanguageModal(true)}>
                     <div className="trust-setting-icon">🌍</div>
                     <div className="trust-setting-content">
@@ -1877,7 +1879,7 @@ function MainApp() {
 
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Support</h5>
-                  
+
                   <div className="trust-setting-item" onClick={() => window.open('https://wa.me/4915210305922?text=Hello%2C%20I%20need%20help%20with%20my%20Eloncrypto%20Exchange%20account', '_blank')}>
                     <div className="trust-setting-icon">💬</div>
                     <div className="trust-setting-content">
@@ -2234,15 +2236,15 @@ function ResetPassword() {
     try {
       // Import Firebase auth functions for password reset
       const { confirmPasswordReset } = await import('firebase/auth');
-      
+
       // Use Firebase's confirmPasswordReset method with the action code
       await confirmPasswordReset(auth, actionCode, newPassword);
-      
+
       setSuccess(true);
     } catch (error) {
       console.error('Firebase password reset error:', error);
       let errorMessage = 'Failed to reset password. Please try again.';
-      
+
       if (error.code === 'auth/expired-action-code') {
         errorMessage = 'Password reset link has expired. Please request a new one.';
       } else if (error.code === 'auth/invalid-action-code') {
@@ -2250,7 +2252,7 @@ function ResetPassword() {
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'Password is too weak. Please choose a stronger password.';
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
