@@ -537,7 +537,7 @@ function MainApp() {
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
         url: window.location.origin,
-        handleCodeInApp: true,
+        handleCodeInApp: false,
       };
 
       // Send password reset email using Firebase
@@ -577,7 +577,7 @@ function MainApp() {
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
         url: window.location.origin,
-        handleCodeInApp: true,
+        handleCodeInApp: false,
       };
 
       // Send password reset email using Firebase
@@ -1781,8 +1781,7 @@ function MainApp() {
                   <div className="trust-setting-item" onClick={() => {}}>
                     <div className="trust-setting-icon">👤</div>
                     <div className="trust-setting-content">
-                      <span className="trust-setting-label">Full Name</span>
-                      <span className="trust-setting-value">{userName || 'Not set'}</span>
+                      <span className="trust-setting-label">Full Name</span>                      <span className="trust-setting-value">{userName || 'Not set'}</span>
                     </div>
                     <span className="trust-setting-arrow">›</span>
                   </div>
