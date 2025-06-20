@@ -2,7 +2,7 @@ import React, { useState, useEffect, Component } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
 import { auth, db } from './firebase';
 import { collection, addDoc, getDocs, query, orderBy, where, updateDoc, doc } from 'firebase/firestore';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, confirmPasswordReset } from 'firebase/auth';
 import axios from 'axios';
 import './App.css';
 
@@ -531,37 +531,29 @@ function MainApp() {
   const handleChangePassword = async () => {
     setError('');
     try {
-      const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      const resetData = {
-        email: user.email,
-        token: resetToken,
-        expires: Date.now() + 3600000
+      // Import Firebase auth function
+      const { sendPasswordResetEmail } = await import('firebase/auth');
+      
+      // Configure the action code settings for the password reset email
+      const actionCodeSettings = {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: false,
       };
 
-      localStorage.setItem('passwordReset', JSON.stringify(resetData));
-
-      const response = await fetch('/api/send-reset-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: user.email,
-          resetToken: resetToken
-        })
-      });
-
-      const responseData = await response.json();
-
-      if (response.ok && responseData.success) {
-        setShowProfileSettings(false);
-        alert('Password reset link has been sent to your email address. Please check your email and click the link to reset your password.');
-      } else {
-        throw new Error(responseData.error || 'Failed to send reset email');
-      }
+      // Send password reset email using Firebase
+      await sendPasswordResetEmail(auth, user.email, actionCodeSettings);
+      
+      setShowProfileSettings(false);
+      alert('Password reset link has been sent to your email address. Please check your email and click the link to reset your password.');
     } catch (error) {
-      console.error('Change password error:', error);
-      alert('Failed to send password reset email. Please try again.');
+      console.error('Firebase change password error:', error);
+      let errorMessage = 'Failed to send password reset email. Please try again.';
+      
+      if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -569,7 +561,7 @@ function MainApp() {
     e.preventDefault();
     setError('');
 
-    // Validate email format on frontend - matches server validation
+    // Validate email format on frontend
     const emailRegex = /^[a-zA-Z0-9._-]{1,1000}@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const trimmedEmail = resetEmail?.trim();
 
@@ -579,65 +571,33 @@ function MainApp() {
     }
 
     try {
-      const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      const resetData = {
-        email: trimmedEmail,
-        token: resetToken,
-        expires: Date.now() + 3600000
+      // Import Firebase auth function
+      const { sendPasswordResetEmail } = await import('firebase/auth');
+      
+      // Configure the action code settings for the password reset email
+      const actionCodeSettings = {
+        url: `${window.location.origin}/reset-password`,
+        handleCodeInApp: false,
       };
 
-      localStorage.setItem('passwordReset', JSON.stringify(resetData));
-
-      console.log('Sending reset email request for:', trimmedEmail);
-
-      const response = await fetch('/api/send-reset-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: trimmedEmail,
-          resetToken: resetToken
-        })
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.error('Server returned non-JSON response:', await response.text());
-        throw new Error('Server error - invalid response format');
-      }
-
-      const responseData = await response.json();
-      console.log('Server response:', responseData);
-
-      if (!response.ok) {
-        console.error('Server error response:', responseData);
-        throw new Error(responseData.error || responseData.message || `Server error: ${response.status}`);
-      }
-
-      if (responseData.success) {
-        setResetEmailSent(true);
-        setError('');
-      } else {
-        throw new Error(responseData.error || responseData.message || 'Failed to send reset email');
-      }
+      // Send password reset email using Firebase
+      await sendPasswordResetEmail(auth, trimmedEmail, actionCodeSettings);
+      
+      setResetEmailSent(true);
+      setError('');
     } catch (error) {
-      console.error('Password reset error:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error message:', error.message);
-      console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
-
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        setError('Network error. Please check your connection and try again.');
-      } else if (error.message.includes('Failed to fetch')) {
-        setError('Cannot connect to server. Please try again.');
-      } else {
-        setError(error.message || 'Failed to send reset email. Please try again.');
+      console.error('Firebase password reset error:', error);
+      let errorMessage = 'Failed to send reset email. Please try again.';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email address.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
       }
+      
+      setError(errorMessage);
     }
   };
 
@@ -2245,6 +2205,9 @@ function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Get the action code from URL parameters (Firebase uses 'oobCode')
+  const actionCode = searchParams.get('oobCode') || searchParams.get('token');
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
@@ -2262,40 +2225,33 @@ function ResetPassword() {
       return;
     }
 
-    const token = searchParams.get('token');
-    const resetData = JSON.parse(localStorage.getItem('passwordReset') || '{}');
-
-    if (!token || token !== resetData.token || Date.now() > resetData.expires) {
-      setError('Invalid or expired reset token. Please request a new password reset.');
+    if (!actionCode) {
+      setError('Invalid or missing reset code. Please request a new password reset.');
       setLoading(false);
       return;
     }
 
     try {
-      // Send password reset request to server
-      const response = await fetch('/api/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: token,
-          newPassword: newPassword,
-          email: resetData.email
-        })
-      });
-
-      const responseData = await response.json();
-
-      if (response.ok && responseData.success) {
-        setSuccess(true);
-        localStorage.removeItem('passwordReset');
-      } else {
-        throw new Error(responseData.error || 'Failed to reset password');
-      }
+      // Import Firebase auth functions for password reset
+      const { confirmPasswordReset } = await import('firebase/auth');
+      
+      // Use Firebase's confirmPasswordReset method with the action code
+      await confirmPasswordReset(auth, actionCode, newPassword);
+      
+      setSuccess(true);
     } catch (error) {
-      console.error('Password reset error:', error);
-      setError(error.message || 'Failed to reset password. Please try again.');
+      console.error('Firebase password reset error:', error);
+      let errorMessage = 'Failed to reset password. Please try again.';
+      
+      if (error.code === 'auth/expired-action-code') {
+        errorMessage = 'Password reset link has expired. Please request a new one.';
+      } else if (error.code === 'auth/invalid-action-code') {
+        errorMessage = 'Invalid password reset link. Please request a new one.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please choose a stronger password.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
