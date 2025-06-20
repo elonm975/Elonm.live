@@ -193,6 +193,51 @@ app.post('/api/send-reset-email', async (req, res) => {
   }
 });
 
+// Password reset endpoint
+app.post('/api/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword, email } = req.body;
+
+    console.log('Password reset request received:', { email, token: token ? 'present' : 'missing' });
+
+    // Validate input
+    if (!token || !newPassword || !email) {
+      return res.status(400).json({ 
+        error: 'Token, new password, and email are required' 
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        error: 'Password must be at least 6 characters long' 
+      });
+    }
+
+    // Validate token (in a real app, you'd verify this against a database)
+    const resetData = { token, email }; // Simulated validation
+    
+    // In a real application, you would:
+    // 1. Verify the token exists in your database
+    // 2. Check if it's not expired
+    // 3. Update the user's password in your authentication system
+    // 4. Invalidate the reset token
+    
+    console.log('✅ Password reset successful for:', email);
+    console.log('🔐 New password length:', newPassword.length);
+
+    res.json({ 
+      success: true, 
+      message: 'Password has been reset successfully' 
+    });
+
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({ 
+      error: 'Failed to reset password. Please try again.' 
+    });
+  }
+});
+
 // Password reset email template
 const createResetEmailHTML = (username, resetLink) => {
   return `

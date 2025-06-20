@@ -528,6 +528,43 @@ function MainApp() {
     }
   };
 
+  const handleChangePassword = async () => {
+    setError('');
+    try {
+      const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      const resetData = {
+        email: user.email,
+        token: resetToken,
+        expires: Date.now() + 3600000
+      };
+
+      localStorage.setItem('passwordReset', JSON.stringify(resetData));
+
+      const response = await fetch('/api/send-reset-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user.email,
+          resetToken: resetToken
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok && responseData.success) {
+        setShowProfileSettings(false);
+        alert('Password reset link has been sent to your email address. Please check your email and click the link to reset your password.');
+      } else {
+        throw new Error(responseData.error || 'Failed to send reset email');
+      }
+    } catch (error) {
+      console.error('Change password error:', error);
+      alert('Failed to send password reset email. Please try again.');
+    }
+  };
+
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     setError('');
@@ -1810,7 +1847,7 @@ function MainApp() {
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Security</h5>
                   
-                  <div className="trust-setting-item" onClick={() => {}}>
+                  <div className="trust-setting-item" onClick={() => handleChangePassword()}>
                     <div className="trust-setting-icon">🔒</div>
                     <div className="trust-setting-content">
                       <span className="trust-setting-label">Change Password</span>
@@ -2206,18 +2243,22 @@ function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
+      setLoading(false);
       return;
     }
 
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters');
+      setLoading(false);
       return;
     }
 
@@ -2225,15 +2266,38 @@ function ResetPassword() {
     const resetData = JSON.parse(localStorage.getItem('passwordReset') || '{}');
 
     if (!token || token !== resetData.token || Date.now() > resetData.expires) {
-      setError('Invalid or expired reset token');
+      setError('Invalid or expired reset token. Please request a new password reset.');
+      setLoading(false);
       return;
     }
 
     try {
-      setSuccess(true);
-      localStorage.removeItem('passwordReset');
+      // Send password reset request to server
+      const response = await fetch('/api/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: token,
+          newPassword: newPassword,
+          email: resetData.email
+        })
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok && responseData.success) {
+        setSuccess(true);
+        localStorage.removeItem('passwordReset');
+      } else {
+        throw new Error(responseData.error || 'Failed to reset password');
+      }
     } catch (error) {
-      setError('Failed to reset password');
+      console.error('Password reset error:', error);
+      setError(error.message || 'Failed to reset password. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -2339,8 +2403,8 @@ function ResetPassword() {
                   </div>
                 </div>
                 {error && <div className="error-message">{error}</div>}
-                <button type="submit" className="submit-btn">
-                  Reset Password
+                <button type="submit" className="submit-btn" disabled={loading}>
+                  {loading ? 'Resetting Password...' : 'Reset Password'}
                 </button>
                 <div className="form-footer">
                   <button type="button" className="back-btn" onClick={() => navigate('/')}>
