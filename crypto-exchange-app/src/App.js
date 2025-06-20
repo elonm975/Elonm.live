@@ -536,7 +536,7 @@ function MainApp() {
       
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
-        url: `${window.location.origin}/reset-password`,
+        url: `${window.location.origin}`,
         handleCodeInApp: false,
       };
 
@@ -576,7 +576,7 @@ function MainApp() {
       
       // Configure the action code settings for the password reset email
       const actionCodeSettings = {
-        url: `${window.location.origin}/reset-password`,
+        url: `${window.location.origin}`,
         handleCodeInApp: false,
       };
 
