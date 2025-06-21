@@ -1845,202 +1845,66 @@ function MainApp() {
 
       {showProfileSettings && (
         <div className="modal-overlay">
-          <div className="trust-profile-modal">
-            <div className="trust-modal-header">
-              <h3>Profile</h3>
-              <button className="trust-close-btn" onClick={() => setShowProfileSettings(false)}>
+          <div className="simple-profile-modal">
+            <div className="profile-modal-header">
+              <h3>Profile Settings</h3>
+              <button className="profile-close-btn" onClick={() => setShowProfileSettings(false)}>
                 ×
               </button>
             </div>
 
-            <div className="trust-profile-content">
-              <div className="trust-avatar-section">
-                <div className="trust-avatar-container">
-                  <div className="trust-current-avatar">
+            <div className="profile-modal-content">
+              <div className="profile-picture-section">
+                <div className="circular-avatar-container">
+                  <div className="circular-avatar">
                     {profilePicture ? (
-                      <img src={profilePicture} alt="Profile" className="trust-avatar-image" />
+                      <img src={profilePicture} alt="Profile" className="avatar-image" />
                     ) : (
-                      (userName || user.email?.charAt(0) || 'U').toUpperCase()
+                      <div className="default-avatar">
+                        {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                      </div>
                     )}
                   </div>
-                  <label className="trust-edit-avatar">
+                  <label className="camera-overlay">
                     <input 
                       type="file" 
                       accept="image/*" 
                       onChange={handleProfilePictureUpload}
                       style={{display: 'none'}}
                     />
-                    <span className="edit-icon">📷</span>
+                    <span className="camera-icon">📷</span>
                   </label>
                 </div>
-                <h4 className="trust-username">{userName || user.email?.split('@')[0]}</h4>
-                <p className="trust-user-id">ID: {user.uid?.substring(0, 8) || 'N/A'}</p>
+                <p className="picture-hint">Click the camera icon to change your profile picture</p>
               </div>
 
-              <div className="trust-settings-list">
-                <div className="trust-setting-group">
-                  <h5 className="trust-group-title">Personal Information</h5>
-
-                  <div className="trust-setting-item profile-picture-setting">
-                    <div className="trust-setting-icon">📷</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Profile Picture</span>
-                      <span className="trust-setting-desc">Upload from device</span>
-                    </div>
-                    <label className="trust-picture-upload">
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleProfilePictureUpload}
-                        style={{display: 'none'}}
-                      />
-                      <span className="upload-btn">Choose</span>
-                    </label>
-                  </div>
-
-                  <div className="trust-setting-item editable-setting">
-                    <div className="trust-setting-icon">👤</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Full Name</span>
-                      <input 
-                        type="text" 
-                        className="trust-setting-input"
-                        value={userName}
-                        onChange={(e) => setUserName(e.target.value)}
-                        placeholder="Enter your name"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="trust-setting-item">
-                    <div className="trust-setting-icon">✉️</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Email</span>
-                      <span className="trust-setting-value">{user.email}</span>
-                    </div>
-                    <span className="trust-verified-badge">✓</span>
-                  </div>
-
-                  <div className="trust-setting-item editable-setting">
-                    <div className="trust-setting-icon">📱</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Phone Number</span>
-                      <input 
-                        type="tel" 
-                        className="trust-setting-input"
-                        value={userPhone}
-                        onChange={(e) => setUserPhone(e.target.value)}
-                        placeholder="Enter your phone number"
-                      />
-                    </div>
-                  </div>
+              <div className="profile-form">
+                <div className="form-field">
+                  <label className="field-label">Username</label>
+                  <input 
+                    type="text" 
+                    className="profile-input"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="Enter your username"
+                  />
                 </div>
 
-                <div className="trust-setting-group">
-                  <h5 className="trust-group-title">Security</h5>
-
-                  <div className="trust-setting-item" onClick={() => handleChangePassword()}>
-                    <div className="trust-setting-icon">🔒</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Change Password</span>
-                      <span className="trust-setting-desc">Update your login password</span>
-                    </div>
-                    <span className="trust-setting-arrow">›</span>
-                  </div>
-
-                  <div className="trust-setting-item" onClick={() => {}}>
-                    <div className="trust-setting-icon">🔐</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Two-Factor Authentication</span>
-                      <span className="trust-setting-desc">Secure your account</span>
-                    </div>
-                    <div className="trust-toggle">
-                      <input type="checkbox" className="trust-toggle-input" />
-                      <span className="trust-toggle-slider"></span>
-                    </div>
-                  </div>
-
-                  <div className="trust-setting-item" onClick={() => {}}>
-                    <div className="trust-setting-icon">🔑</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Recovery Phrase</span>
-                      <span className="trust-setting-desc">Backup your wallet</span>
-                    </div>
-                    <span className="trust-setting-arrow">›</span>
-                  </div>
-                </div>
-
-                <div className="trust-setting-group">
-                  <h5 className="trust-group-title">Preferences</h5>
-
-                  <div className="trust-setting-item" onClick={() => setShowLanguageModal(true)}>
-                    <div className="trust-setting-icon">🌍</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Language</span>
-                      <span className="trust-setting-value">{languages.find(lang => lang.code === selectedLanguage)?.name}</span>
-                    </div>
-                    <span className="trust-setting-arrow">›</span>
-                  </div>
-
-                  <div className="trust-setting-item">
-                    <div className="trust-setting-icon">🔔</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Push Notifications</span>
-                      <span className="trust-setting-desc">Get trading alerts</span>
-                    </div>
-                    <div className="trust-toggle">
-                      <input type="checkbox" className="trust-toggle-input" defaultChecked />
-                      <span className="trust-toggle-slider"></span>
-                    </div>
-                  </div>
-
-                  <div className="trust-setting-item">
-                    <div className="trust-setting-icon">📊</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Price Alerts</span>
-                      <span className="trust-setting-desc">Crypto price movements</span>
-                    </div>
-                    <div className="trust-toggle">
-                      <input type="checkbox" className="trust-toggle-input" defaultChecked />
-                      <span className="trust-toggle-slider"></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="trust-setting-group">
-                  <h5 className="trust-group-title">Support</h5>
-
-                  <div className="trust-setting-item" onClick={() => window.open('https://wa.me/4915210305922?text=Hello%2C%20I%20need%20help%20with%20my%20Eloncrypto%20Exchange%20account', '_blank')}>
-                    <div className="trust-setting-icon">💬</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Customer Support</span>
-                      <span className="trust-setting-desc">Get help 24/7</span>
-                    </div>
-                    <span className="trust-setting-arrow">›</span>
-                  </div>
-
-                  <div className="trust-setting-item" onClick={() => {}}>
-                    <div className="trust-setting-icon">📋</div>
-                    <div className="trust-setting-content">
-                      <span className="trust-setting-label">Terms of Service</span>
-                      <span className="trust-setting-desc">Read our terms</span>
-                    </div>
-                    <span className="trust-setting-arrow">›</span>
-                  </div>
+                <div className="form-field">
+                  <label className="field-label">Phone Number</label>
+                  <input 
+                    type="tel" 
+                    className="profile-input"
+                    value={userPhone}
+                    onChange={(e) => setUserPhone(e.target.value)}
+                    placeholder="Enter your phone number"
+                  />
                 </div>
               </div>
 
-              <div className="trust-profile-actions">
-                <button className="trust-save-btn" onClick={handleProfileUpdate}>
-                  <span className="save-icon">💾</span>
+              <div className="profile-actions">
+                <button className="save-profile-btn" onClick={handleProfileUpdate}>
                   Save Changes
-                </button>
-              </div>
-
-              <div className="trust-logout-section">
-                <button className="trust-logout-btn" onClick={() => signOut(auth)}>
-                  <span className="logout-icon">🚪</span>
-                  Sign Out
                 </button>
               </div>
             </div>

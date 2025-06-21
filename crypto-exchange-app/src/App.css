@@ -3682,356 +3682,274 @@
   color: white;
 }
 
-/* Trust Wallet Style Profile Settings */
-.trust-profile-modal {
+/* Simple Profile Settings Modal */
+.simple-profile-modal {
   background: #1a1a1a;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px;
   padding: 0;
   width: 100%;
-  max-width: 420px;
+  max-width: 400px;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid #2d2d2d;
-  animation: trustSlideUp 0.3s ease-out;
+  animation: profileSlideUp 0.3s ease-out;
 }
 
-@keyframes trustSlideUp {
+@keyframes profileSlideUp {
   from {
     opacity: 0;
-    transform: translateY(100px);
+    transform: translateY(50px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-.trust-modal-header {
+.profile-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #2d2d2d;
-  background: #1a1a1a;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
-.trust-modal-header h3 {
+.profile-modal-header h3 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
   color: #fff;
 }
 
-.trust-close-btn {
+.profile-close-btn {
   background: none;
   border: none;
   color: #888;
   font-size: 24px;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
-.trust-close-btn:hover {
-  background: #2d2d2d;
+.profile-close-btn:hover {
+  background: #3b82f6;
   color: #fff;
+  transform: scale(1.1);
 }
 
-.trust-profile-content {
-  max-height: calc(90vh - 80px);
-  overflow-y: auto;
-  padding-bottom: 20px;
+.profile-modal-content {
+  padding: 30px 24px;
 }
 
-.trust-avatar-section {
+.profile-picture-section {
   text-align: center;
-  padding: 32px 24px;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  border-bottom: 1px solid #2d2d2d;
+  margin-bottom: 30px;
 }
 
-.trust-avatar-container {
+.circular-avatar-container {
   position: relative;
   display: inline-block;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
-.trust-current-avatar {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, #3b82f6, #10b981);
+.circular-avatar {
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 4px solid #3b82f6;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.circular-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6, #10b981);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 48px;
   font-weight: 700;
   color: white;
-  margin: 0 auto 16px;
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  border-radius: 50%;
 }
 
-.trust-edit-avatar {
+.camera-overlay {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 28px;
-  height: 28px;
+  bottom: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
   background: #3b82f6;
-  border: 2px solid #1a1a1a;
+  border: 3px solid #1a1a1a;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.trust-edit-avatar:hover {
+.camera-overlay:hover {
   background: #2563eb;
   transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
 }
 
-.edit-icon {
-  font-size: 12px;
+.camera-icon {
+  font-size: 16px;
+  color: white;
 }
 
-.trust-username {
-  margin: 0 0 4px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.trust-user-id {
+.picture-hint {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: #888;
-  font-family: 'Monaco', 'Menlo', monospace;
+  font-style: italic;
 }
 
-.trust-settings-list {
-  padding: 0 24px;
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
-.trust-setting-group {
-  margin-bottom: 32px;
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.trust-group-title {
-  margin: 0 0 16px 0;
+.field-label {
   font-size: 14px;
   font-weight: 600;
-  color: #888;
+  color: #fff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.trust-setting-item {
-  display: flex;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #2d2d2d;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 8px;
-  margin-bottom: 1px;
-}
-
-.trust-setting-item:hover {
-  background: rgba(59, 130, 246, 0.05);
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.trust-setting-item:last-child {
-  border-bottom: none;
-}
-
-.trust-setting-icon {
-  width: 40px;
-  height: 40px;
-  background: #2d2d2d;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-right: 16px;
-  flex-shrink: 0;
-}
-
-.trust-setting-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.trust-setting-label {
-  font-size: 16px;
-  font-weight: 500;
-  color: #fff;
-}
-
-.trust-setting-value {
-  font-size: 14px;
-  color: #888;
-}
-
-.trust-setting-desc {
-  font-size: 13px;
-  color: #666;
-}
-
-.trust-setting-arrow {
-  color: #666;
-  font-size: 18px;
-  font-weight: 300;
-}
-
-.trust-verified-badge {
-  background: #10b981;
-  color: #fff;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.trust-toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  background: #374151;
-  border-radius: 12px;
-  transition: background 0.3s ease;
-  cursor: pointer;
-}
-
-.trust-toggle-input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.trust-toggle-input:checked + .trust-toggle-slider {
-  background: #10b981;
-}
-
-.trust-toggle-input:checked + .trust-toggle-slider:before {
-  transform: translateX(20px);
-}
-
-.trust-toggle-slider {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #374151;
-  border-radius: 12px;
-  transition: 0.3s;
-  cursor: pointer;
-}
-
-.trust-toggle-slider:before {
-  content: '';
-  position: absolute;
-  height: 20px;
-  width: 20px;
-  left: 2px;
-  bottom: 2px;
-  background: white;
-  border-radius: 50%;
-  transition: 0.3s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.trust-logout-section {
-  padding: 24px;
-  border-top: 1px solid #2d2d2d;
-  margin-top: 8px;
-}
-
-.trust-logout-btn {
+.profile-input {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 16px 20px;
+  background: #2d2d2d;
+  border: 2px solid #333;
   border-radius: 12px;
-  color: #ef4444;
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.profile-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: #333;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.profile-input::placeholder {
+  color: #666;
+  font-style: italic;
+}
+
+.profile-actions {
+  text-align: center;
+}
+
+.save-profile-btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-.trust-logout-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
-  transform: translateY(-1px);
+.save-profile-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
 }
 
-.logout-icon {
-  font-size: 18px;
+.save-profile-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
 }
 
-/* Responsive Design for Trust Wallet Style */
+/* Responsive Design for Simple Profile */
 @media (max-width: 480px) {
-  .trust-profile-modal {
+  .simple-profile-modal {
     width: 100%;
     max-width: 100%;
-    border-radius: 20px 20px 0 0;
-    margin: 0;
+    margin: 20px;
+    max-width: calc(100% - 40px);
   }
 
-  .trust-modal-header {
+  .profile-modal-header {
     padding: 16px 20px;
   }
 
-  .trust-avatar-section {
+  .profile-modal-content {
     padding: 24px 20px;
   }
 
-  .trust-current-avatar {
-    width: 70px;
-    height: 70px;
-    font-size: 28px;
+  .circular-avatar {
+    width: 100px;
+    height: 100px;
   }
 
-  .trust-settings-list {
-    padding: 0 20px;
+  .default-avatar {
+    font-size: 40px;
   }
 
-  .trust-setting-item {
-    padding: 14px 0;
+  .camera-overlay {
+    width: 32px;
+    height: 32px;
+    bottom: 6px;
+    right: 6px;
   }
 
-  .trust-setting-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-    margin-right: 12px;
+  .camera-icon {
+    font-size: 14px;
   }
 
-  .trust-logout-section {
-    padding: 20px;
+  .profile-input {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  .save-profile-btn {
+    padding: 14px 20px;
+    font-size: 15px;
   }
 }
 
