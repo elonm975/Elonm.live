@@ -83,6 +83,7 @@ function MainApp() {
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
+  const [profilePicture, setProfilePicture] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [showLanguageModal, setShowLanguageModal] = useState(false);
@@ -457,6 +458,9 @@ function MainApp() {
       } else {
         const userData = userSnapshot.docs[0].data();
         setBalance(userData.balance || 0);
+        setUserName(userData.userName || '');
+        setUserPhone(userData.userPhone || '');
+        setProfilePicture(userData.profilePicture || '');
       }
 
       // Load portfolio with error handling
@@ -525,6 +529,86 @@ function MainApp() {
       setConfirmPassword('');
     } catch (error) {
       setError(error.message);
+    }
+  };
+
+  const handleProfilePictureUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Image = e.target.result;
+        
+        // Update profile picture in state
+        setProfilePicture(base64Image);
+        
+        // Save to Firebase
+        try {
+          const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
+          const userSnapshot = await getDocs(userQuery);
+          
+          if (!userSnapshot.empty) {
+            const userDoc = userSnapshot.docs[0];
+            await updateDoc(doc(db, 'users', userDoc.id), {
+              profilePicture: base64Image,
+              userName: userName,
+              userPhone: userPhone,
+              updatedAt: new Date()
+            });
+            
+            showNotification('Success', 'Profile picture updated successfully!', 'success');
+          }
+        } catch (error) {
+          console.error('Error updating profile picture:', error);
+          alert('Failed to save profile picture. Please try again.');
+        }
+      };
+      
+      reader.onerror = () => {
+        alert('Error reading file. Please try again.');
+      };
+      
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Failed to upload profile picture. Please try again.');
+    }
+  };
+
+  const handleProfileUpdate = async () => {
+    try {
+      const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
+      const userSnapshot = await getDocs(userQuery);
+      
+      if (!userSnapshot.empty) {
+        const userDoc = userSnapshot.docs[0];
+        await updateDoc(doc(db, 'users', userDoc.id), {
+          userName: userName,
+          userPhone: userPhone,
+          updatedAt: new Date()
+        });
+        
+        showNotification('Success', 'Profile updated successfully!', 'success');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile. Please try again.');
     }
   };
 
@@ -1527,7 +1611,11 @@ function MainApp() {
       <div className="menu-header">
         <div className="user-profile">
           <div className="profile-avatar">
-            {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+            {profilePicture ? (
+              <img src={profilePicture} alt="Profile" className="profile-avatar-image" />
+            ) : (
+              (userName || user.email?.charAt(0) || 'U').toUpperCase()
+            )}
           </div>
           <div className="profile-info">
             <h3>{userName || user.email?.split('@')[0]}</h3>
@@ -1769,11 +1857,21 @@ function MainApp() {
               <div className="trust-avatar-section">
                 <div className="trust-avatar-container">
                   <div className="trust-current-avatar">
-                    {(userName || user.email?.charAt(0) || 'U').toUpperCase()}
+                    {profilePicture ? (
+                      <img src={profilePicture} alt="Profile" className="trust-avatar-image" />
+                    ) : (
+                      (userName || user.email?.charAt(0) || 'U').toUpperCase()
+                    )}
                   </div>
-                  <button className="trust-edit-avatar">
+                  <label className="trust-edit-avatar">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleProfilePictureUpload}
+                      style={{display: 'none'}}
+                    />
                     <span className="edit-icon">📷</span>
-                  </button>
+                  </label>
                 </div>
                 <h4 className="trust-username">{userName || user.email?.split('@')[0]}</h4>
                 <p className="trust-user-id">ID: {user.uid?.substring(0, 8) || 'N/A'}</p>
@@ -1783,12 +1881,35 @@ function MainApp() {
                 <div className="trust-setting-group">
                   <h5 className="trust-group-title">Personal Information</h5>
 
-                  <div className="trust-setting-item" onClick={() => {}}>
+                  <div className="trust-setting-item profile-picture-setting">
+                    <div className="trust-setting-icon">📷</div>
+                    <div className="trust-setting-content">
+                      <span className="trust-setting-label">Profile Picture</span>
+                      <span className="trust-setting-desc">Upload from device</span>
+                    </div>
+                    <label className="trust-picture-upload">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleProfilePictureUpload}
+                        style={{display: 'none'}}
+                      />
+                      <span className="upload-btn">Choose</span>
+                    </label>
+                  </div>
+
+                  <div className="trust-setting-item editable-setting">
                     <div className="trust-setting-icon">👤</div>
                     <div className="trust-setting-content">
-                      <span className="trust-setting-label">Full Name</span>                      <span className="trust-setting-value">{userName || 'Not set'}</span>
+                      <span className="trust-setting-label">Full Name</span>
+                      <input 
+                        type="text" 
+                        className="trust-setting-input"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)}
+                        placeholder="Enter your name"
+                      />
                     </div>
-                    <span className="trust-setting-arrow">›</span>
                   </div>
 
                   <div className="trust-setting-item">
@@ -1800,13 +1921,18 @@ function MainApp() {
                     <span className="trust-verified-badge">✓</span>
                   </div>
 
-                  <div className="trust-setting-item" onClick={() => {}}>
+                  <div className="trust-setting-item editable-setting">
                     <div className="trust-setting-icon">📱</div>
                     <div className="trust-setting-content">
                       <span className="trust-setting-label">Phone Number</span>
-                      <span className="trust-setting-value">{userPhone || 'Not set'}</span>
+                      <input 
+                        type="tel" 
+                        className="trust-setting-input"
+                        value={userPhone}
+                        onChange={(e) => setUserPhone(e.target.value)}
+                        placeholder="Enter your phone number"
+                      />
                     </div>
-                    <span className="trust-setting-arrow">›</span>
                   </div>
                 </div>
 
@@ -1902,6 +2028,13 @@ function MainApp() {
                     <span className="trust-setting-arrow">›</span>
                   </div>
                 </div>
+              </div>
+
+              <div className="trust-profile-actions">
+                <button className="trust-save-btn" onClick={handleProfileUpdate}>
+                  <span className="save-icon">💾</span>
+                  Save Changes
+                </button>
               </div>
 
               <div className="trust-logout-section">
