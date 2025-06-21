@@ -891,6 +891,11 @@ function MainApp() {
                       <h3>Check Your Email</h3>
                       <p>We've sent password reset instructions to</p>
                       <p className="email-highlight">{resetEmail}</p>
+                      <div className="important-notice">
+                        <p className="spam-notice">
+                          <strong>Important:</strong> Please check your spam or junk folder if you haven't received the email within a few minutes. Sometimes our security emails may be filtered by your email provider.
+                        </p>
+                      </div>
                       <div className="form-actions">
                         <button 
                           className="submit-btn"
