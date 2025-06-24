@@ -96,13 +96,90 @@ function MainApp() {
   const [selectedVolumeData, setSelectedVolumeData] = useState(null);
   const [showTradingHistory, setShowTradingHistory] = useState(false);
 
-  // Deposit/Withdraw info
-  const bitcoinAddress = "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh";
+  // Deposit/Withdraw info (dynamic from admin settings)
+  const bitcoinAddress = adminSettings.bitcoinAddress;
   const bankDetails = {
-    accountName: "Eloncrypto Exchange",
-    accountNumber: "1234567890",
-    bankName: "Crypto Bank",
-    routingNumber: "021000021"
+    accountName: adminSettings.bankAccountName,
+    accountNumber: adminSettings.bankAccountNumber,
+    bankName: adminSettings.bankName,
+    routingNumber: adminSettings.routingNumber
+  };
+
+  // Load admin settings
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('adminSettings');
+    if (savedSettings) {
+      setAdminSettings(JSON.parse(savedSettings));
+    }
+  }, []);
+
+  // Load all users for admin
+  const loadAllUsers = async () => {
+    if (!isVerifiedElonTeam(user?.email)) return;
+    
+    try {
+      const usersQuery = query(collection(db, 'users'));
+      const usersSnapshot = await getDocs(usersQuery);
+      const usersData = usersSnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      }));
+      setAllUsers(usersData);
+    } catch (error) {
+      console.warn('Could not load users from Firebase, using localStorage fallback');
+      // Fallback to localStorage data
+      const localUsers = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith('userData_')) {
+          const userData = JSON.parse(localStorage.getItem(key));
+          localUsers.push(userData);
+        }
+      }
+      setAllUsers(localUsers);
+    }
+  };
+
+  // Update user balance
+  const updateUserBalance = async (userId, newBalance) => {
+    try {
+      // Update in Firebase if possible
+      try {
+        const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
+        const userSnapshot = await getDocs(userQuery);
+        
+        if (!userSnapshot.empty) {
+          const userDoc = userSnapshot.docs[0];
+          await updateDoc(doc(db, 'users', userDoc.id), {
+            balance: parseFloat(newBalance),
+            updatedAt: new Date()
+          });
+        }
+      } catch (firebaseError) {
+        console.warn('Firebase update failed, updating localStorage');
+      }
+
+      // Update localStorage
+      localStorage.setItem(`userBalance_${userId}`, newBalance);
+      
+      // Update current user balance if it's the same user
+      if (user.uid === userId) {
+        setBalance(parseFloat(newBalance));
+      }
+
+      // Reload users list
+      loadAllUsers();
+      alert('User balance updated successfully!');
+    } catch (error) {
+      console.error('Error updating user balance:', error);
+      alert('Failed to update user balance. Please try again.');
+    }
+  };
+
+  // Save admin settings
+  const saveAdminSettings = () => {
+    localStorage.setItem('adminSettings', JSON.stringify(adminSettings));
+    alert('Admin settings saved successfully!');
   };
 
   // Language data
@@ -329,7 +406,20 @@ function MainApp() {
     return () => clearInterval(interval);
   }, []);
 
-  // Check if user is verified Elon team member
+  // Admin state
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [adminSettings, setAdminSettings] = useState({
+    bitcoinAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    bankAccountName: "Eloncrypto Exchange",
+    bankAccountNumber: "1234567890",
+    bankName: "Crypto Bank",
+    routingNumber: "021000021",
+    adminEmail: "admin@elonm.live",
+    adminPassword: ""
+  });
+
+  // Check if user is verified Elon team member (Admin)
   const isVerifiedElonTeam = (userEmail) => {
     const verifiedTeamEmails = [
       'elon@elonm.live',
@@ -1686,6 +1776,16 @@ function MainApp() {
               <span className="menu-text">Profile Settings</span>
               <span className="menu-arrow">›</span>
             </div>
+            {isVerifiedElonTeam(user?.email) && (
+              <div className="menu-item admin-access" onClick={() => {
+                setShowAdminPanel(true);
+                loadAllUsers();
+              }}>
+                <span className="menu-icon">🔧</span>
+                <span className="menu-text">Admin Panel</span>
+                <span className="menu-arrow">›</span>
+              </div>
+            )}
             <div className="menu-item">
               <span className="menu-icon">🔒</span>
               <span className="menu-text">Security</span>
@@ -2174,6 +2274,189 @@ function MainApp() {
               <button className="close-btn" onClick={() => setShowTradingHistory(false)}>
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAdminPanel && isVerifiedElonTeam(user?.email) && (
+        <div className="modal-overlay">
+          <div className="admin-modal">
+            <div className="admin-modal-header">
+              <h3>🔧 Admin Control Panel</h3>
+              <button className="close-btn" onClick={() => setShowAdminPanel(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="admin-modal-content">
+              <div className="admin-section">
+                <h4>💰 User Balance Management</h4>
+                <div className="users-management">
+                  {allUsers.length > 0 ? (
+                    <div className="users-list">
+                      {allUsers.map((userData) => (
+                        <div key={userData.userId || userData.id} className="user-balance-item">
+                          <div className="user-info">
+                            <span className="user-email">{userData.email}</span>
+                            <span className="user-id">ID: {userData.userId}</span>
+                          </div>
+                          <div className="balance-controls">
+                            <span className="current-balance">
+                              ${(userData.balance || 0).toLocaleString()}
+                            </span>
+                            <input
+                              type="number"
+                              placeholder="New balance"
+                              className="balance-input"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  const newBalance = e.target.value;
+                                  if (newBalance && !isNaN(newBalance)) {
+                                    updateUserBalance(userData.userId, newBalance);
+                                    e.target.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              className="update-balance-btn"
+                              onClick={(e) => {
+                                const input = e.target.previousElementSibling;
+                                const newBalance = input.value;
+                                if (newBalance && !isNaN(newBalance)) {
+                                  updateUserBalance(userData.userId, newBalance);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              Update
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-users">
+                      <p>No users found. Users will appear here once they register.</p>
+                      <button onClick={loadAllUsers} className="refresh-users-btn">
+                        🔄 Refresh Users
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="admin-section">
+                <h4>🏦 Payment Settings</h4>
+                <div className="payment-settings">
+                  <div className="setting-group">
+                    <label>Bitcoin Address</label>
+                    <input
+                      type="text"
+                      value={adminSettings.bitcoinAddress}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        bitcoinAddress: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div className="setting-group">
+                    <label>Bank Account Name</label>
+                    <input
+                      type="text"
+                      value={adminSettings.bankAccountName}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        bankAccountName: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div className="setting-group">
+                    <label>Bank Account Number</label>
+                    <input
+                      type="text"
+                      value={adminSettings.bankAccountNumber}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        bankAccountNumber: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div className="setting-group">
+                    <label>Bank Name</label>
+                    <input
+                      type="text"
+                      value={adminSettings.bankName}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        bankName: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div className="setting-group">
+                    <label>Routing Number</label>
+                    <input
+                      type="text"
+                      value={adminSettings.routingNumber}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        routingNumber: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-section">
+                <h4>🔐 Admin Account Settings</h4>
+                <div className="admin-account-settings">
+                  <div className="setting-group">
+                    <label>Admin Email</label>
+                    <input
+                      type="email"
+                      value={adminSettings.adminEmail}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        adminEmail: e.target.value
+                      })}
+                      className="admin-input"
+                    />
+                  </div>
+
+                  <div className="setting-group">
+                    <label>New Admin Password</label>
+                    <input
+                      type="password"
+                      value={adminSettings.adminPassword}
+                      onChange={(e) => setAdminSettings({
+                        ...adminSettings,
+                        adminPassword: e.target.value
+                      })}
+                      placeholder="Enter new password (optional)"
+                      className="admin-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="admin-actions">
+                <button className="save-admin-btn" onClick={saveAdminSettings}>
+                  💾 Save All Settings
+                </button>
+                <button className="refresh-users-btn" onClick={loadAllUsers}>
+                  🔄 Refresh User List
+                </button>
+              </div>
             </div>
           </div>
         </div>
