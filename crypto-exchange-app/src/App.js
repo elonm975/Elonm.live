@@ -813,7 +813,7 @@ function MainApp() {
       await sendPasswordResetEmail(auth, trimmedEmail, actionCodeSettings);
 
       setResetEmailSent(true);
-      The duplicate admin state declarations have been removed, and the code has been updated.      setError('');
+      setError('');
     } catch (error) {
       console.error('Firebase password reset error:', error);
       let errorMessage = 'Failed to send reset email. Please try again.';
