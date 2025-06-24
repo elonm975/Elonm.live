@@ -3782,6 +3782,60 @@
   100% { width: 100%; }
 }
 
+.infinite-spin {
+  animation: spin 2s linear infinite !important;
+}
+
+.infinite-progress {
+  background: linear-gradient(90deg, #333 0%, #555 50%, #333 100%);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.progress-fill-infinite {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, #4CAF50 50%, transparent 100%);
+  animation: slide 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.payment-status-info {
+  margin: 25px 0;
+  text-align: left;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  color: #4CAF50;
+  font-size: 14px;
+}
+
+.status-item.pending {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.status-item.future {
+  color: #888;
+}
+
+.status-icon {
+  font-size: 16px;
+  width: 20px;
+}
+
 .progress-text {
   color: #888;
   font-size: 14px;

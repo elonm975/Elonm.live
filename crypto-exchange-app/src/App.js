@@ -940,10 +940,39 @@ function MainApp() {
     setPaymentLoading(true);
     setShowDeposit(false);
     
-    // Simulate payment verification delay
-    setTimeout(() => {
-      setPaymentLoading(false);
-    }, 15000); // 15 seconds loading
+    // Store the current user's payment ID for continuous monitoring
+    localStorage.setItem(`currentPaymentId_${user.uid}`, paymentId);
+    
+    // Start checking for admin confirmation every 2 seconds
+    const checkPaymentStatus = setInterval(() => {
+      const currentPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
+      const userPayment = currentPendingPayments.find(p => p.id === paymentId);
+      
+      if (userPayment && userPayment.status === 'confirmed') {
+        // Payment confirmed by admin
+        clearInterval(checkPaymentStatus);
+        setPaymentLoading(false);
+        setPaymentConfirmed(true);
+        setShowPaymentConfirmation(false);
+        localStorage.removeItem(`currentPaymentId_${user.uid}`);
+        
+        // Update user balance immediately
+        const currentBalance = parseFloat(localStorage.getItem(`userBalance_${user.uid}`) || balance.toString());
+        const newBalance = currentBalance + parseFloat(userPayment.amount);
+        setBalance(newBalance);
+        localStorage.setItem(`userBalance_${user.uid}`, newBalance.toString());
+      } else if (userPayment && userPayment.status === 'rejected') {
+        // Payment rejected by admin
+        clearInterval(checkPaymentStatus);
+        setPaymentLoading(false);
+        setShowPaymentConfirmation(false);
+        localStorage.removeItem(`currentPaymentId_${user.uid}`);
+        alert('Payment was rejected by admin. Please contact support.');
+      }
+    }, 2000);
+    
+    // Store interval ID to clear it later if needed
+    localStorage.setItem(`paymentCheckInterval_${user.uid}`, 'active');
   };
 
   // Load pending payments for admin
@@ -972,25 +1001,31 @@ function MainApp() {
 
       const payment = savedPendingPayments[paymentIndex];
       
-      // Update user balance
-      await updateUserBalance(payment.userId, (parseFloat(localStorage.getItem(`userBalance_${payment.userId}`) || '0') + amount).toString());
+      // Update user balance in localStorage (for immediate effect)
+      const currentUserBalance = parseFloat(localStorage.getItem(`userBalance_${payment.userId}`) || '0');
+      const newUserBalance = currentUserBalance + amount;
+      localStorage.setItem(`userBalance_${payment.userId}`, newUserBalance.toString());
+      
+      // Also try to update in Firebase
+      try {
+        await updateUserBalance(payment.userId, newUserBalance.toString());
+      } catch (fbError) {
+        console.warn('Firebase update failed, but localStorage updated:', fbError);
+      }
       
       // Mark payment as confirmed
       savedPendingPayments[paymentIndex].status = 'confirmed';
       savedPendingPayments[paymentIndex].amount = amount;
       savedPendingPayments[paymentIndex].confirmedAt = new Date();
+      savedPendingPayments[paymentIndex].confirmedBy = user.email;
       
       localStorage.setItem('pendingPayments', JSON.stringify(savedPendingPayments));
       setPendingPayments(savedPendingPayments);
 
-      // If this is the current user's payment, show confirmation
-      if (payment.userId === user.uid) {
-        setPaymentConfirmed(true);
-        setShowPaymentConfirmation(false);
-        setPaymentLoading(false);
-      }
-
-      alert(`Payment confirmed! $${amount} added to user balance.`);
+      alert(`✅ Payment confirmed! $${amount} added to ${payment.userEmail}'s balance.`);
+      
+      // Reload users list to show updated balance
+      loadAllUsers();
     } catch (error) {
       console.error('Error confirming payment:', error);
       alert('Failed to confirm payment. Please try again.');
@@ -998,7 +1033,7 @@ function MainApp() {
   };
 
   // Reject payment
-  const rejectPayment = (paymentId) => {
+  const rejectPayment = (paymentId, rejectionReason) => {
     const savedPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
     const paymentIndex = savedPendingPayments.findIndex(p => p.id === paymentId);
     
@@ -1007,19 +1042,27 @@ function MainApp() {
       return;
     }
 
+    const payment = savedPendingPayments[paymentIndex];
+    
     savedPendingPayments[paymentIndex].status = 'rejected';
     savedPendingPayments[paymentIndex].rejectedAt = new Date();
+    savedPendingPayments[paymentIndex].rejectedBy = user.email;
+    savedPendingPayments[paymentIndex].rejectionReason = rejectionReason || 'No reason provided';
     
     localStorage.setItem('pendingPayments', JSON.stringify(savedPendingPayments));
     setPendingPayments(savedPendingPayments);
 
-    alert('Payment rejected.');
+    alert(`❌ Payment rejected for ${payment.userEmail}. Reason: ${rejectionReason || 'No reason provided'}`);
   };
 
   const skipPaymentConfirmation = () => {
     setShowPaymentConfirmation(false);
     setPaymentLoading(false);
     setPaymentMethod('');
+    
+    // Clear payment monitoring
+    localStorage.removeItem(`currentPaymentId_${user.uid}`);
+    localStorage.removeItem(`paymentCheckInterval_${user.uid}`);
   };
 
   if (loading) {
@@ -2465,7 +2508,10 @@ function MainApp() {
                             </button>
                             <button
                               className="reject-payment-btn"
-                              onClick={() => rejectPayment(payment.id)}
+                              onClick={() => {
+                                const reason = prompt('Enter rejection reason (optional):');
+                                rejectPayment(payment.id, reason);
+                              }}
                             >
                               ❌ Reject
                             </button>
@@ -2736,20 +2782,34 @@ function MainApp() {
               {paymentLoading ? (
                 <div className="payment-loading">
                   <div className="loading-spinner">
-                    <div className="spinner"></div>
+                    <div className="spinner infinite-spin"></div>
                   </div>
-                  <h4>Please wait while we confirm your payment</h4>
-                  <p>We are verifying your {paymentMethod === 'bitcoin' ? 'Bitcoin' : 'bank'} payment...</p>
+                  <h4>⏳ Waiting for Admin Confirmation</h4>
+                  <p>Your {paymentMethod === 'bitcoin' ? 'Bitcoin' : 'bank transfer'} payment is being reviewed by our admin team...</p>
                   <div className="loading-progress">
-                    <div className="progress-bar">
-                      <div className="progress-fill"></div>
+                    <div className="progress-bar infinite-progress">
+                      <div className="progress-fill-infinite"></div>
                     </div>
-                    <p className="progress-text">This usually takes a few minutes</p>
+                    <p className="progress-text">🔍 Admin review in progress - Please wait...</p>
+                  </div>
+                  <div className="payment-status-info">
+                    <div className="status-item">
+                      <span className="status-icon">📋</span>
+                      <span>Payment submitted for review</span>
+                    </div>
+                    <div className="status-item pending">
+                      <span className="status-icon">⏰</span>
+                      <span>Waiting for admin approval</span>
+                    </div>
+                    <div className="status-item future">
+                      <span className="status-icon">✅</span>
+                      <span>Balance will be updated</span>
+                    </div>
                   </div>
                   <button className="skip-btn" onClick={skipPaymentConfirmation}>
                     Skip this - I can't wait
                   </button>
-                  <p className="skip-note">Your balance will be updated after payment is confirmed</p>
+                  <p className="skip-note">⚠️ Your balance will be updated automatically once admin confirms your payment</p>
                 </div>
               ) : (
                 <div className="payment-confirmed">
