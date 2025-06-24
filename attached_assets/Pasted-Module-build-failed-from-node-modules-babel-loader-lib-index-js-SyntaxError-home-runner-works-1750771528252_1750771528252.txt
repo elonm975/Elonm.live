@@ -1,0 +1,64 @@
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /home/runner/workspace/crypto-exchange-app/src/App.js: Identifier 'showAdminPanel' has already been declared. (423:9)
+
+  421 |
+  422 |   // Admin state - moved to be declared only once
+> 423 |   const [showAdminPanel, setShowAdminPanel] = useState(false);
+      |          ^
+  424 |   const [allUsers, setAllUsers] = useState([]);
+  425 |   const [adminSettings, setAdminSettings] = useState({
+  426 |     bitcoinAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    at constructor (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:363:19)
+    at FlowParserMixin.raise (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:6609:19)
+    at FlowScopeHandler.checkRedeclarationInScope (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:1626:19)
+    at FlowScopeHandler.declareName (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:1592:12)
+    at FlowScopeHandler.declareName (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:1693:11)
+    at FlowParserMixin.declareNameFromIdentifier (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:7538:16)
+    at FlowParserMixin.checkIdentifier (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:7534:12)
+    at FlowParserMixin.checkLVal (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:7475:12)
+    at FlowParserMixin.checkLVal (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:7511:16)
+    at FlowParserMixin.parseVarId (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13327:10)
+    at FlowParserMixin.parseVarId (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3486:11)
+    at FlowParserMixin.parseVar (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13302:12)
+    at FlowParserMixin.parseVarStatement (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13149:10)
+    at FlowParserMixin.parseStatementContent (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12770:23)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12685:17)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2928:24)
+    at FlowParserMixin.parseStatementListItem (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12665:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13235:61)
+    at FlowParserMixin.parseBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13228:10)
+    at FlowParserMixin.parseBlock (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13216:10)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12035:24)
+    at FlowParserMixin.parseFunctionBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2905:11)
+    at FlowParserMixin.parseFunctionBodyAndFinish (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12021:10)
+    at FlowParserMixin.parseFunctionBodyAndFinish (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2913:18)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13360:12
+    at FlowParserMixin.withSmartMixTopicForbiddingContext (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12338:14)
+    at FlowParserMixin.parseFunction (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13359:10)
+    at FlowParserMixin.parseFunctionStatement (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13044:17)
+    at FlowParserMixin.parseStatementContent (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12709:21)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12685:17)
+    at FlowParserMixin.parseStatementLike (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:2928:24)
+    at FlowParserMixin.parseModuleItem (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12662:17)
+    at FlowParserMixin.parseBlockOrModuleBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13235:36)
+    at FlowParserMixin.parseBlockBody (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:13228:10)
+    at FlowParserMixin.parseProgram (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12541:10)
+    at FlowParserMixin.parseTopLevel (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:12531:25)
+    at FlowParserMixin.parseTopLevel (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:3697:28)
+    at FlowParserMixin.parse (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:14410:10)
+    at parse (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/parser/lib/index.js:14444:38)
+    at parser (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/home/runner/workspace/crypto-exchange-app/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (/home/runner/workspace/crypto-exchange-app/node_modules/gensync/index.js:261:32)
+    at /home/runner/workspace/crypto-exchange-app/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/home/runner/workspace/crypto-exchange-app/node_modules/gensync/index.js:223:11)
+ERROR
+[eslint] 
+src/App.js
+  Line 423:9:  Parsing error: Identifier 'showAdminPanel' has already been declared. (423:9)
