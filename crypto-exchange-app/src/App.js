@@ -145,18 +145,90 @@ function MainApp() {
         ...doc.data() 
       }));
       setAllUsers(usersData);
+      console.log('Loaded users from Firebase:', usersData);
     } catch (error) {
       console.warn('Could not load users from Firebase, using localStorage fallback');
-      // Fallback to localStorage data
+      
+      // Improved fallback to localStorage data
       const localUsers = [];
+      const processedUserIds = new Set();
+      
+      // Get all localStorage keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        
+        // Look for user balance keys to identify users
+        if (key?.startsWith('userBalance_')) {
+          const userId = key.replace('userBalance_', '');
+          if (!processedUserIds.has(userId)) {
+            processedUserIds.add(userId);
+            
+            // Get user data from various localStorage keys
+            const balance = parseFloat(localStorage.getItem(`userBalance_${userId}`)) || 0;
+            const userName = localStorage.getItem(`userName_${userId}`) || '';
+            const userPhone = localStorage.getItem(`userPhone_${userId}`) || '';
+            const profilePicture = localStorage.getItem(`profilePicture_${userId}`) || '';
+            
+            // Try to get email from current user if it matches, or construct a placeholder
+            let email = '';
+            if (user?.uid === userId) {
+              email = user.email;
+            } else {
+              email = `user_${userId.substring(0, 8)}@example.com`; // Placeholder email
+            }
+            
+            localUsers.push({
+              userId: userId,
+              id: userId,
+              email: email,
+              balance: balance,
+              userName: userName,
+              userPhone: userPhone,
+              profilePicture: profilePicture,
+              createdAt: new Date(),
+              source: 'localStorage'
+            });
+          }
+        }
+      }
+      
+      // Also check for any users stored with 'userData_' prefix
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key?.startsWith('userData_')) {
-          const userData = JSON.parse(localStorage.getItem(key));
-          localUsers.push(userData);
+          try {
+            const userData = JSON.parse(localStorage.getItem(key));
+            if (userData && userData.userId && !processedUserIds.has(userData.userId)) {
+              processedUserIds.add(userData.userId);
+              localUsers.push({
+                ...userData,
+                source: 'localStorage'
+              });
+            }
+          } catch (parseError) {
+            console.warn('Error parsing userData from localStorage:', parseError);
+          }
         }
       }
+      
+      // If we still have no users but there's a current user, add them
+      if (localUsers.length === 0 && user) {
+        const currentUserBalance = parseFloat(localStorage.getItem(`userBalance_${user.uid}`)) || balance || 0;
+        localUsers.push({
+          userId: user.uid,
+          id: user.uid,
+          email: user.email,
+          balance: currentUserBalance,
+          userName: userName || '',
+          userPhone: userPhone || '',
+          profilePicture: profilePicture || '',
+          createdAt: new Date(),
+          source: 'current_user'
+        });
+      }
+      
       setAllUsers(localUsers);
+      console.log('Loaded users from localStorage fallback:', localUsers);
     }
   };
 
