@@ -419,18 +419,7 @@ function MainApp() {
     return () => clearInterval(interval);
   }, []);
 
-  // Admin state - moved to be declared only once
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
-  const [adminSettings, setAdminSettings] = useState({
-    bitcoinAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    bankAccountName: "Eloncrypto Exchange",
-    bankAccountNumber: "1234567890",
-    bankName: "Crypto Bank",
-    routingNumber: "021000021",
-    adminEmail: "admin@elonm.live",
-    adminPassword: ""
-  });
+  
 
   // Check if user is verified Elon team member (Admin)
   const isVerifiedElonTeam = (userEmail) => {
