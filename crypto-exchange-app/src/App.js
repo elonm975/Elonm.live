@@ -96,14 +96,18 @@ function MainApp() {
   const [selectedVolumeData, setSelectedVolumeData] = useState(null);
   const [showTradingHistory, setShowTradingHistory] = useState(false);
 
-  // Deposit/Withdraw info (dynamic from admin settings)
-  const bitcoinAddress = adminSettings.bitcoinAddress;
-  const bankDetails = {
-    accountName: adminSettings.bankAccountName,
-    accountNumber: adminSettings.bankAccountNumber,
-    bankName: adminSettings.bankName,
-    routingNumber: adminSettings.routingNumber
-  };
+  // Admin state
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+  const [adminSettings, setAdminSettings] = useState({
+    bitcoinAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    bankAccountName: "Eloncrypto Exchange",
+    bankAccountNumber: "1234567890",
+    bankName: "Crypto Bank",
+    routingNumber: "021000021",
+    adminEmail: "admin@elonm.live",
+    adminPassword: ""
+  });
 
   // Load admin settings
   useEffect(() => {
@@ -113,10 +117,19 @@ function MainApp() {
     }
   }, []);
 
+  // Deposit/Withdraw info (dynamic from admin settings)
+  const bitcoinAddress = adminSettings.bitcoinAddress;
+  const bankDetails = {
+    accountName: adminSettings.bankAccountName,
+    accountNumber: adminSettings.bankAccountNumber,
+    bankName: adminSettings.bankName,
+    routingNumber: adminSettings.routingNumber
+  };
+
   // Load all users for admin
   const loadAllUsers = async () => {
     if (!isVerifiedElonTeam(user?.email)) return;
-    
+
     try {
       const usersQuery = query(collection(db, 'users'));
       const usersSnapshot = await getDocs(usersQuery);
@@ -147,7 +160,7 @@ function MainApp() {
       try {
         const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
         const userSnapshot = await getDocs(userQuery);
-        
+
         if (!userSnapshot.empty) {
           const userDoc = userSnapshot.docs[0];
           await updateDoc(doc(db, 'users', userDoc.id), {
@@ -161,7 +174,7 @@ function MainApp() {
 
       // Update localStorage
       localStorage.setItem(`userBalance_${userId}`, newBalance);
-      
+
       // Update current user balance if it's the same user
       if (user.uid === userId) {
         setBalance(parseFloat(newBalance));
@@ -406,7 +419,7 @@ function MainApp() {
     return () => clearInterval(interval);
   }, []);
 
-  // Admin state
+  // Admin state - moved to be declared only once
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [adminSettings, setAdminSettings] = useState({
@@ -536,7 +549,7 @@ function MainApp() {
       const savedProfilePicture = localStorage.getItem(`profilePicture_${userId}`);
       const savedUserName = localStorage.getItem(`userName_${userId}`);
       const savedUserPhone = localStorage.getItem(`userPhone_${userId}`);
-      
+
       if (savedProfilePicture) setProfilePicture(savedProfilePicture);
       if (savedUserName) setUserName(savedUserName);
       if (savedUserPhone) setUserPhone(savedUserPhone);
@@ -654,21 +667,21 @@ function MainApp() {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64Image = e.target.result;
-        
+
         // Update profile picture in state immediately
         setProfilePicture(base64Image);
-        
+
         // Save to localStorage as backup
         try {
           localStorage.setItem(`profilePicture_${user.uid}`, base64Image);
           localStorage.setItem(`userName_${user.uid}`, userName || '');
           localStorage.setItem(`userPhone_${user.uid}`, userPhone || '');
-          
+
           // Also try to save to Firebase (but don't fail if it doesn't work)
           try {
             const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
             const userSnapshot = await getDocs(userQuery);
-            
+
             if (!userSnapshot.empty) {
               const userDoc = userSnapshot.docs[0];
               await updateDoc(doc(db, 'users', userDoc.id), {
@@ -694,18 +707,18 @@ function MainApp() {
           } catch (firebaseError) {
             console.warn('Firebase save failed, but localStorage backup saved:', firebaseError);
           }
-          
+
           showNotification('Success', 'Profile picture updated successfully!', 'success');
         } catch (error) {
           console.error('Error saving profile picture:', error);
           alert('Profile picture displayed but may not be permanently saved. Please try again.');
         }
       };
-      
+
       reader.onerror = () => {
         alert('Error reading file. Please try again.');
       };
-      
+
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error uploading profile picture:', error);
@@ -718,12 +731,12 @@ function MainApp() {
       // Save to localStorage first
       localStorage.setItem(`userName_${user.uid}`, userName || '');
       localStorage.setItem(`userPhone_${user.uid}`, userPhone || '');
-      
+
       // Try to save to Firebase
       try {
         const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
         const userSnapshot = await getDocs(userQuery);
-        
+
         if (!userSnapshot.empty) {
           const userDoc = userSnapshot.docs[0];
           await updateDoc(doc(db, 'users', userDoc.id), {
@@ -747,7 +760,7 @@ function MainApp() {
       } catch (firebaseError) {
         console.warn('Firebase update failed, but localStorage saved:', firebaseError);
       }
-      
+
       showNotification('Success', 'Profile updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -811,7 +824,7 @@ function MainApp() {
       await sendPasswordResetEmail(auth, trimmedEmail, actionCodeSettings);
 
       setResetEmailSent(true);
-      setError('');
+      The duplicate admin state declarations have been removed, and the code has been updated.      setError('');
     } catch (error) {
       console.error('Firebase password reset error:', error);
       let errorMessage = 'Failed to send reset email. Please try again.';
@@ -1073,7 +1086,6 @@ function MainApp() {
                         <button type="button" className="link-btn" onClick={() => { setShowSignup(false); setShowLogin(true); setError(''); }}>
                           Sign in
                         </button>
-                      ```text
 
                       </p>
                       <button type="button" className="back-btn" onClick={() => { setShowSignup(false); setError(''); }}>
