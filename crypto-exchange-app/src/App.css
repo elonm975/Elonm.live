@@ -3651,6 +3651,161 @@
   font-size: 18px;
 }
 
+/* Payment Confirmation Styles */
+.payment-confirmation-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 15px 0;
+  transition: all 0.3s ease;
+}
+
+.payment-confirmation-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.payment-confirmation-modal {
+  max-width: 500px;
+  width: 90%;
+}
+
+.payment-confirmation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.payment-loading {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.loading-spinner {
+  margin: 20px 0;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #333;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.payment-loading h4 {
+  color: #fff;
+  margin: 20px 0 10px;
+  font-size: 20px;
+}
+
+.payment-loading p {
+  color: #ccc;
+  margin: 10px 0;
+}
+
+.loading-progress {
+  margin: 30px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+.progress-fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #45a049);
+  border-radius: 4px;
+  animation: progress 15s linear;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.progress-text {
+  color: #888;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.skip-btn {
+  background: transparent;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 20px 0 10px;
+}
+
+.skip-btn:hover {
+  background: #4CAF50;
+  color: white;
+}
+
+.skip-note {
+  color: #888;
+  font-size: 12px;
+  margin: 5px 0;
+  font-style: italic;
+}
+
+.payment-confirmed {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.payment-confirmed .success-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+
+.payment-confirmed h4 {
+  color: #fff;
+  font-size: 22px;
+  margin: 20px 0 15px;
+}
+
+.payment-confirmed p {
+  color: #ccc;
+  line-height: 1.6;
+  margin: 15px 0;
+}
+
+.balance-update-note {
+  color: #4CAF50 !important;
+  font-weight: 600;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  margin: 20px 0 !important;
+}
+
 /* WhatsApp Support Button */
 .whatsapp-support {
   position: fixed;

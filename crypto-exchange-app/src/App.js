@@ -117,6 +117,11 @@ function MainApp() {
     }
   }, []);
 
+  // Payment confirmation states
+  const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState(''); // 'bitcoin' or 'bank'
+
   // Deposit/Withdraw info (dynamic from admin settings)
   const bitcoinAddress = adminSettings.bitcoinAddress;
   const bankDetails = {
@@ -908,6 +913,24 @@ function MainApp() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
+  };
+
+  const handlePaymentConfirmation = (method) => {
+    setPaymentMethod(method);
+    setShowPaymentConfirmation(true);
+    setPaymentLoading(true);
+    setShowDeposit(false);
+    
+    // Simulate payment verification delay
+    setTimeout(() => {
+      setPaymentLoading(false);
+    }, 15000); // 15 seconds loading
+  };
+
+  const skipPaymentConfirmation = () => {
+    setShowPaymentConfirmation(false);
+    setPaymentLoading(false);
+    setPaymentMethod('');
   };
 
   if (loading) {
@@ -1944,6 +1967,12 @@ function MainApp() {
                       <button onClick={() => copyToClipboard(bitcoinAddress)} className="copy-btn">Copy</button>
                     </div>
                     <p className="warning">⚠️ Only send Bitcoin to this address.</p>
+                    <button 
+                      className="payment-confirmation-btn"
+                      onClick={() => handlePaymentConfirmation('bitcoin')}
+                    >
+                      I have made payment
+                    </button>
                   </div>
                 </div>
                 <div className="deposit-option">
@@ -1962,6 +1991,12 @@ function MainApp() {
                       <strong>Routing Number:</strong> {bankDetails.routingNumber}
                     </div>
                   </div>
+                  <button 
+                    className="payment-confirmation-btn"
+                    onClick={() => handlePaymentConfirmation('bank')}
+                  >
+                    I have made payment
+                  </button>
                   <div className="support-section">
                     <p className="support-text">Need help with bank transfer?</p>
                     <a 
@@ -2524,6 +2559,53 @@ function MainApp() {
               >
                 Start Trading 🚀
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPaymentConfirmation && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content payment-confirmation-modal">
+              <div className="payment-confirmation-header">
+                <h3>Payment Confirmation</h3>
+                {!paymentLoading && (
+                  <button className="close-btn" onClick={skipPaymentConfirmation}>
+                    ×
+                  </button>
+                )}
+              </div>
+
+              {paymentLoading ? (
+                <div className="payment-loading">
+                  <div className="loading-spinner">
+                    <div className="spinner"></div>
+                  </div>
+                  <h4>Please wait while we confirm your payment</h4>
+                  <p>We are verifying your {paymentMethod === 'bitcoin' ? 'Bitcoin' : 'bank'} payment...</p>
+                  <div className="loading-progress">
+                    <div className="progress-bar">
+                      <div className="progress-fill"></div>
+                    </div>
+                    <p className="progress-text">This usually takes a few minutes</p>
+                  </div>
+                  <button className="skip-btn" onClick={skipPaymentConfirmation}>
+                    Skip this - I can't wait
+                  </button>
+                  <p className="skip-note">Your balance will be updated after payment is confirmed</p>
+                </div>
+              ) : (
+                <div className="payment-confirmed">
+                  <div className="success-icon">✅</div>
+                  <h4>Payment Verification Complete</h4>
+                  <p>Your {paymentMethod === 'bitcoin' ? 'Bitcoin' : 'bank transfer'} payment has been received and is being processed.</p>
+                  <p className="balance-update-note">Your account balance will be updated within 24 hours.</p>
+                  <button className="done-btn" onClick={skipPaymentConfirmation}>
+                    Done
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
