@@ -121,6 +121,8 @@ function MainApp() {
   const [showPaymentConfirmation, setShowPaymentConfirmation] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(''); // 'bitcoin' or 'bank'
+  const [pendingPayments, setPendingPayments] = useState([]);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   // Deposit/Withdraw info (dynamic from admin settings)
   const bitcoinAddress = adminSettings.bitcoinAddress;
@@ -916,6 +918,23 @@ function MainApp() {
   };
 
   const handlePaymentConfirmation = (method) => {
+    const paymentId = `payment_${Date.now()}_${user.uid}`;
+    const newPayment = {
+      id: paymentId,
+      userId: user.uid,
+      userEmail: user.email,
+      method: method,
+      timestamp: new Date(),
+      status: 'pending',
+      amount: '0' // Admin will set the amount when confirming
+    };
+
+    // Add to pending payments for admin review
+    const savedPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
+    savedPendingPayments.push(newPayment);
+    localStorage.setItem('pendingPayments', JSON.stringify(savedPendingPayments));
+    setPendingPayments(savedPendingPayments);
+
     setPaymentMethod(method);
     setShowPaymentConfirmation(true);
     setPaymentLoading(true);
@@ -925,6 +944,76 @@ function MainApp() {
     setTimeout(() => {
       setPaymentLoading(false);
     }, 15000); // 15 seconds loading
+  };
+
+  // Load pending payments for admin
+  const loadPendingPayments = () => {
+    const savedPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
+    setPendingPayments(savedPendingPayments);
+  };
+
+  // Admin confirms payment
+  const confirmPayment = async (paymentId, confirmAmount) => {
+    const amount = parseFloat(confirmAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      // Find the payment
+      const savedPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
+      const paymentIndex = savedPendingPayments.findIndex(p => p.id === paymentId);
+      
+      if (paymentIndex === -1) {
+        alert('Payment not found');
+        return;
+      }
+
+      const payment = savedPendingPayments[paymentIndex];
+      
+      // Update user balance
+      await updateUserBalance(payment.userId, (parseFloat(localStorage.getItem(`userBalance_${payment.userId}`) || '0') + amount).toString());
+      
+      // Mark payment as confirmed
+      savedPendingPayments[paymentIndex].status = 'confirmed';
+      savedPendingPayments[paymentIndex].amount = amount;
+      savedPendingPayments[paymentIndex].confirmedAt = new Date();
+      
+      localStorage.setItem('pendingPayments', JSON.stringify(savedPendingPayments));
+      setPendingPayments(savedPendingPayments);
+
+      // If this is the current user's payment, show confirmation
+      if (payment.userId === user.uid) {
+        setPaymentConfirmed(true);
+        setShowPaymentConfirmation(false);
+        setPaymentLoading(false);
+      }
+
+      alert(`Payment confirmed! $${amount} added to user balance.`);
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+      alert('Failed to confirm payment. Please try again.');
+    }
+  };
+
+  // Reject payment
+  const rejectPayment = (paymentId) => {
+    const savedPendingPayments = JSON.parse(localStorage.getItem('pendingPayments') || '[]');
+    const paymentIndex = savedPendingPayments.findIndex(p => p.id === paymentId);
+    
+    if (paymentIndex === -1) {
+      alert('Payment not found');
+      return;
+    }
+
+    savedPendingPayments[paymentIndex].status = 'rejected';
+    savedPendingPayments[paymentIndex].rejectedAt = new Date();
+    
+    localStorage.setItem('pendingPayments', JSON.stringify(savedPendingPayments));
+    setPendingPayments(savedPendingPayments);
+
+    alert('Payment rejected.');
   };
 
   const skipPaymentConfirmation = () => {
@@ -1806,6 +1895,7 @@ function MainApp() {
               <div className="menu-item admin-access" onClick={() => {
                 setShowAdminPanel(true);
                 loadAllUsers();
+                loadPendingPayments();
               }}>
                 <span className="menu-icon">🔧</span>
                 <span className="menu-text">Admin Panel</span>
@@ -2329,6 +2419,72 @@ function MainApp() {
 
             <div className="admin-modal-content">
               <div className="admin-section">
+                <h4>💳 Pending Payment Confirmations</h4>
+                <div className="pending-payments">
+                  {pendingPayments.filter(p => p.status === 'pending').length > 0 ? (
+                    <div className="payments-list">
+                      {pendingPayments.filter(p => p.status === 'pending').map((payment) => (
+                        <div key={payment.id} className="payment-item">
+                          <div className="payment-info">
+                            <div className="payment-user">
+                              <span className="user-email">{payment.userEmail}</span>
+                              <span className="payment-method">{payment.method === 'bitcoin' ? '₿ Bitcoin' : '🏦 Bank Transfer'}</span>
+                            </div>
+                            <div className="payment-time">
+                              {new Date(payment.timestamp).toLocaleString()}
+                            </div>
+                          </div>
+                          <div className="payment-actions">
+                            <input
+                              type="number"
+                              placeholder="Amount ($)"
+                              className="amount-input"
+                              step="0.01"
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                  const amount = e.target.value;
+                                  if (amount) {
+                                    confirmPayment(payment.id, amount);
+                                    e.target.value = '';
+                                  }
+                                }
+                              }}
+                            />
+                            <button
+                              className="confirm-payment-btn"
+                              onClick={(e) => {
+                                const input = e.target.previousElementSibling;
+                                const amount = input.value;
+                                if (amount) {
+                                  confirmPayment(payment.id, amount);
+                                  input.value = '';
+                                }
+                              }}
+                            >
+                              ✅ Confirm
+                            </button>
+                            <button
+                              className="reject-payment-btn"
+                              onClick={() => rejectPayment(payment.id)}
+                            >
+                              ❌ Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-pending-payments">
+                      <p>No pending payments to review</p>
+                      <button onClick={loadPendingPayments} className="refresh-payments-btn">
+                        🔄 Refresh Payments
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="admin-section">
                 <h4>💰 User Balance Management</h4>
                 <div className="users-management">
                   {allUsers.length > 0 ? (
@@ -2606,6 +2762,40 @@ function MainApp() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {paymentConfirmed && (
+        <div className="payment-confirmed-overlay">
+          <div className="payment-confirmed-modal">
+            <div className="payment-confirmed-content">
+              <div className="payment-confirmed-header">
+                <div className="payment-confirmed-icon">✅</div>
+                <h2>Payment Confirmed!</h2>
+              </div>
+              <div className="payment-confirmed-body">
+                <div className="green-flash"></div>
+                <p>Your payment has been successfully confirmed by our admin team.</p>
+                <p>Your account balance has been updated.</p>
+                <div className="payment-confirmed-stats">
+                  <div className="stat-item">
+                    <span className="stat-label">Status</span>
+                    <span className="stat-value confirmed">✅ Confirmed</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Updated Balance</span>
+                    <span className="stat-value">${balance.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              <button 
+                className="payment-confirmed-close-btn"
+                onClick={() => setPaymentConfirmed(false)}
+              >
+                Continue Trading
+              </button>
             </div>
           </div>
         </div>
