@@ -79,6 +79,7 @@ function MainApp() {
   const [tradeAmount, setTradeAmount] = useState('');
   const [showTrade, setShowTrade] = useState(false);
   const [activeAssetTab, setActiveAssetTab] = useState('spot');
+  const [bitcoinPrice, setBitcoinPrice] = useState(0);
 
   // Navigation and UI state - moved before early returns
   const [activeTab, setActiveTab] = useState('home');
@@ -554,6 +555,12 @@ function MainApp() {
       }));
       setCryptoData(data);
 
+      // Extract Bitcoin price for deposit conversion
+      const bitcoin = response.data.find(coin => coin.id === 'bitcoin');
+      if (bitcoin) {
+        setBitcoinPrice(bitcoin.current_price);
+      }
+
       // Fetch futures data from Binance with live updates
       try {
         const futuresResponse = await axios.get('https://fapi.binance.com/fapi/v1/ticker/24hr');
@@ -622,6 +629,14 @@ function MainApp() {
         });
       }
       setCryptoData(fallbackCryptos);
+
+      // Set fallback Bitcoin price
+      const bitcoinCrypto = fallbackCryptos.find(crypto => crypto.name === 'Bitcoin');
+      if (bitcoinCrypto) {
+        setBitcoinPrice(bitcoinCrypto.price);
+      } else {
+        setBitcoinPrice(45000); // Fallback Bitcoin price
+      }
 
       // Create enhanced futures fallback
       const fallbackFutures = fallbackCryptos.slice(0, 100).map((coin, index) => ({
@@ -1171,6 +1186,12 @@ function MainApp() {
     
     setShowDeposit(false);
     setShowDepositMethods(true);
+  };
+
+  // Calculate Bitcoin equivalent
+  const calculateBitcoinEquivalent = (usdAmount) => {
+    if (!usdAmount || !bitcoinPrice || bitcoinPrice === 0) return 0;
+    return parseFloat(usdAmount) / bitcoinPrice;
   };
 
   const skipPaymentConfirmation = () => {
@@ -2236,6 +2257,16 @@ function MainApp() {
                     <div className="summary-row">
                       <span className="summary-label">Deposit Amount:</span>
                       <span className="summary-value">${parseFloat(depositAmount).toLocaleString()}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span className="summary-label">Bitcoin Equivalent:</span>
+                      <span className="summary-value bitcoin-equivalent">
+                        ₿{calculateBitcoinEquivalent(depositAmount).toFixed(8)} BTC
+                      </span>
+                    </div>
+                    <div className="summary-row">
+                      <span className="summary-label">BTC Price:</span>
+                      <span className="summary-value">${bitcoinPrice.toLocaleString()}</span>
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Processing Fee:</span>
