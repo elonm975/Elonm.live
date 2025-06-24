@@ -442,6 +442,15 @@ function MainApp() {
 
   const loadUserData = async (userId) => {
     try {
+      // Load from localStorage first for immediate display
+      const savedProfilePicture = localStorage.getItem(`profilePicture_${userId}`);
+      const savedUserName = localStorage.getItem(`userName_${userId}`);
+      const savedUserPhone = localStorage.getItem(`userPhone_${userId}`);
+      
+      if (savedProfilePicture) setProfilePicture(savedProfilePicture);
+      if (savedUserName) setUserName(savedUserName);
+      if (savedUserPhone) setUserPhone(savedUserPhone);
+
       // Initialize user data if it doesn't exist
       const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
       const userSnapshot = await getDocs(userQuery);
@@ -458,9 +467,10 @@ function MainApp() {
       } else {
         const userData = userSnapshot.docs[0].data();
         setBalance(userData.balance || 0);
-        setUserName(userData.userName || '');
-        setUserPhone(userData.userPhone || '');
-        setProfilePicture(userData.profilePicture || '');
+        // Only update if Firebase has newer data (or localStorage is empty)
+        if (userData.userName && !savedUserName) setUserName(userData.userName);
+        if (userData.userPhone && !savedUserPhone) setUserPhone(userData.userPhone);
+        if (userData.profilePicture && !savedProfilePicture) setProfilePicture(userData.profilePicture);
       }
 
       // Load portfolio with error handling
@@ -555,28 +565,50 @@ function MainApp() {
       reader.onload = async (e) => {
         const base64Image = e.target.result;
         
-        // Update profile picture in state
+        // Update profile picture in state immediately
         setProfilePicture(base64Image);
         
-        // Save to Firebase
+        // Save to localStorage as backup
         try {
-          const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
-          const userSnapshot = await getDocs(userQuery);
+          localStorage.setItem(`profilePicture_${user.uid}`, base64Image);
+          localStorage.setItem(`userName_${user.uid}`, userName || '');
+          localStorage.setItem(`userPhone_${user.uid}`, userPhone || '');
           
-          if (!userSnapshot.empty) {
-            const userDoc = userSnapshot.docs[0];
-            await updateDoc(doc(db, 'users', userDoc.id), {
-              profilePicture: base64Image,
-              userName: userName,
-              userPhone: userPhone,
-              updatedAt: new Date()
-            });
+          // Also try to save to Firebase (but don't fail if it doesn't work)
+          try {
+            const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
+            const userSnapshot = await getDocs(userQuery);
             
-            showNotification('Success', 'Profile picture updated successfully!', 'success');
+            if (!userSnapshot.empty) {
+              const userDoc = userSnapshot.docs[0];
+              await updateDoc(doc(db, 'users', userDoc.id), {
+                profilePicture: base64Image,
+                userName: userName || '',
+                userPhone: userPhone || '',
+                updatedAt: new Date()
+              });
+              console.log('Profile saved to Firebase successfully');
+            } else {
+              // Create new user document if none exists
+              await addDoc(collection(db, 'users'), {
+                userId: user.uid,
+                email: user.email,
+                profilePicture: base64Image,
+                userName: userName || '',
+                userPhone: userPhone || '',
+                balance: 0,
+                createdAt: new Date()
+              });
+              console.log('New user profile created in Firebase');
+            }
+          } catch (firebaseError) {
+            console.warn('Firebase save failed, but localStorage backup saved:', firebaseError);
           }
+          
+          showNotification('Success', 'Profile picture updated successfully!', 'success');
         } catch (error) {
-          console.error('Error updating profile picture:', error);
-          alert('Failed to save profile picture. Please try again.');
+          console.error('Error saving profile picture:', error);
+          alert('Profile picture displayed but may not be permanently saved. Please try again.');
         }
       };
       
@@ -593,22 +625,43 @@ function MainApp() {
 
   const handleProfileUpdate = async () => {
     try {
-      const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
-      const userSnapshot = await getDocs(userQuery);
+      // Save to localStorage first
+      localStorage.setItem(`userName_${user.uid}`, userName || '');
+      localStorage.setItem(`userPhone_${user.uid}`, userPhone || '');
       
-      if (!userSnapshot.empty) {
-        const userDoc = userSnapshot.docs[0];
-        await updateDoc(doc(db, 'users', userDoc.id), {
-          userName: userName,
-          userPhone: userPhone,
-          updatedAt: new Date()
-        });
+      // Try to save to Firebase
+      try {
+        const userQuery = query(collection(db, 'users'), where('userId', '==', user.uid));
+        const userSnapshot = await getDocs(userQuery);
         
-        showNotification('Success', 'Profile updated successfully!', 'success');
+        if (!userSnapshot.empty) {
+          const userDoc = userSnapshot.docs[0];
+          await updateDoc(doc(db, 'users', userDoc.id), {
+            userName: userName || '',
+            userPhone: userPhone || '',
+            profilePicture: profilePicture || '',
+            updatedAt: new Date()
+          });
+        } else {
+          // Create new user document
+          await addDoc(collection(db, 'users'), {
+            userId: user.uid,
+            email: user.email,
+            userName: userName || '',
+            userPhone: userPhone || '',
+            profilePicture: profilePicture || '',
+            balance: 0,
+            createdAt: new Date()
+          });
+        }
+      } catch (firebaseError) {
+        console.warn('Firebase update failed, but localStorage saved:', firebaseError);
       }
+      
+      showNotification('Success', 'Profile updated successfully!', 'success');
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile. Please try again.');
+      alert('Profile may not be permanently saved. Please try again.');
     }
   };
 
