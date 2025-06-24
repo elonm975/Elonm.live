@@ -429,7 +429,9 @@ function MainApp() {
       'team@elonm.live',
       'support@elonm.live'
     ];
-    return verifiedTeamEmails.includes(userEmail?.toLowerCase());
+    const isAdmin = verifiedTeamEmails.includes(userEmail?.toLowerCase());
+    console.log('Admin check:', { userEmail, isAdmin });
+    return isAdmin;
   };
 
   const fetchCryptoData = async () => {
