@@ -3683,7 +3683,7 @@
 
 .currency-symbol {
   position: absolute;
-  right: 16px;
+  left: 16px;
   color: #4CAF50;
   font-size: 18px;
   font-weight: 600;
@@ -3693,12 +3693,10 @@
 
 .amount-input {
   width: 100%;
-  padding: 16px 40px 16px 16px;
+  padding: 16px 16px 16px 40px;
   font-size: 18px;
   font-weight: 600;
   background: #2d2d2d;
-  text-align: right;
-  padding-right: 50px;
   border: 2px solid #333;
   border-radius: 12px;
   color: #fff;
