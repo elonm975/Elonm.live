@@ -3655,6 +3655,195 @@
   margin: 8px 0;
 }
 
+/* Deposit Amount Form Styles */
+.deposit-amount-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.amount-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.amount-label {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.amount-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 16px;
+  color: #4CAF50;
+  font-size: 18px;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.amount-input {
+  width: 100%;
+  padding: 16px 16px 16px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  background: #2d2d2d;
+  border: 2px solid #333;
+  border-radius: 12px;
+  color: #fff;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.amount-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.amount-input::placeholder {
+  color: #666;
+}
+
+.amount-limits {
+  display: flex;
+  justify-content: center;
+}
+
+.limit-text {
+  color: #888;
+  font-size: 12px;
+}
+
+.deposit-summary {
+  background: rgba(76, 175, 80, 0.05);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.summary-row.total {
+  border-top: 1px solid rgba(76, 175, 80, 0.2);
+  padding-top: 12px;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.summary-label {
+  color: #ccc;
+  font-size: 14px;
+}
+
+.summary-row.total .summary-label {
+  font-weight: 600;
+  color: #fff;
+}
+
+.summary-value {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.summary-row.total .summary-value {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.deposit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.continue-btn {
+  flex: 1;
+  padding: 16px;
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.continue-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #45a049, #1976D2);
+  transform: translateY(-1px);
+}
+
+.continue-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.deposit-amount-display {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.deposit-amount-display p {
+  color: #4CAF50;
+  margin: 0;
+  font-weight: 600;
+}
+
+.back-btn {
+  background: #666;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-right: 8px;
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #777;
+}
+
+.payment-confirmation-btn {
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+}
+
+.payment-confirmation-btn:hover {
+  background: linear-gradient(135deg, #45a049, #1976D2);
+  transform: translateY(-1px);
+}
+
 .bank-details p {
   margin: 4px 0;
   font-family: monospace;

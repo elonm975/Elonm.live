@@ -69,6 +69,8 @@ function MainApp() {
   const [transactions, setTransactions] = useState([]);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [showDepositMethods, setShowDepositMethods] = useState(false);
 
   // Crypto data
   const [cryptoData, setCryptoData] = useState([]);
@@ -1020,7 +1022,8 @@ function MainApp() {
       method: method,
       timestamp: new Date(),
       status: 'pending',
-      amount: '0' // Admin will set the amount when confirming
+      amount: depositAmount || '0',
+      requestedAmount: depositAmount
     };
 
     // Add to pending payments for admin review
@@ -1032,7 +1035,7 @@ function MainApp() {
     setPaymentMethod(method);
     setShowPaymentConfirmation(true);
     setPaymentLoading(true);
-    setShowDeposit(false);
+    setShowDepositMethods(false);
     
     // Store the current user's payment ID for continuous monitoring
     localStorage.setItem(`currentPaymentId_${user.uid}`, paymentId);
@@ -1149,10 +1152,33 @@ function MainApp() {
     alert(`❌ Payment rejected for ${payment.userEmail}. Reason: ${rejectionReason || 'No reason provided'}`);
   };
 
+  const handleDepositAmountSubmit = () => {
+    const amount = parseFloat(depositAmount);
+    if (!depositAmount || isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid deposit amount');
+      return;
+    }
+    
+    if (amount < 10) {
+      alert('Minimum deposit amount is $10');
+      return;
+    }
+    
+    if (amount > 100000) {
+      alert('Maximum deposit amount is $100,000');
+      return;
+    }
+    
+    setShowDeposit(false);
+    setShowDepositMethods(true);
+  };
+
   const skipPaymentConfirmation = () => {
     setShowPaymentConfirmation(false);
     setPaymentLoading(false);
     setPaymentMethod('');
+    setDepositAmount('');
+    setShowDepositMethods(false);
     
     // Clear payment monitoring
     localStorage.removeItem(`currentPaymentId_${user.uid}`);
@@ -2183,28 +2209,99 @@ function MainApp() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-content">
-              <h3>Deposit Funds</h3>
+              <h3>💰 Deposit Funds</h3>
+              <div className="deposit-amount-form">
+                <div className="amount-input-section">
+                  <label className="amount-label">Enter Deposit Amount</label>
+                  <div className="amount-input-container">
+                    <span className="currency-symbol">$</span>
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      className="amount-input"
+                      min="10"
+                      max="100000"
+                      step="0.01"
+                    />
+                  </div>
+                  <div className="amount-limits">
+                    <span className="limit-text">Min: $10 • Max: $100,000</span>
+                  </div>
+                </div>
+                
+                {depositAmount && parseFloat(depositAmount) >= 10 && (
+                  <div className="deposit-summary">
+                    <div className="summary-row">
+                      <span className="summary-label">Deposit Amount:</span>
+                      <span className="summary-value">${parseFloat(depositAmount).toLocaleString()}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span className="summary-label">Processing Fee:</span>
+                      <span className="summary-value">Free</span>
+                    </div>
+                    <div className="summary-row total">
+                      <span className="summary-label">Total to Pay:</span>
+                      <span className="summary-value">${parseFloat(depositAmount).toLocaleString()}</span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="deposit-actions">
+                  <button 
+                    className="continue-btn"
+                    onClick={handleDepositAmountSubmit}
+                    disabled={!depositAmount || parseFloat(depositAmount) < 10}
+                  >
+                    Continue to Payment
+                  </button>
+                  <button 
+                    className="cancel-btn" 
+                    onClick={() => {
+                      setShowDeposit(false);
+                      setDepositAmount('');
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDepositMethods && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-content">
+              <h3>💰 Deposit ${parseFloat(depositAmount).toLocaleString()}</h3>
+              <div className="deposit-amount-display">
+                <p>Choose your preferred payment method:</p>
+              </div>
               <div className="deposit-options">
                 <div className="deposit-option">
                   <h4>Bitcoin Deposit</h4>
                   <div className="bitcoin-info">
-                    <p>Send Bitcoin to this address:</p>
+                    <p>Send <strong>${parseFloat(depositAmount).toLocaleString()}</strong> worth of Bitcoin to this address:</p>
                     <div className="address-container">
                       <code className="bitcoin-address">{bitcoinAddress}</code>
                       <button onClick={() => copyToClipboard(bitcoinAddress)} className="copy-btn">Copy</button>
                     </div>
-                    <p className="warning">⚠️ Only send Bitcoin to this address.</p>
+                    <p className="warning">⚠️ Only send Bitcoin to this address. Send exactly ${parseFloat(depositAmount).toLocaleString()} worth.</p>
                     <button 
                       className="payment-confirmation-btn"
                       onClick={() => handlePaymentConfirmation('bitcoin')}
                     >
-                      I have made payment
+                      I have sent ${parseFloat(depositAmount).toLocaleString()} in Bitcoin
                     </button>
                   </div>
                 </div>
                 <div className="deposit-option">
                   <h4>Bank Transfer</h4>
                   <div className="bank-details">
+                    <p>Transfer <strong>${parseFloat(depositAmount).toLocaleString()}</strong> to:</p>
                     <div className="bank-detail">
                       <strong>Account Name:</strong> {bankDetails.accountName}
                     </div>
@@ -2217,12 +2314,15 @@ function MainApp() {
                     <div className="bank-detail">
                       <strong>Routing Number:</strong> {bankDetails.routingNumber}
                     </div>
+                    <div className="bank-detail">
+                      <strong>Amount:</strong> ${parseFloat(depositAmount).toLocaleString()}
+                    </div>
                   </div>
                   <button 
                     className="payment-confirmation-btn"
                     onClick={() => handlePaymentConfirmation('bank')}
                   >
-                    I have made payment
+                    I have sent ${parseFloat(depositAmount).toLocaleString()} via Bank Transfer
                   </button>
                   <div className="support-section">
                     <p className="support-text">Need help with bank transfer?</p>
@@ -2238,7 +2338,22 @@ function MainApp() {
                   </div>
                 </div>
               </div>
-              <button className="close-btn" onClick={() => setShowDeposit(false)}>
+              <button 
+                className="back-btn" 
+                onClick={() => {
+                  setShowDepositMethods(false);
+                  setShowDeposit(true);
+                }}
+              >
+                ← Back to Amount
+              </button>
+              <button 
+                className="close-btn" 
+                onClick={() => {
+                  setShowDepositMethods(false);
+                  setDepositAmount('');
+                }}
+              >
                 Close
               </button>
             </div>
