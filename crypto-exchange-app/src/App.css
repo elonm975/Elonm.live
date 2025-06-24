@@ -3697,6 +3697,8 @@
   font-size: 18px;
   font-weight: 600;
   background: #2d2d2d;
+  text-align: right;
+  padding-right: 50px;
   border: 2px solid #333;
   border-radius: 12px;
   color: #fff;
