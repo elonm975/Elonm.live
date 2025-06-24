@@ -235,6 +235,13 @@ function MainApp() {
   // Update user balance
   const updateUserBalance = async (userId, newBalance) => {
     try {
+      const numericBalance = parseFloat(newBalance);
+      
+      if (isNaN(numericBalance) || numericBalance < 0) {
+        alert('Please enter a valid positive number for the balance.');
+        return;
+      }
+
       // Update in Firebase if possible
       try {
         const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
@@ -243,25 +250,40 @@ function MainApp() {
         if (!userSnapshot.empty) {
           const userDoc = userSnapshot.docs[0];
           await updateDoc(doc(db, 'users', userDoc.id), {
-            balance: parseFloat(newBalance),
+            balance: numericBalance,
             updatedAt: new Date()
           });
+          console.log(`Firebase balance updated for user ${userId}: $${numericBalance}`);
         }
       } catch (firebaseError) {
-        console.warn('Firebase update failed, updating localStorage');
+        console.warn('Firebase update failed, updating localStorage only:', firebaseError);
       }
 
-      // Update localStorage
-      localStorage.setItem(`userBalance_${userId}`, newBalance);
+      // Update localStorage (this is the primary storage for this app)
+      localStorage.setItem(`userBalance_${userId}`, numericBalance.toString());
+      console.log(`LocalStorage balance updated for user ${userId}: $${numericBalance}`);
 
       // Update current user balance if it's the same user
-      if (user.uid === userId) {
-        setBalance(parseFloat(newBalance));
+      if (user && user.uid === userId) {
+        setBalance(numericBalance);
+        console.log(`Current user balance updated in state: $${numericBalance}`);
       }
 
-      // Reload users list
-      loadAllUsers();
-      alert('User balance updated successfully!');
+      // Update the allUsers state immediately to reflect changes in admin panel
+      setAllUsers(prevUsers => 
+        prevUsers.map(userData => 
+          userData.userId === userId || userData.id === userId
+            ? { ...userData, balance: numericBalance }
+            : userData
+        )
+      );
+
+      // Reload users list to ensure consistency
+      setTimeout(() => {
+        loadAllUsers();
+      }, 100);
+
+      alert(`✅ User balance updated successfully!\nUser ID: ${userId}\nNew Balance: $${numericBalance.toLocaleString()}`);
     } catch (error) {
       console.error('Error updating user balance:', error);
       alert('Failed to update user balance. Please try again.');
