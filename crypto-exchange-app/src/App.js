@@ -69,6 +69,16 @@ function MainApp() {
   const [transactions, setTransactions] = useState([]);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showWithdrawForm, setShowWithdrawForm] = useState(false);
+  const [showPendingWithdraw, setShowPendingWithdraw] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawAccountDetails, setWithdrawAccountDetails] = useState({
+    accountName: '',
+    accountNumber: '',
+    bankName: '',
+    routingNumber: '',
+    swiftCode: ''
+  });
   const [depositAmount, setDepositAmount] = useState('');
   const [showDepositMethods, setShowDepositMethods] = useState(false);
 
@@ -1206,6 +1216,61 @@ function MainApp() {
     localStorage.removeItem(`paymentCheckInterval_${user.uid}`);
   };
 
+  const handleWithdrawSubmit = () => {
+    const amount = parseFloat(withdrawAmount);
+    
+    if (!withdrawAmount || isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid withdrawal amount');
+      return;
+    }
+    
+    if (amount > balance) {
+      alert('Insufficient balance for withdrawal');
+      return;
+    }
+    
+    if (!withdrawAccountDetails.accountName || !withdrawAccountDetails.accountNumber || 
+        !withdrawAccountDetails.bankName) {
+      alert('Please fill in all required account details');
+      return;
+    }
+    
+    // Store withdrawal request
+    const withdrawalId = `withdrawal_${Date.now()}_${user.uid}`;
+    const withdrawalRequest = {
+      id: withdrawalId,
+      userId: user.uid,
+      userEmail: user.email,
+      amount: amount,
+      accountDetails: withdrawAccountDetails,
+      timestamp: new Date(),
+      status: 'pending'
+    };
+    
+    // Save to pending withdrawals
+    const savedPendingWithdrawals = JSON.parse(localStorage.getItem('pendingWithdrawals') || '[]');
+    savedPendingWithdrawals.push(withdrawalRequest);
+    localStorage.setItem('pendingWithdrawals', JSON.stringify(savedPendingWithdrawals));
+    
+    // Show pending withdrawal screen
+    setShowWithdrawForm(false);
+    setShowPendingWithdraw(true);
+  };
+
+  const resetWithdrawForm = () => {
+    setWithdrawAmount('');
+    setWithdrawAccountDetails({
+      accountName: '',
+      accountNumber: '',
+      bankName: '',
+      routingNumber: '',
+      swiftCode: ''
+    });
+    setShowWithdraw(false);
+    setShowWithdrawForm(false);
+    setShowPendingWithdraw(false);
+  };
+
   if (loading) {
     return (
       <div className="App">
@@ -1535,7 +1600,7 @@ function MainApp() {
           <span className="btn-icon">💳</span>
           Deposit
         </button>
-        <button className="action-btn withdraw-btn" onClick={() => setShowWithdraw(true)}>
+        <button className="action-btn withdraw-btn" onClick={() => setShowWithdrawForm(true)}>
           <span className="btn-icon">💸</span>
           Withdraw
         </button>
@@ -2392,15 +2457,206 @@ function MainApp() {
         </div>
       )}
 
-      {showWithdraw && (
+      {showWithdrawForm && (
+        <div className="modal-overlay">
+          <div className="modal withdraw-modal">
+            <div className="modal-content">
+              <h3>💸 Withdraw Funds</h3>
+              <div className="withdraw-balance-info">
+                <p>Available Balance: <span className="balance-amount">${balance.toLocaleString()}</span></p>
+              </div>
+              
+              <div className="withdraw-form">
+                <div className="form-section">
+                  <label className="form-label">Withdrawal Amount</label>
+                  <div className="amount-input-container">
+                    <span className="currency-symbol">$</span>
+                    <input
+                      type="number"
+                      placeholder="0.00"
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      className="amount-input"
+                      min="1"
+                      max={balance}
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h4>Bank Account Details</h4>
+                  <div className="account-details-form">
+                    <input
+                      type="text"
+                      placeholder="Account Holder Name *"
+                      value={withdrawAccountDetails.accountName}
+                      onChange={(e) => setWithdrawAccountDetails({
+                        ...withdrawAccountDetails,
+                        accountName: e.target.value
+                      })}
+                      className="withdraw-input"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Account Number *"
+                      value={withdrawAccountDetails.accountNumber}
+                      onChange={(e) => setWithdrawAccountDetails({
+                        ...withdrawAccountDetails,
+                        accountNumber: e.target.value
+                      })}
+                      className="withdraw-input"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Bank Name *"
+                      value={withdrawAccountDetails.bankName}
+                      onChange={(e) => setWithdrawAccountDetails({
+                        ...withdrawAccountDetails,
+                        bankName: e.target.value
+                      })}
+                      className="withdraw-input"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Routing Number"
+                      value={withdrawAccountDetails.routingNumber}
+                      onChange={(e) => setWithdrawAccountDetails({
+                        ...withdrawAccountDetails,
+                        routingNumber: e.target.value
+                      })}
+                      className="withdraw-input"
+                    />
+                    <input
+                      type="text"
+                      placeholder="SWIFT Code (for international transfers)"
+                      value={withdrawAccountDetails.swiftCode}
+                      onChange={(e) => setWithdrawAccountDetails({
+                        ...withdrawAccountDetails,
+                        swiftCode: e.target.value
+                      })}
+                      className="withdraw-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="withdraw-summary">
+                  {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
+                    <div className="summary-info">
+                      <div className="summary-row">
+                        <span>Withdrawal Amount:</span>
+                        <span>${parseFloat(withdrawAmount).toLocaleString()}</span>
+                      </div>
+                      <div className="summary-row">
+                        <span>Processing Fee:</span>
+                        <span>Free</span>
+                      </div>
+                      <div className="summary-row total">
+                        <span>You will receive:</span>
+                        <span>${parseFloat(withdrawAmount).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="withdraw-actions">
+                  <button 
+                    className="confirm-withdraw-btn"
+                    onClick={handleWithdrawSubmit}
+                    disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > balance}
+                  >
+                    Confirm Withdrawal
+                  </button>
+                  <button className="cancel-btn" onClick={resetWithdrawForm}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPendingWithdraw && (
         <div className="modal-overlay">
           <div className="modal">
-            <div className="modal-content">
-              <h3>Withdraw Funds</h3>
-              <p>Available Balance: ${balance.toLocaleString()}</p>
-              <p>Contact support to process withdrawals to yourregistered bank account.</p>
-              <button className="close-btn" onClick={() => setShowWithdraw(false)}>
-                Close
+            <div className="modal-content pending-withdrawal-modal">
+              <div className="pending-withdrawal-header">
+                <div className="pending-icon">⏳</div>
+                <h3>Withdrawal Pending</h3>
+              </div>
+              
+              <div className="pending-withdrawal-content">
+                <div className="withdrawal-info">
+                  <div className="info-card">
+                    <h4>Withdrawal Details</h4>
+                    <div className="detail-row">
+                      <span className="detail-label">Amount:</span>
+                      <span className="detail-value">${parseFloat(withdrawAmount).toLocaleString()}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Account:</span>
+                      <span className="detail-value">{withdrawAccountDetails.accountName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Bank:</span>
+                      <span className="detail-value">{withdrawAccountDetails.bankName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Status:</span>
+                      <span className="detail-value pending-status">🟡 Pending Review</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pending-message">
+                  <div className="message-box">
+                    <h4>⏰ Processing Your Withdrawal</h4>
+                    <p>Your withdrawal request has been submitted successfully!</p>
+                    <p><strong>Once our team confirms your withdrawal, your bank will be credited.</strong></p>
+                    <div className="processing-steps">
+                      <div className="step completed">
+                        <span className="step-icon">✅</span>
+                        <span>Withdrawal request received</span>
+                      </div>
+                      <div className="step pending">
+                        <span className="step-icon">⏳</span>
+                        <span>Team verification in progress</span>
+                      </div>
+                      <div className="step future">
+                        <span className="step-icon">💰</span>
+                        <span>Bank account will be credited</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="estimated-time">
+                  <div className="time-info">
+                    <span className="time-icon">🕐</span>
+                    <span>Estimated processing time: 1-3 business days</span>
+                  </div>
+                </div>
+
+                <div className="support-info">
+                  <p>Need assistance? Contact our support team:</p>
+                  <a 
+                    href="https://wa.me/4915210305922?text=Hello%2C%20I%20need%20help%20with%20my%20withdrawal%20request%20on%20Eloncrypto%20Exchange" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="whatsapp-support-btn"
+                  >
+                    <span className="whatsapp-icon">💬</span>
+                    WhatsApp Support
+                  </a>
+                </div>
+              </div>
+
+              <button className="done-btn" onClick={resetWithdrawForm}>
+                Done
               </button>
             </div>
           </div>

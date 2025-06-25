@@ -3845,6 +3845,307 @@
   transform: translateY(-1px);
 }
 
+/* Withdrawal Modal Styles */
+.withdraw-modal {
+  max-width: 500px;
+}
+
+.withdraw-balance-info {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.withdraw-balance-info p {
+  margin: 0;
+  color: #fff;
+}
+
+.balance-amount {
+  color: #4CAF50;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.withdraw-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-label {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-section h4 {
+  color: #4CAF50;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.account-details-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.withdraw-input {
+  padding: 12px 16px;
+  background: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.withdraw-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.withdraw-input::placeholder {
+  color: #888;
+}
+
+.withdraw-summary {
+  background: rgba(76, 175, 80, 0.05);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.summary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.summary-row.total {
+  border-top: 1px solid rgba(76, 175, 80, 0.2);
+  padding-top: 8px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.withdraw-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.confirm-withdraw-btn {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, #ff6b35, #f44336);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-withdraw-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e55a2b, #d32f2f);
+  transform: translateY(-1px);
+}
+
+.confirm-withdraw-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Pending Withdrawal Modal Styles */
+.pending-withdrawal-modal {
+  max-width: 500px;
+}
+
+.pending-withdrawal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.pending-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.pending-withdrawal-header h3 {
+  color: #ff6b35;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.pending-withdrawal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-card {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.info-card h4 {
+  color: #4CAF50;
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.detail-label {
+  color: #888;
+  font-size: 14px;
+}
+
+.detail-value {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pending-status {
+  color: #ff9800;
+}
+
+.message-box {
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.message-box h4 {
+  color: #ff6b35;
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.message-box p {
+  color: #ccc;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.processing-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.step.completed {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.step.pending {
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+}
+
+.step.future {
+  background: rgba(136, 136, 136, 0.1);
+  color: #888;
+}
+
+.step-icon {
+  font-size: 16px;
+  min-width: 20px;
+}
+
+.estimated-time {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.time-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.time-icon {
+  font-size: 16px;
+}
+
+.support-info {
+  text-align: center;
+}
+
+.support-info p {
+  color: #ccc;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.done-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.done-btn:hover {
+  background: linear-gradient(135deg, #45a049, #1976D2);
+  transform: translateY(-1px);
+}
+
 .bank-details p {
   margin: 4px 0;
   font-family: monospace;
