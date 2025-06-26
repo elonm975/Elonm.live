@@ -2400,11 +2400,11 @@ function MainApp() {
       <div className="bottom-nav">
         <div className="nav-items">
           <div className={`nav-item ${activeTab === 'home' ? 'active' : ''}`} onClick={() => setActiveTab('home')}>
-            <span className="nav-icon">🏠</span>
+            <span className="nav-icon">⚡</span>
             <span className="nav-label">Home</span>
           </div>
           <div className={`nav-item ${activeTab === 'assets' ? 'active' : ''}`} onClick={() => setActiveTab('assets')}>
-            <span className="nav-icon">💰</span>
+            <span className="nav-icon">⚡</span>
             <span className="nav-label">Assets</span>
           </div>
           <div className={`nav-item ${activeTab === 'trade' ? 'active' : ''}`} onClick={() => setActiveTab('trade')}>
