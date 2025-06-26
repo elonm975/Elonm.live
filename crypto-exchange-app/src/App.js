@@ -2353,7 +2353,6 @@ function MainApp() {
                 <div className="amount-input-section">
                   <label className="amount-label">Enter Deposit Amount (USD)</label>
                   <div className="amount-input-container">
-                    <span className="currency-symbol">$</span>
                     <input
                       type="number"
                       placeholder="0"
