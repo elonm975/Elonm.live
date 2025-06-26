@@ -2543,11 +2543,49 @@ function MainApp() {
                 <div className="form-section">
                   <label className="form-label">Withdrawal Amount</label>
                   <div className="amount-input-container">
-                    <span className="currency-symbol">$</span>
+                    <div className="currency-selector" onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}>
+                      <span className="currency-code">{selectedCurrency}</span>
+                      <span className="dropdown-arrow">▼</span>
+                      {showCurrencyDropdown && (
+                        <div className="currency-dropdown">
+                          {currencies.map((currency) => {
+                            const countryFlags = {
+                              'USD': '🇺🇸', 'EUR': '🇪🇺', 'GBP': '🇬🇧', 'JPY': '🇯🇵', 'CAD': '🇨🇦', 'AUD': '🇦🇺',
+                              'CHF': '🇨🇭', 'CNY': '🇨🇳', 'SEK': '🇸🇪', 'NZD': '🇳🇿', 'MXN': '🇲🇽', 'SGD': '🇸🇬',
+                              'HKD': '🇭🇰', 'NOK': '🇳🇴', 'KRW': '🇰🇷', 'TRY': '🇹🇷', 'RUB': '🇷🇺', 'INR': '🇮🇳',
+                              'BRL': '🇧🇷', 'ZAR': '🇿🇦', 'DKK': '🇩🇰', 'PLN': '🇵🇱', 'TWD': '🇹🇼', 'THB': '🇹🇭',
+                              'ILS': '🇮🇱', 'CZK': '🇨🇿', 'HUF': '🇭🇺', 'RON': '🇷🇴', 'BGN': '🇧🇬', 'HRK': '🇭🇷',
+                              'ISK': '🇮🇸', 'PHP': '🇵🇭', 'MYR': '🇲🇾', 'IDR': '🇮🇩', 'VND': '🇻🇳', 'AED': '🇦🇪',
+                              'SAR': '🇸🇦', 'EGP': '🇪🇬', 'PKR': '🇵🇰', 'BDT': '🇧🇩', 'LKR': '🇱🇰', 'NGN': '🇳🇬',
+                              'KES': '🇰🇪', 'GHS': '🇬🇭', 'UGX': '🇺🇬', 'TZS': '🇹🇿', 'ETB': '🇪🇹', 'MAD': '🇲🇦',
+                              'TND': '🇹🇳', 'DZD': '🇩🇿', 'XOF': '🇨🇮', 'XAF': '🇨🇲'
+                            };
+                            return (
+                              <div 
+                                key={currency.code}
+                                className={`currency-option ${selectedCurrency === currency.code ? 'selected' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCurrency(currency.code);
+                                  setShowCurrencyDropdown(false);
+                                }}
+                              >
+                                <span className="currency-flag">{countryFlags[currency.code] || '🌍'}</span>
+                                <span className="currency-symbol">{currency.symbol}</span>
+                                <span className="currency-info">
+                                  <span className="currency-code-full">{currency.code}</span>
+                                  <span className="currency-name-full">{currency.name}</span>
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                     <input
                       type="number"
-                      placeholder="0.00"
-                      value={withdrawAmount}
+                      placeholder="0"
+                      value={withdrawAmount || '0'}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       className="amount-input"
                       min="1"
