@@ -1232,8 +1232,14 @@
 }
 
 .buy-btn {
-  background: #22c55e;
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
   color: white;
+}
+
+.buy-btn:hover {
+  background: linear-gradient(135deg, #2196F3, #4CAF50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .sell-btn {
