@@ -2562,8 +2562,8 @@ function MainApp() {
                     </div>
                     <input
                       type="number"
-                      placeholder="0"
-                      value={withdrawAmount || '0'}
+                      placeholder="Enter amount"
+                      value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       className="amount-input"
                       min="1"
