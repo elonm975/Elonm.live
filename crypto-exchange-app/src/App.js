@@ -111,6 +111,10 @@ function MainApp() {
   const [selectedVolumeData, setSelectedVolumeData] = useState(null);
   const [showTradingHistory, setShowTradingHistory] = useState(false);
 
+  // Notification system state
+  const [notificationPermission, setNotificationPermission] = useState('default');
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
   // Admin state
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
@@ -402,7 +406,10 @@ function MainApp() {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, {
         body: message,
-        icon: '/favicon.ico'
+        icon: '/favicon.ico',
+        tag: `crypto-notification-${Date.now()}`,
+        requireInteraction: true,
+        vibrate: [200, 100, 200]
       });
     } else {
       // Fallback to alert for now, can be replaced with custom toast
@@ -413,9 +420,46 @@ function MainApp() {
   const requestNotificationPermission = async () => {
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      localStorage.setItem('notificationPermission', permission);
       return permission === 'granted';
     }
     return false;
+  };
+
+  const sendMultipleNotifications = (title, message, count = 5) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          new Notification(`${title} (${i + 1}/${count})`, {
+            body: message,
+            icon: '/favicon.ico',
+            tag: `crypto-notification-${Date.now()}-${i}`,
+            requireInteraction: true,
+            vibrate: [200, 100, 200]
+          });
+        }, i * 1000); // Send every 1 second
+      }
+    }
+  };
+
+  const handleNotificationClick = async () => {
+    const currentPermission = Notification.permission;
+    
+    if (currentPermission === 'default') {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        showNotification('Notifications Enabled', 'You will now receive notifications for deposits and withdrawals!', 'success');
+      } else {
+        alert('Please enable notifications in your browser settings to receive deposit/withdrawal alerts.');
+      }
+    } else if (currentPermission === 'denied') {
+      alert('Notifications are blocked. Please enable them in your browser settings:\n\n1. Click the lock icon in your address bar\n2. Set Notifications to "Allow"\n3. Refresh the page');
+    } else {
+      showNotification('Test Notification', 'Notifications are working! You will receive alerts when admin confirms your transactions.', 'info');
+    }
+    
+    setShowNotificationSettings(true);
   };
 
   // Enhanced biometric authentication functions
@@ -583,8 +627,9 @@ function MainApp() {
         setFingerprintEnabled(savedFingerprint);
         setFaceIdEnabled(savedFaceId);
 
-        // Request notification permission
-        requestNotificationPermission();
+        // Load notification permission
+        const savedNotificationPermission = localStorage.getItem('notificationPermission') || Notification.permission || 'default';
+        setNotificationPermission(savedNotificationPermission);
       } else {
         setUser(null);
       }
@@ -1314,6 +1359,13 @@ function MainApp() {
       setPendingPayments(savedPendingPayments);
 
       alert(`✅ Payment confirmed! $${amount} added to ${payment.userEmail}'s balance.`);
+      
+      // Send multiple notifications to the user
+      sendMultipleNotifications(
+        '💰 Deposit Confirmed!',
+        `Your deposit of $${amount} has been confirmed and added to your account balance.`,
+        5
+      );
       
       // Reload users list to show updated balance
       loadAllUsers();
@@ -2350,10 +2402,15 @@ function MainApp() {
         <div className="menu-section">
           <h4>Settings</h4>
           <div className="menu-items">
-            <div className="menu-item">
+            <div className="menu-item" onClick={handleNotificationClick}>
               <span className="menu-icon">🔔</span>
               <span className="menu-text">Notifications</span>
-              <input type="checkbox" className="toggle-switch" />
+              <span className="menu-value">
+                {notificationPermission === 'granted' ? '✅ Enabled' : 
+                 notificationPermission === 'denied' ? '❌ Disabled' : 
+                 '⚙️ Setup Required'}
+              </span>
+              <span className="menu-arrow">›</span>
             </div>
             <div className="menu-item" onClick={() => setShowLanguageModal(true)}>
               <span className="menu-icon">🌍</span>
