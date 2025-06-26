@@ -2028,11 +2028,23 @@
   font-weight: 500;
 }
 
-.filter-tab.active,
+.filter-tab.active {
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  border-color: #4CAF50;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
 .filter-tab:hover {
   background: rgba(76, 175, 80, 0.1);
   border-color: #4CAF50;
   color: #4CAF50;
+}
+
+.filter-tab.active:hover {
+  background: linear-gradient(135deg, #2196F3, #4CAF50);
+  color: white;
 }
 
 .binance-market-list {
@@ -2189,9 +2201,9 @@
 }
 
 .trade-now-btn {
-  background: linear-gradient(135deg, #4CAF50, #22c55e);
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
   border: none;
-  color: #000;
+  color: white;
   padding: 8px 20px;
   border-radius: 6px;
   font-size: 14px;
@@ -2201,7 +2213,7 @@
 }
 
 .trade-now-btn:hover {
-  background: linear-gradient(135deg, #22c55e, #4CAF50);
+  background: linear-gradient(135deg, #2196F3, #4CAF50);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
@@ -2235,8 +2247,8 @@
 }
 
 .clear-filters-btn {
-  background: #4CAF50;
-  color: #000;
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  color: white;
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -2246,7 +2258,7 @@
 }
 
 .clear-filters-btn:hover {
-  background: #22c55e;
+  background: linear-gradient(135deg, #2196F3, #4CAF50);
   transform: translateY(-1px);
 }
 
