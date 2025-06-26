@@ -80,6 +80,8 @@ function MainApp() {
     swiftCode: ''
   });
   const [depositAmount, setDepositAmount] = useState('');
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showDepositMethods, setShowDepositMethods] = useState(false);
 
   // Crypto data
@@ -308,6 +310,62 @@ function MainApp() {
     localStorage.setItem('adminSettings', JSON.stringify(adminSettings));
     alert('Admin settings saved successfully!');
   };
+
+  // Currency data
+  const currencies = [
+    { code: 'USD', name: 'US Dollar', symbol: '$' },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'GBP', name: 'British Pound', symbol: '£' },
+    { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
+    { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
+    { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
+    { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF' },
+    { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
+    { code: 'SEK', name: 'Swedish Krona', symbol: 'kr' },
+    { code: 'NZD', name: 'New Zealand Dollar', symbol: 'NZ$' },
+    { code: 'MXN', name: 'Mexican Peso', symbol: '$' },
+    { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
+    { code: 'HKD', name: 'Hong Kong Dollar', symbol: 'HK$' },
+    { code: 'NOK', name: 'Norwegian Krone', symbol: 'kr' },
+    { code: 'KRW', name: 'South Korean Won', symbol: '₩' },
+    { code: 'TRY', name: 'Turkish Lira', symbol: '₺' },
+    { code: 'RUB', name: 'Russian Ruble', symbol: '₽' },
+    { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
+    { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
+    { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
+    { code: 'DKK', name: 'Danish Krone', symbol: 'kr' },
+    { code: 'PLN', name: 'Polish Zloty', symbol: 'zł' },
+    { code: 'TWD', name: 'Taiwan Dollar', symbol: 'NT$' },
+    { code: 'THB', name: 'Thai Baht', symbol: '฿' },
+    { code: 'ILS', name: 'Israeli Shekel', symbol: '₪' },
+    { code: 'CZK', name: 'Czech Koruna', symbol: 'Kč' },
+    { code: 'HUF', name: 'Hungarian Forint', symbol: 'Ft' },
+    { code: 'RON', name: 'Romanian Leu', symbol: 'lei' },
+    { code: 'BGN', name: 'Bulgarian Lev', symbol: 'лв' },
+    { code: 'HRK', name: 'Croatian Kuna', symbol: 'kn' },
+    { code: 'ISK', name: 'Icelandic Krona', symbol: 'kr' },
+    { code: 'PHP', name: 'Philippine Peso', symbol: '₱' },
+    { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM' },
+    { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp' },
+    { code: 'VND', name: 'Vietnamese Dong', symbol: '₫' },
+    { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' },
+    { code: 'SAR', name: 'Saudi Riyal', symbol: '﷼' },
+    { code: 'EGP', name: 'Egyptian Pound', symbol: '£' },
+    { code: 'PKR', name: 'Pakistani Rupee', symbol: '₨' },
+    { code: 'BDT', name: 'Bangladeshi Taka', symbol: '৳' },
+    { code: 'LKR', name: 'Sri Lankan Rupee', symbol: '₨' },
+    { code: 'NGN', name: 'Nigerian Naira', symbol: '₦' },
+    { code: 'KES', name: 'Kenyan Shilling', symbol: 'KSh' },
+    { code: 'GHS', name: 'Ghanaian Cedi', symbol: '₵' },
+    { code: 'UGX', name: 'Ugandan Shilling', symbol: 'USh' },
+    { code: 'TZS', name: 'Tanzanian Shilling', symbol: 'TSh' },
+    { code: 'ETB', name: 'Ethiopian Birr', symbol: 'Br' },
+    { code: 'MAD', name: 'Moroccan Dirham', symbol: 'د.م.' },
+    { code: 'TND', name: 'Tunisian Dinar', symbol: 'د.ت' },
+    { code: 'DZD', name: 'Algerian Dinar', symbol: 'د.ج' },
+    { code: 'XOF', name: 'West African Franc', symbol: 'CFA' },
+    { code: 'XAF', name: 'Central African Franc', symbol: 'FCFA' }
+  ];
 
   // Language data
   const languages = [
@@ -2295,20 +2353,40 @@ function MainApp() {
                 <div className="amount-input-section">
                   <label className="amount-label">Enter Deposit Amount</label>
                   <div className="amount-input-container">
-                    <span className="currency-symbol">$</span>
+                    <div className="currency-selector" onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}>
+                      <span className="currency-code">{selectedCurrency}</span>
+                      <span className="dropdown-arrow">▼</span>
+                      {showCurrencyDropdown && (
+                        <div className="currency-dropdown">
+                          {currencies.map((currency) => (
+                            <div 
+                              key={currency.code}
+                              className={`currency-option ${selectedCurrency === currency.code ? 'selected' : ''}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCurrency(currency.code);
+                                setShowCurrencyDropdown(false);
+                              }}
+                            >
+                              <span className="currency-symbol">{currency.symbol}</span>
+                              <span className="currency-name">{currency.code} - {currency.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     <input
                       type="number"
-                      placeholder="0.00"
-                      value={depositAmount}
+                      placeholder="0"
+                      value={depositAmount || '0'}
                       onChange={(e) => setDepositAmount(e.target.value)}
                       className="amount-input"
-                      min="10"
-                      max="100000"
+                      min="100"
                       step="0.01"
                     />
                   </div>
                   <div className="amount-limits">
-                    <span className="limit-text">Min: $10 • Max: $100,000</span>
+                    <span className="limit-text">Min: {currencies.find(c => c.code === selectedCurrency)?.symbol}100 • No Maximum</span>
                   </div>
                 </div>
                 
@@ -2316,7 +2394,7 @@ function MainApp() {
                   <div className="deposit-summary">
                     <div className="summary-row">
                       <span className="summary-label">Deposit Amount:</span>
-                      <span className="summary-value">${parseFloat(depositAmount).toLocaleString()}</span>
+                      <span className="summary-value">{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</span>
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Bitcoin Equivalent:</span>
@@ -2334,7 +2412,7 @@ function MainApp() {
                     </div>
                     <div className="summary-row total">
                       <span className="summary-label">Total to Pay:</span>
-                      <span className="summary-value">${parseFloat(depositAmount).toLocaleString()}</span>
+                      <span className="summary-value">{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</span>
                     </div>
                   </div>
                 )}
@@ -2367,7 +2445,7 @@ function MainApp() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-content">
-              <h3>💰 Deposit ${parseFloat(depositAmount).toLocaleString()}</h3>
+              <h3>💰 Deposit {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</h3>
               <div className="deposit-amount-display">
                 <p>Choose your preferred payment method:</p>
               </div>
@@ -2375,24 +2453,24 @@ function MainApp() {
                 <div className="deposit-option">
                   <h4>Bitcoin Deposit</h4>
                   <div className="bitcoin-info">
-                    <p>Send <strong>${parseFloat(depositAmount).toLocaleString()}</strong> worth of Bitcoin to this address:</p>
+                    <p>Send <strong>{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</strong> worth of Bitcoin to this address:</p>
                     <div className="address-container">
                       <code className="bitcoin-address">{bitcoinAddress}</code>
                       <button onClick={() => copyToClipboard(bitcoinAddress)} className="copy-btn">Copy</button>
                     </div>
-                    <p className="warning">⚠️ Only send Bitcoin to this address. Send exactly ${parseFloat(depositAmount).toLocaleString()} worth.</p>
+                    <p className="warning">⚠️ Only send Bitcoin to this address. Send exactly {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} worth.</p>
                     <button 
                       className="payment-confirmation-btn"
                       onClick={() => handlePaymentConfirmation('bitcoin')}
                     >
-                      I have sent ${parseFloat(depositAmount).toLocaleString()} in Bitcoin
+                      I have sent {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} in Bitcoin
                     </button>
                   </div>
                 </div>
                 <div className="deposit-option">
                   <h4>Bank Transfer</h4>
                   <div className="bank-details">
-                    <p>Transfer <strong>${parseFloat(depositAmount).toLocaleString()}</strong> to:</p>
+                    <p>Transfer <strong>{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</strong> to:</p>
                     <div className="bank-detail">
                       <strong>Account Name:</strong> {bankDetails.accountName}
                     </div>
@@ -2406,14 +2484,14 @@ function MainApp() {
                       <strong>Routing Number:</strong> {bankDetails.routingNumber}
                     </div>
                     <div className="bank-detail">
-                      <strong>Amount:</strong> ${parseFloat(depositAmount).toLocaleString()}
+                      <strong>Amount:</strong> {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}
                     </div>
                   </div>
                   <button 
                     className="payment-confirmation-btn"
                     onClick={() => handlePaymentConfirmation('bank')}
                   >
-                    I have sent ${parseFloat(depositAmount).toLocaleString()} via Bank Transfer
+                    I have sent {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} via Bank Transfer
                   </button>
                   <div className="support-section">
                     <p className="support-text">Need help with bank transfer?</p>
