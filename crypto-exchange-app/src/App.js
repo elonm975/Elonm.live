@@ -1650,11 +1650,11 @@ function MainApp() {
 
       <div className="asset-actions">
         <button className="action-btn deposit-btn" onClick={() => setShowDeposit(true)}>
-          <span className="btn-icon">💳</span>
+          <span className="btn-icon">⬇️</span>
           Deposit
         </button>
         <button className="action-btn withdraw-btn" onClick={() => setShowWithdrawForm(true)}>
-          <span className="btn-icon">💸</span>
+          <span className="btn-icon">⬆️</span>
           Withdraw
         </button>
       </div>
