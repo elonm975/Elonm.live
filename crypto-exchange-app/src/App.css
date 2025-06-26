@@ -3982,16 +3982,20 @@
 .withdraw-amount-input-container {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+  gap: 12px;
 }
 
 .withdraw-amount-input-container .currency-selector {
-  margin-right: 12px;
   border-radius: 12px;
   border: 2px solid #333;
   padding: 16px;
   background: #2d2d2d;
   transition: all 0.3s ease;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .withdraw-amount-input-container .currency-selector:hover {
@@ -4010,6 +4014,7 @@
   color: #fff;
   box-sizing: border-box;
   transition: all 0.3s ease;
+  margin-top: 2px;
 }
 
 .withdraw-amount-input-container .amount-input:focus {
