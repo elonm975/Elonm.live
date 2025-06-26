@@ -1184,13 +1184,8 @@ function MainApp() {
       return;
     }
     
-    if (amount < 10) {
-      alert('Minimum deposit amount is $10');
-      return;
-    }
-    
-    if (amount > 100000) {
-      alert('Maximum deposit amount is $100,000');
+    if (amount < 100) {
+      alert('Minimum deposit amount is $100');
       return;
     }
     
