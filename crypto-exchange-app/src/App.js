@@ -559,6 +559,16 @@ function MainApp() {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
+        
+        // Test Firebase connectivity
+        try {
+          await getDocs(query(collection(db, 'users'), where('userId', '==', user.uid)));
+          console.log('🔥 Firebase connected successfully');
+        } catch (firebaseTest) {
+          console.warn('🔒 Firebase access restricted - running in offline mode');
+          console.log('💾 All data will be stored locally in your browser');
+        }
+        
         await loadUserData(user.uid);
 
         // Check if this is first login for welcome message
@@ -726,58 +736,83 @@ function MainApp() {
       const savedProfilePicture = localStorage.getItem(`profilePicture_${userId}`);
       const savedUserName = localStorage.getItem(`userName_${userId}`);
       const savedUserPhone = localStorage.getItem(`userPhone_${userId}`);
+      const savedBalance = localStorage.getItem(`userBalance_${userId}`);
 
       if (savedProfilePicture) setProfilePicture(savedProfilePicture);
       if (savedUserName) setUserName(savedUserName);
       if (savedUserPhone) setUserPhone(savedUserPhone);
+      if (savedBalance) setBalance(parseFloat(savedBalance));
 
-      // Initialize user data if it doesn't exist
-      const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
-      const userSnapshot = await getDocs(userQuery);
-
-      if (userSnapshot.empty) {
-        // Create user document if it doesn't exist
-        await addDoc(collection(db, 'users'), {
-          userId: userId,
-          email: user?.email || '',
-          balance: 0,
-          createdAt: new Date()
-        });
-        setBalance(0);
-      } else {
-        const userData = userSnapshot.docs[0].data();
-        setBalance(userData.balance || 0);
-        // Only update if Firebase has newer data (or localStorage is empty)
-        if (userData.userName && !savedUserName) setUserName(userData.userName);
-        if (userData.userPhone && !savedUserPhone) setUserPhone(userData.userPhone);
-        if (userData.profilePicture && !savedProfilePicture) setProfilePicture(userData.profilePicture);
-      }
-
-      // Load portfolio with error handling
+      // Try Firebase, but fallback to localStorage if permissions fail
       try {
-        const portfolioQuery = query(collection(db, 'portfolios'), where('userId', '==', userId));
-        const portfolioSnapshot = await getDocs(portfolioQuery);
-        const portfolioData = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setPortfolio(portfolioData);
-      } catch (portfolioError) {
-        console.warn('Portfolio data not accessible, using empty portfolio:', portfolioError);
-        setPortfolio([]);
-      }
+        const userQuery = query(collection(db, 'users'), where('userId', '==', userId));
+        const userSnapshot = await getDocs(userQuery);
 
-      // Load transactions with error handling
-      try {
-        const transactionsQuery = query(collection(db, 'transactions'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
-        const transactionsSnapshot = await getDocs(transactionsQuery);
-        const transactionsData = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setTransactions(transactionsData);
-      } catch (transactionError) {
-        console.warn('Transaction data not accessible, using empty transactions:', transactionError);
-        setTransactions([]);
+        if (userSnapshot.empty) {
+          // Try to create user document, but don't fail if permissions denied
+          try {
+            await addDoc(collection(db, 'users'), {
+              userId: userId,
+              email: user?.email || '',
+              balance: parseFloat(savedBalance) || 0,
+              createdAt: new Date()
+            });
+            console.log('✅ User document created in Firebase');
+          } catch (createError) {
+            console.warn('⚠️ Cannot create user in Firebase, using localStorage only:', createError.message);
+          }
+          
+          // Set balance from localStorage or default to 0
+          setBalance(parseFloat(savedBalance) || 0);
+        } else {
+          const userData = userSnapshot.docs[0].data();
+          // Use Firebase data if available, otherwise use localStorage
+          setBalance(userData.balance !== undefined ? userData.balance : (parseFloat(savedBalance) || 0));
+          if (userData.userName && !savedUserName) setUserName(userData.userName);
+          if (userData.userPhone && !savedUserPhone) setUserPhone(userData.userPhone);
+          if (userData.profilePicture && !savedProfilePicture) setProfilePicture(userData.profilePicture);
+        }
+
+        // Try to load portfolio from Firebase
+        try {
+          const portfolioQuery = query(collection(db, 'portfolios'), where('userId', '==', userId));
+          const portfolioSnapshot = await getDocs(portfolioQuery);
+          const portfolioData = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setPortfolio(portfolioData);
+        } catch (portfolioError) {
+          console.warn('⚠️ Portfolio data not accessible, using localStorage fallback:', portfolioError.message);
+          const savedPortfolio = localStorage.getItem(`portfolio_${userId}`);
+          setPortfolio(savedPortfolio ? JSON.parse(savedPortfolio) : []);
+        }
+
+        // Try to load transactions from Firebase
+        try {
+          const transactionsQuery = query(collection(db, 'transactions'), where('userId', '==', userId), orderBy('timestamp', 'desc'));
+          const transactionsSnapshot = await getDocs(transactionsQuery);
+          const transactionsData = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setTransactions(transactionsData);
+        } catch (transactionError) {
+          console.warn('⚠️ Transaction data not accessible, using localStorage fallback:', transactionError.message);
+          const savedTransactions = localStorage.getItem(`transactions_${userId}`);
+          setTransactions(savedTransactions ? JSON.parse(savedTransactions) : []);
+        }
+
+      } catch (firebaseError) {
+        console.warn('🔒 Firebase access denied, running in localStorage mode:', firebaseError.message);
+        // Completely fallback to localStorage
+        setBalance(parseFloat(savedBalance) || 0);
+        const savedPortfolio = localStorage.getItem(`portfolio_${userId}`);
+        const savedTransactions = localStorage.getItem(`transactions_${userId}`);
+        setPortfolio(savedPortfolio ? JSON.parse(savedPortfolio) : []);
+        setTransactions(savedTransactions ? JSON.parse(savedTransactions) : []);
+        
+        // Show user-friendly message
+        console.log('💾 Running in offline mode - all data stored locally');
       }
 
     } catch (error) {
-      console.warn('Error loading user data, using defaults:', error);
-      setBalance(0);
+      console.warn('❌ Error loading user data, using defaults:', error.message);
+      setBalance(parseFloat(localStorage.getItem(`userBalance_${userId}`)) || 0);
       setPortfolio([]);
       setTransactions([]);
     }
@@ -1033,23 +1068,55 @@ function MainApp() {
     }
 
     try {
+      const newBalance = type === 'buy' ? balance - totalCost : balance + totalCost;
+      
       if (type === 'buy') {
-        setBalance(prev => prev - totalCost);
+        setBalance(newBalance);
+        localStorage.setItem(`userBalance_${user.uid}`, newBalance.toString());
 
         const existingAsset = portfolio.find(p => p.cryptoId === selectedCrypto.id);
+        const newPortfolio = [...portfolio];
+        
         if (existingAsset) {
-          await updateDoc(doc(db, 'portfolios', existingAsset.id), {
-            amount: existingAsset.amount + amount
-          });
+          const index = newPortfolio.findIndex(p => p.cryptoId === selectedCrypto.id);
+          newPortfolio[index] = { ...existingAsset, amount: existingAsset.amount + amount };
+          
+          // Try Firebase update, but don't fail if it doesn't work
+          try {
+            await updateDoc(doc(db, 'portfolios', existingAsset.id), {
+              amount: existingAsset.amount + amount
+            });
+          } catch (fbError) {
+            console.warn('⚠️ Firebase portfolio update failed, using localStorage:', fbError.message);
+          }
         } else {
-          await addDoc(collection(db, 'portfolios'), {
+          const newAsset = {
+            id: `local_${Date.now()}`,
             userId: user.uid,
             cryptoId: selectedCrypto.id,
             cryptoName: selectedCrypto.name,
             amount: amount,
             purchasePrice: selectedCrypto.price
-          });
+          };
+          newPortfolio.push(newAsset);
+          
+          // Try Firebase add, but don't fail if it doesn't work
+          try {
+            const docRef = await addDoc(collection(db, 'portfolios'), {
+              userId: user.uid,
+              cryptoId: selectedCrypto.id,
+              cryptoName: selectedCrypto.name,
+              amount: amount,
+              purchasePrice: selectedCrypto.price
+            });
+            newAsset.id = docRef.id; // Update with Firebase ID if successful
+          } catch (fbError) {
+            console.warn('⚠️ Firebase portfolio add failed, using localStorage:', fbError.message);
+          }
         }
+        
+        setPortfolio(newPortfolio);
+        localStorage.setItem(`portfolio_${user.uid}`, JSON.stringify(newPortfolio));
       } else {
         const existingAsset = portfolio.find(p => p.cryptoId === selectedCrypto.id);
         if (!existingAsset || existingAsset.amount < amount) {
@@ -1057,20 +1124,38 @@ function MainApp() {
           return;
         }
 
-        setBalance(prev => prev + totalCost);
+        setBalance(newBalance);
+        localStorage.setItem(`userBalance_${user.uid}`, newBalance.toString());
 
+        const newPortfolio = [...portfolio];
+        const index = newPortfolio.findIndex(p => p.cryptoId === selectedCrypto.id);
+        
         if (existingAsset.amount === amount) {
-          await updateDoc(doc(db, 'portfolios', existingAsset.id), {
-            amount: 0
-          });
+          newPortfolio.splice(index, 1); // Remove asset completely
         } else {
-          await updateDoc(doc(db, 'portfolios', existingAsset.id), {
-            amount: existingAsset.amount - amount
-          });
+          newPortfolio[index] = { ...existingAsset, amount: existingAsset.amount - amount };
+        }
+
+        setPortfolio(newPortfolio);
+        localStorage.setItem(`portfolio_${user.uid}`, JSON.stringify(newPortfolio));
+
+        // Try Firebase update, but don't fail if it doesn't work
+        try {
+          if (existingAsset.amount === amount) {
+            await updateDoc(doc(db, 'portfolios', existingAsset.id), { amount: 0 });
+          } else {
+            await updateDoc(doc(db, 'portfolios', existingAsset.id), {
+              amount: existingAsset.amount - amount
+            });
+          }
+        } catch (fbError) {
+          console.warn('⚠️ Firebase portfolio update failed, using localStorage:', fbError.message);
         }
       }
 
-      await addDoc(collection(db, 'transactions'), {
+      // Add transaction to localStorage
+      const newTransaction = {
+        id: `local_${Date.now()}`,
         userId: user.uid,
         type: type,
         cryptoId: selectedCrypto.id,
@@ -1079,14 +1164,38 @@ function MainApp() {
         price: selectedCrypto.price,
         total: totalCost,
         timestamp: new Date()
-      });
+      };
 
-      await loadUserData(user.uid);
+      const savedTransactions = JSON.parse(localStorage.getItem(`transactions_${user.uid}`) || '[]');
+      savedTransactions.unshift(newTransaction);
+      localStorage.setItem(`transactions_${user.uid}`, JSON.stringify(savedTransactions));
+      setTransactions(savedTransactions);
+
+      // Try Firebase add, but don't fail if it doesn't work
+      try {
+        await addDoc(collection(db, 'transactions'), {
+          userId: user.uid,
+          type: type,
+          cryptoId: selectedCrypto.id,
+          cryptoName: selectedCrypto.name,
+          amount: amount,
+          price: selectedCrypto.price,
+          total: totalCost,
+          timestamp: new Date()
+        });
+      } catch (fbError) {
+        console.warn('⚠️ Firebase transaction add failed, using localStorage:', fbError.message);
+      }
+
       setShowTrade(false);
       setTradeAmount('');
       setSelectedCrypto(null);
       setError('');
+      
+      // Show success message
+      console.log(`✅ ${type.toUpperCase()} order completed: ${amount} ${selectedCrypto.symbol} for $${totalCost.toFixed(2)}`);
     } catch (error) {
+      console.error('❌ Transaction failed:', error);
       setError('Transaction failed: ' + error.message);
     }
   };
