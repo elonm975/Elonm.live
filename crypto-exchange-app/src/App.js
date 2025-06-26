@@ -2351,34 +2351,13 @@ function MainApp() {
               <h3>💰 Deposit Funds</h3>
               <div className="deposit-amount-form">
                 <div className="amount-input-section">
-                  <label className="amount-label">Enter Deposit Amount</label>
+                  <label className="amount-label">Enter Deposit Amount (USD)</label>
                   <div className="amount-input-container">
-                    <div className="currency-selector" onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}>
-                      <span className="currency-code">{selectedCurrency}</span>
-                      <span className="dropdown-arrow">▼</span>
-                      {showCurrencyDropdown && (
-                        <div className="currency-dropdown">
-                          {currencies.map((currency) => (
-                            <div 
-                              key={currency.code}
-                              className={`currency-option ${selectedCurrency === currency.code ? 'selected' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedCurrency(currency.code);
-                                setShowCurrencyDropdown(false);
-                              }}
-                            >
-                              <span className="currency-symbol">{currency.symbol}</span>
-                              <span className="currency-name">{currency.code} - {currency.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                    <span className="currency-symbol">$</span>
                     <input
                       type="number"
                       placeholder="0"
-                      value={depositAmount || '0'}
+                      value={depositAmount}
                       onChange={(e) => setDepositAmount(e.target.value)}
                       className="amount-input"
                       min="100"
@@ -2386,15 +2365,15 @@ function MainApp() {
                     />
                   </div>
                   <div className="amount-limits">
-                    <span className="limit-text">Min: {currencies.find(c => c.code === selectedCurrency)?.symbol}100 • No Maximum</span>
+                    <span className="limit-text">Min: $100 • No Maximum</span>
                   </div>
                 </div>
                 
-                {depositAmount && parseFloat(depositAmount) >= 10 && (
+                {depositAmount && parseFloat(depositAmount) >= 100 && (
                   <div className="deposit-summary">
                     <div className="summary-row">
                       <span className="summary-label">Deposit Amount:</span>
-                      <span className="summary-value">{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</span>
+                      <span className="summary-value">${parseFloat(depositAmount || 0).toLocaleString()}</span>
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Bitcoin Equivalent:</span>
@@ -2412,7 +2391,7 @@ function MainApp() {
                     </div>
                     <div className="summary-row total">
                       <span className="summary-label">Total to Pay:</span>
-                      <span className="summary-value">{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</span>
+                      <span className="summary-value">${parseFloat(depositAmount || 0).toLocaleString()}</span>
                     </div>
                   </div>
                 )}
@@ -2421,7 +2400,7 @@ function MainApp() {
                   <button 
                     className="continue-btn"
                     onClick={handleDepositAmountSubmit}
-                    disabled={!depositAmount || parseFloat(depositAmount) < 10}
+                    disabled={!depositAmount || parseFloat(depositAmount) < 100}
                   >
                     Continue to Payment
                   </button>
@@ -2445,7 +2424,7 @@ function MainApp() {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-content">
-              <h3>💰 Deposit {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</h3>
+              <h3>💰 Deposit ${parseFloat(depositAmount || 0).toLocaleString()}</h3>
               <div className="deposit-amount-display">
                 <p>Choose your preferred payment method:</p>
               </div>
@@ -2453,24 +2432,24 @@ function MainApp() {
                 <div className="deposit-option">
                   <h4>Bitcoin Deposit</h4>
                   <div className="bitcoin-info">
-                    <p>Send <strong>{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</strong> worth of Bitcoin to this address:</p>
+                    <p>Send <strong>${parseFloat(depositAmount || 0).toLocaleString()}</strong> worth of Bitcoin to this address:</p>
                     <div className="address-container">
                       <code className="bitcoin-address">{bitcoinAddress}</code>
                       <button onClick={() => copyToClipboard(bitcoinAddress)} className="copy-btn">Copy</button>
                     </div>
-                    <p className="warning">⚠️ Only send Bitcoin to this address. Send exactly {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} worth.</p>
+                    <p className="warning">⚠️ Only send Bitcoin to this address. Send exactly ${parseFloat(depositAmount || 0).toLocaleString()} worth.</p>
                     <button 
                       className="payment-confirmation-btn"
                       onClick={() => handlePaymentConfirmation('bitcoin')}
                     >
-                      I have sent {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} in Bitcoin
+                      I have sent ${parseFloat(depositAmount || 0).toLocaleString()} in Bitcoin
                     </button>
                   </div>
                 </div>
                 <div className="deposit-option">
                   <h4>Bank Transfer</h4>
                   <div className="bank-details">
-                    <p>Transfer <strong>{currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}</strong> to:</p>
+                    <p>Transfer <strong>${parseFloat(depositAmount || 0).toLocaleString()}</strong> to:</p>
                     <div className="bank-detail">
                       <strong>Account Name:</strong> {bankDetails.accountName}
                     </div>
@@ -2484,14 +2463,14 @@ function MainApp() {
                       <strong>Routing Number:</strong> {bankDetails.routingNumber}
                     </div>
                     <div className="bank-detail">
-                      <strong>Amount:</strong> {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()}
+                      <strong>Amount:</strong> ${parseFloat(depositAmount || 0).toLocaleString()}
                     </div>
                   </div>
                   <button 
                     className="payment-confirmation-btn"
                     onClick={() => handlePaymentConfirmation('bank')}
                   >
-                    I have sent {currencies.find(c => c.code === selectedCurrency)?.symbol}{parseFloat(depositAmount || 0).toLocaleString()} via Bank Transfer
+                    I have sent ${parseFloat(depositAmount || 0).toLocaleString()} via Bank Transfer
                   </button>
                   <div className="support-section">
                     <p className="support-text">Need help with bank transfer?</p>
