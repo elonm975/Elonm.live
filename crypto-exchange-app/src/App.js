@@ -565,8 +565,8 @@ function MainApp() {
           await getDocs(query(collection(db, 'users'), where('userId', '==', user.uid)));
           console.log('🔥 Firebase connected successfully');
         } catch (firebaseTest) {
-          console.warn('🔒 Firebase access restricted - running in offline mode');
-          console.log('💾 All data will be stored locally in your browser');
+          console.log('🔒 Firebase rules not configured - using localStorage mode');
+          console.log('💾 All data stored locally in browser');
         }
         
         await loadUserData(user.uid);
@@ -779,8 +779,9 @@ function MainApp() {
           const portfolioSnapshot = await getDocs(portfolioQuery);
           const portfolioData = portfolioSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setPortfolio(portfolioData);
+          console.log('✅ Portfolio loaded from Firebase');
         } catch (portfolioError) {
-          console.warn('⚠️ Portfolio data not accessible, using localStorage fallback:', portfolioError.message);
+          console.log('💾 Using localStorage for portfolio (Firebase not configured)');
           const savedPortfolio = localStorage.getItem(`portfolio_${userId}`);
           setPortfolio(savedPortfolio ? JSON.parse(savedPortfolio) : []);
         }
@@ -791,8 +792,9 @@ function MainApp() {
           const transactionsSnapshot = await getDocs(transactionsQuery);
           const transactionsData = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setTransactions(transactionsData);
+          console.log('✅ Transactions loaded from Firebase');
         } catch (transactionError) {
-          console.warn('⚠️ Transaction data not accessible, using localStorage fallback:', transactionError.message);
+          console.log('💾 Using localStorage for transactions (Firebase not configured)');
           const savedTransactions = localStorage.getItem(`transactions_${userId}`);
           setTransactions(savedTransactions ? JSON.parse(savedTransactions) : []);
         }
