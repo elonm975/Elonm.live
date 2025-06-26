@@ -3979,6 +3979,45 @@
   max-width: 500px;
 }
 
+.withdraw-amount-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.withdraw-amount-input-container .currency-selector {
+  margin-right: 12px;
+  border-radius: 12px;
+  border: 2px solid #333;
+  padding: 16px;
+  background: #2d2d2d;
+  transition: all 0.3s ease;
+}
+
+.withdraw-amount-input-container .currency-selector:hover {
+  border-color: #4CAF50;
+  background: #333;
+}
+
+.withdraw-amount-input-container .amount-input {
+  flex: 1;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #2d2d2d;
+  border: 2px solid #333;
+  border-radius: 12px;
+  color: #fff;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.withdraw-amount-input-container .amount-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
 .withdraw-balance-info {
   background: rgba(76, 175, 80, 0.1);
   border: 1px solid rgba(76, 175, 80, 0.2);
@@ -4031,22 +4070,25 @@
 }
 
 .withdraw-input {
-  padding: 12px 16px;
+  padding: 16px;
   background: #2d2d2d;
-  border: 1px solid #555;
-  border-radius: 8px;
+  border: 2px solid #333;
+  border-radius: 12px;
   color: #fff;
-  font-size: 14px;
-  transition: border-color 0.3s ease;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .withdraw-input:focus {
   outline: none;
   border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
 }
 
 .withdraw-input::placeholder {
-  color: #888;
+  color: #666;
 }
 
 .withdraw-summary {
