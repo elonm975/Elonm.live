@@ -1912,7 +1912,7 @@
 }
 
 .binance-trade-header {
-  background: linear-gradient(135deg, #4CAF50 0%, #22c55e 100%);
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
   padding: 20px;
   color: #000;
 }
@@ -2207,7 +2207,7 @@
 }
 
 .trade-now-btn {
-  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  background: linear-gradient(135deg, #4CAF50, #45a049);
   border: none;
   color: white;
   padding: 8px 20px;
@@ -2219,7 +2219,7 @@
 }
 
 .trade-now-btn:hover {
-  background: linear-gradient(135deg, #2196F3, #4CAF50);
+  background: linear-gradient(135deg, #45a049, #4CAF50);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
