@@ -2528,11 +2528,6 @@ function MainApp() {
         <div className="menu-section">
           <h4>Account</h4>
           <div className="menu-items">
-            <div className="menu-item" onClick={() => setShowProfileSettings(true)}>
-              <span className="menu-icon">👤</span>
-              <span className="menu-text">Profile Settings</span>
-              <span className="menu-arrow">›</span>
-            </div>
             {isVerifiedElonTeam(user?.email) && (
               <div className="menu-item admin-access" onClick={() => {
                 setShowAdminPanel(true);
