@@ -401,65 +401,88 @@ function MainApp() {
     localStorage.setItem(`welcomeSeen_${user.uid}`, 'true');
   };
 
-  // Enhanced notification system
+  // Enhanced notification system with feature detection
   const showNotification = (title, message, type = 'info') => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, {
-        body: message,
-        icon: '/favicon.ico',
-        tag: `crypto-notification-${Date.now()}`,
-        requireInteraction: true,
-        vibrate: [200, 100, 200]
-      });
-    } else {
-      // Fallback to alert for now, can be replaced with custom toast
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && window.Notification && window.Notification.permission === 'granted') {
+        new window.Notification(title, {
+          body: message,
+          icon: '/favicon.ico',
+          tag: `crypto-notification-${Date.now()}`,
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
+        });
+      } else {
+        // Fallback to alert for now, can be replaced with custom toast
+        alert(`${title}: ${message}`);
+      }
+    } catch (error) {
+      console.warn('Notification API not available:', error);
       alert(`${title}: ${message}`);
     }
   };
 
   const requestNotificationPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-      localStorage.setItem('notificationPermission', permission);
-      return permission === 'granted';
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && window.Notification) {
+        const permission = await window.Notification.requestPermission();
+        setNotificationPermission(permission);
+        localStorage.setItem('notificationPermission', permission);
+        return permission === 'granted';
+      }
+    } catch (error) {
+      console.warn('Notification permission request failed:', error);
     }
     return false;
   };
 
   const sendMultipleNotifications = (title, message, count = 5) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      for (let i = 0; i < count; i++) {
-        setTimeout(() => {
-          new Notification(`${title} (${i + 1}/${count})`, {
-            body: message,
-            icon: '/favicon.ico',
-            tag: `crypto-notification-${Date.now()}-${i}`,
-            requireInteraction: true,
-            vibrate: [200, 100, 200]
-          });
-        }, i * 1000); // Send every 1 second
+    try {
+      if (typeof window !== 'undefined' && 'Notification' in window && window.Notification && window.Notification.permission === 'granted') {
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => {
+            new window.Notification(`${title} (${i + 1}/${count})`, {
+              body: message,
+              icon: '/favicon.ico',
+              tag: `crypto-notification-${Date.now()}-${i}`,
+              requireInteraction: true,
+              vibrate: [200, 100, 200]
+            });
+          }, i * 1000); // Send every 1 second
+        }
       }
+    } catch (error) {
+      console.warn('Multiple notifications failed:', error);
     }
   };
 
   const handleNotificationClick = async () => {
-    const currentPermission = Notification.permission;
-    
-    if (currentPermission === 'default') {
-      const granted = await requestNotificationPermission();
-      if (granted) {
-        showNotification('Notifications Enabled', 'You will now receive notifications for deposits and withdrawals!', 'success');
-      } else {
-        alert('Please enable notifications in your browser settings to receive deposit/withdrawal alerts.');
+    try {
+      if (typeof window === 'undefined' || !('Notification' in window) || !window.Notification) {
+        alert('Notifications are not supported in this browser or environment.');
+        return;
       }
-    } else if (currentPermission === 'denied') {
-      alert('Notifications are blocked. Please enable them in your browser settings:\n\n1. Click the lock icon in your address bar\n2. Set Notifications to "Allow"\n3. Refresh the page');
-    } else {
-      showNotification('Test Notification', 'Notifications are working! You will receive alerts when admin confirms your transactions.', 'info');
+
+      const currentPermission = window.Notification.permission;
+      
+      if (currentPermission === 'default') {
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          showNotification('Notifications Enabled', 'You will now receive notifications for deposits and withdrawals!', 'success');
+        } else {
+          alert('Please enable notifications in your browser settings to receive deposit/withdrawal alerts.');
+        }
+      } else if (currentPermission === 'denied') {
+        alert('Notifications are blocked. Please enable them in your browser settings:\n\n1. Click the lock icon in your address bar\n2. Set Notifications to "Allow"\n3. Refresh the page');
+      } else {
+        showNotification('Test Notification', 'Notifications are working! You will receive alerts when admin confirms your transactions.', 'info');
+      }
+      
+      setShowNotificationSettings(true);
+    } catch (error) {
+      console.warn('Notification handling failed:', error);
+      alert('Notifications are not available in this environment.');
     }
-    
-    setShowNotificationSettings(true);
   };
 
   // Enhanced biometric authentication functions
@@ -627,9 +650,16 @@ function MainApp() {
         setFingerprintEnabled(savedFingerprint);
         setFaceIdEnabled(savedFaceId);
 
-        // Load notification permission
-        const savedNotificationPermission = localStorage.getItem('notificationPermission') || Notification.permission || 'default';
-        setNotificationPermission(savedNotificationPermission);
+        // Load notification permission with feature detection
+        try {
+          const savedNotificationPermission = localStorage.getItem('notificationPermission') || 
+            (typeof window !== 'undefined' && 'Notification' in window && window.Notification ? window.Notification.permission : 'default') || 
+            'default';
+          setNotificationPermission(savedNotificationPermission);
+        } catch (error) {
+          console.warn('Could not load notification permission:', error);
+          setNotificationPermission('default');
+        }
       } else {
         setUser(null);
       }
@@ -2406,9 +2436,11 @@ function MainApp() {
               <span className="menu-icon">🔔</span>
               <span className="menu-text">Notifications</span>
               <span className="menu-value">
-                {notificationPermission === 'granted' ? '✅ Enabled' : 
-                 notificationPermission === 'denied' ? '❌ Disabled' : 
-                 '⚙️ Setup Required'}
+                {typeof window !== 'undefined' && 'Notification' in window && window.Notification ? 
+                  (notificationPermission === 'granted' ? '✅ Enabled' : 
+                   notificationPermission === 'denied' ? '❌ Disabled' : 
+                   '⚙️ Setup Required') : 
+                  '❌ Not Supported'}
               </span>
               <span className="menu-arrow">›</span>
             </div>
