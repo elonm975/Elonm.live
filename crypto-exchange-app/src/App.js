@@ -2489,14 +2489,6 @@ function MainApp() {
 
         <div className="trade-info-footer">
           <div className="info-item">
-            <span className="info-icon">ℹ️</span>
-            <span className="info-text">Real-time market data powered by Binance API</span>
-          </div>
-          <div className="info-item">
-            <span className="info-icon">⚡</span>
-            <span className="info-text">Ultra-low latency trading engine</span>
-          </div>
-          <div className="info-item">
             <span className="info-icon">🔒</span>
             <span className="info-text">Bank-level security & insurance</span>
           </div>
