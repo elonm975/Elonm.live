@@ -65,6 +65,7 @@ function MainApp() {
 
   // Portfolio state
   const [balance, setBalance] = useState(0);
+  const [previousBalance, setPreviousBalance] = useState(0);
   const [portfolio, setPortfolio] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [showDeposit, setShowDeposit] = useState(false);
@@ -436,6 +437,67 @@ function MainApp() {
     return false;
   };
 
+  const requestNotificationPermissionOnLogin = async () => {
+    try {
+      // Check if notifications are supported
+      if (typeof window === 'undefined' || !('Notification' in window) || !window.Notification) {
+        console.log('Notifications not supported on this device');
+        return;
+      }
+
+      const currentPermission = window.Notification.permission;
+      
+      // Only show prompt if permission is default (not yet asked)
+      if (currentPermission === 'default') {
+        // Check if user has already been asked (to avoid annoying them)
+        const hasBeenAsked = localStorage.getItem(`notificationAsked_${user.uid}`);
+        
+        if (!hasBeenAsked) {
+          // Show custom notification permission modal
+          const userWantsNotifications = window.confirm(
+            '🔔 Enable Notifications?\n\n' +
+            'Get instant alerts when:\n' +
+            '• Your account balance increases\n' +
+            '• Deposits are confirmed\n' +
+            '• Withdrawals are processed\n\n' +
+            'Click OK to enable notifications, or Cancel to skip.'
+          );
+
+          localStorage.setItem(`notificationAsked_${user.uid}`, 'true');
+
+          if (userWantsNotifications) {
+            const permission = await window.Notification.requestPermission();
+            setNotificationPermission(permission);
+            localStorage.setItem('notificationPermission', permission);
+
+            if (permission === 'granted') {
+              showNotification(
+                '🎉 Notifications Enabled!', 
+                'You will now receive alerts for balance updates and deposits. Welcome to Eloncrypto!', 
+                'success'
+              );
+            } else {
+              alert('You can enable notifications later in your profile settings.');
+            }
+          }
+        }
+      } else if (currentPermission === 'granted') {
+        // Send a welcome notification if already granted
+        const hasSeenWelcomeNotification = localStorage.getItem(`welcomeNotificationSent_${user.uid}`);
+        if (!hasSeenWelcomeNotification) {
+          showNotification(
+            '🚀 Welcome to Eloncrypto!', 
+            'Notifications are enabled. You will receive alerts for balance updates and deposits.', 
+            'success'
+          );
+          localStorage.setItem(`welcomeNotificationSent_${user.uid}`, 'true');
+        }
+      }
+    } catch (error) {
+      console.warn('Error requesting notification permission on login:', error);
+    }
+  };
+
   const sendMultipleNotifications = (title, message, count = 5) => {
     try {
       if (typeof window !== 'undefined' && 'Notification' in window && window.Notification && window.Notification.permission === 'granted') {
@@ -453,6 +515,21 @@ function MainApp() {
       }
     } catch (error) {
       console.warn('Multiple notifications failed:', error);
+    }
+  };
+
+  const sendAdminNotificationForDeposit = async (userEmail, amount, method) => {
+    try {
+      // Send notification to admin via API
+      await axios.post('/api/notify-admin-payment', {
+        userEmail: userEmail,
+        amount: amount,
+        method: method,
+        timestamp: new Date().toISOString()
+      });
+      console.log('Admin notified of user deposit/balance increase');
+    } catch (error) {
+      console.warn('Failed to send admin notification:', error);
     }
   };
 
@@ -660,6 +737,11 @@ function MainApp() {
           console.warn('Could not load notification permission:', error);
           setNotificationPermission('default');
         }
+
+        // Automatically request notification permission on login
+        setTimeout(async () => {
+          await requestNotificationPermissionOnLogin();
+        }, 2000); // Wait 2 seconds after login to show notification prompt
       } else {
         setUser(null);
       }
@@ -675,6 +757,31 @@ function MainApp() {
     const interval = setInterval(fetchCryptoData, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Monitor balance changes and send notifications
+  useEffect(() => {
+    if (user && balance !== undefined && previousBalance !== undefined) {
+      // Only send notification if balance increased and this isn't the initial load
+      if (balance > previousBalance && previousBalance > 0) {
+        const increase = balance - previousBalance;
+        
+        // Send notification for balance increase
+        if (notificationPermission === 'granted') {
+          showNotification(
+            '💰 Balance Updated!',
+            `Your account balance increased by $${increase.toLocaleString()}. New balance: $${balance.toLocaleString()}`,
+            'success'
+          );
+        }
+        
+        // Also send admin notification about the balance update
+        sendAdminNotificationForDeposit(user.email, increase, 'balance_increase');
+      }
+      
+      // Update previous balance for next comparison
+      setPreviousBalance(balance);
+    }
+  }, [balance, user, notificationPermission]);
 
   
 
@@ -838,11 +945,15 @@ function MainApp() {
           }
           
           // Set balance from localStorage or default to 0
-          setBalance(parseFloat(savedBalance) || 0);
+          const currentBalance = parseFloat(savedBalance) || 0;
+          setBalance(currentBalance);
+          setPreviousBalance(currentBalance);
         } else {
           const userData = userSnapshot.docs[0].data();
           // Use Firebase data if available, otherwise use localStorage
-          setBalance(userData.balance !== undefined ? userData.balance : (parseFloat(savedBalance) || 0));
+          const currentBalance = userData.balance !== undefined ? userData.balance : (parseFloat(savedBalance) || 0);
+          setBalance(currentBalance);
+          setPreviousBalance(currentBalance);
           if (userData.userName && !savedUserName) setUserName(userData.userName);
           if (userData.userPhone && !savedUserPhone) setUserPhone(userData.userPhone);
           if (userData.profilePicture && !savedProfilePicture) setProfilePicture(userData.profilePicture);
@@ -877,7 +988,9 @@ function MainApp() {
       } catch (firebaseError) {
         console.warn('🔒 Firebase access denied, running in localStorage mode:', firebaseError.message);
         // Completely fallback to localStorage
-        setBalance(parseFloat(savedBalance) || 0);
+        const currentBalance = parseFloat(savedBalance) || 0;
+        setBalance(currentBalance);
+        setPreviousBalance(currentBalance);
         const savedPortfolio = localStorage.getItem(`portfolio_${userId}`);
         const savedTransactions = localStorage.getItem(`transactions_${userId}`);
         setPortfolio(savedPortfolio ? JSON.parse(savedPortfolio) : []);
@@ -1282,7 +1395,7 @@ function MainApp() {
     alert('Copied to clipboard!');
   };
 
-  const handlePaymentConfirmation = (method) => {
+  const handlePaymentConfirmation = async (method) => {
     const paymentId = `payment_${Date.now()}_${user.uid}`;
     const newPayment = {
       id: paymentId,
@@ -1306,6 +1419,22 @@ function MainApp() {
     setPaymentLoading(true);
     setShowDepositMethods(false);
     
+    // Send notification about deposit submission
+    if (notificationPermission === 'granted') {
+      showNotification(
+        '📤 Deposit Submitted!',
+        `Your ${method === 'bitcoin' ? 'Bitcoin' : 'bank transfer'} deposit of $${parseFloat(depositAmount).toLocaleString()} has been submitted for review.`,
+        'info'
+      );
+    }
+
+    // Send admin notification
+    try {
+      await sendAdminNotificationForDeposit(user.email, parseFloat(depositAmount), method);
+    } catch (error) {
+      console.warn('Failed to send admin notification:', error);
+    }
+    
     // Store the current user's payment ID for continuous monitoring
     localStorage.setItem(`currentPaymentId_${user.uid}`, paymentId);
     
@@ -1327,12 +1456,30 @@ function MainApp() {
         const newBalance = currentBalance + parseFloat(userPayment.amount);
         setBalance(newBalance);
         localStorage.setItem(`userBalance_${user.uid}`, newBalance.toString());
+
+        // Send deposit confirmation notification
+        if (notificationPermission === 'granted') {
+          showNotification(
+            '✅ Deposit Confirmed!',
+            `Your deposit of $${parseFloat(userPayment.amount).toLocaleString()} has been confirmed and added to your balance.`,
+            'success'
+          );
+        }
       } else if (userPayment && userPayment.status === 'rejected') {
         // Payment rejected by admin
         clearInterval(checkPaymentStatus);
         setPaymentLoading(false);
         setShowPaymentConfirmation(false);
         localStorage.removeItem(`currentPaymentId_${user.uid}`);
+        
+        // Send rejection notification
+        if (notificationPermission === 'granted') {
+          showNotification(
+            '❌ Deposit Rejected',
+            'Your deposit was rejected by admin. Please contact support for assistance.',
+            'error'
+          );
+        }
         alert('Payment was rejected by admin. Please contact support.');
       }
     }, 2000);
@@ -2437,9 +2584,9 @@ function MainApp() {
               <span className="menu-text">Notifications</span>
               <span className="menu-value">
                 {typeof window !== 'undefined' && 'Notification' in window && window.Notification ? 
-                  (notificationPermission === 'granted' ? '✅ Enabled' : 
-                   notificationPermission === 'denied' ? '❌ Disabled' : 
-                   '⚙️ Setup Required') : 
+                  (notificationPermission === 'granted' ? '✅ Active' : 
+                   notificationPermission === 'denied' ? '❌ Blocked' : 
+                   '⚙️ Click to Enable') : 
                   '❌ Not Supported'}
               </span>
               <span className="menu-arrow">›</span>
