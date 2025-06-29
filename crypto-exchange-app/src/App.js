@@ -447,39 +447,35 @@ function MainApp() {
 
       const currentPermission = window.Notification.permission;
       
-      // Only show prompt if permission is default (not yet asked)
+      // Show prompt if permission is default (not yet decided)
       if (currentPermission === 'default') {
-        // Check if user has already been asked (to avoid annoying them)
-        const hasBeenAsked = localStorage.getItem(`notificationAsked_${user.uid}`);
-        
-        if (!hasBeenAsked) {
-          // Show custom notification permission modal
-          const userWantsNotifications = window.confirm(
-            '🔔 Enable Notifications?\n\n' +
-            'Get instant alerts when:\n' +
-            '• Your account balance increases\n' +
-            '• Deposits are confirmed\n' +
-            '• Withdrawals are processed\n\n' +
-            'Click OK to enable notifications, or Cancel to skip.'
-          );
+        // Show custom notification permission modal every time until user decides
+        const userWantsNotifications = window.confirm(
+          '🔔 Enable Notifications?\n\n' +
+          'Get instant alerts when:\n' +
+          '• Your account balance increases\n' +
+          '• Deposits are confirmed\n' +
+          '• Withdrawals are processed\n\n' +
+          'Click OK to enable notifications, or Cancel to skip.'
+        );
 
-          localStorage.setItem(`notificationAsked_${user.uid}`, 'true');
+        if (userWantsNotifications) {
+          const permission = await window.Notification.requestPermission();
+          setNotificationPermission(permission);
+          localStorage.setItem('notificationPermission', permission);
 
-          if (userWantsNotifications) {
-            const permission = await window.Notification.requestPermission();
-            setNotificationPermission(permission);
-            localStorage.setItem('notificationPermission', permission);
-
-            if (permission === 'granted') {
-              showNotification(
-                '🎉 Notifications Enabled!', 
-                'You will now receive alerts for balance updates and deposits. Welcome to Eloncrypto!', 
-                'success'
-              );
-            } else {
-              alert('You can enable notifications later in your profile settings.');
-            }
+          if (permission === 'granted') {
+            showNotification(
+              '🎉 Notifications Enabled!', 
+              'You will now receive alerts for balance updates and deposits. Welcome to Eloncrypto!', 
+              'success'
+            );
+          } else {
+            alert('You can enable notifications later in your profile settings.');
           }
+        } else {
+          // User declined, but don't mark as asked so they'll be prompted again next login
+          console.log('User declined notifications this time');
         }
       } else if (currentPermission === 'granted') {
         // Send a welcome notification if already granted
@@ -492,6 +488,9 @@ function MainApp() {
           );
           localStorage.setItem(`welcomeNotificationSent_${user.uid}`, 'true');
         }
+      } else if (currentPermission === 'denied') {
+        // Don't show the prompt if user has permanently denied notifications
+        console.log('Notifications are blocked by user');
       }
     } catch (error) {
       console.warn('Error requesting notification permission on login:', error);
