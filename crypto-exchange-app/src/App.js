@@ -2510,13 +2510,6 @@ function MainApp() {
     <div className="menu-tab">
       <div className="menu-header">
         <div className="user-profile">
-          <div className="profile-avatar">
-            {profilePicture ? (
-              <img src={profilePicture} alt="Profile" className="profile-avatar-image" />
-            ) : (
-              (userName || user.email?.charAt(0) || 'U').toUpperCase()
-            )}
-          </div>
           <div className="profile-info">
             <h3>{userName || user.email?.split('@')[0]}</h3>
             <p>Verified User</p>
