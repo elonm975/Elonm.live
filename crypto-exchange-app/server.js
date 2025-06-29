@@ -193,6 +193,111 @@ app.post('/api/send-reset-email', async (req, res) => {
   }
 });
 
+// Admin notification for payment submissions
+app.post('/api/notify-admin-payment', async (req, res) => {
+  try {
+    const { userEmail, amount, method, timestamp } = req.body;
+
+    console.log('Admin payment notification request:', { userEmail, amount, method });
+
+    // Validate input
+    if (!userEmail || !amount || !method) {
+      return res.status(400).json({ 
+        error: 'User email, amount, and payment method are required' 
+      });
+    }
+
+    const adminEmail = 'admin@elonm.live'; // Admin email address
+    const paymentMethodName = method === 'bitcoin' ? 'Bitcoin' : 'Bank Transfer';
+    const formattedAmount = parseFloat(amount).toLocaleString();
+
+    const msg = {
+      to: adminEmail,
+      from: 'noreply@elonm.live',
+      subject: `🚨 New Payment Submission - ${paymentMethodName} - $${formattedAmount}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); padding: 40px; border-radius: 10px;">
+          <div style="background: white; padding: 30px; border-radius: 8px;">
+            <h1 style="color: #333; margin-bottom: 20px; text-align: center;">🚨 Payment Submission Alert</h1>
+            
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="color: #ee5a24; margin-top: 0;">Payment Details</h2>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; color: #333;">User Email:</td>
+                  <td style="padding: 8px 0; color: #666;">${userEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; color: #333;">Amount:</td>
+                  <td style="padding: 8px 0; color: #666; font-size: 18px; font-weight: bold;">$${formattedAmount}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; color: #333;">Payment Method:</td>
+                  <td style="padding: 8px 0; color: #666;">${paymentMethodName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; font-weight: bold; color: #333;">Submission Time:</td>
+                  <td style="padding: 8px 0; color: #666;">${new Date(timestamp).toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <h3 style="color: #856404; margin-top: 0;">⚡ Action Required</h3>
+              <p style="color: #856404; margin-bottom: 0;">
+                A user has submitted a payment confirmation. Please log into your admin panel to verify and confirm this payment.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://${req.get('host')}" style="background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; display: inline-block;">
+                Access Admin Panel
+              </a>
+            </div>
+
+            <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+              This is an automated notification from Elon.live Crypto Exchange
+            </p>
+          </div>
+        </div>
+      `
+    };
+
+    // Send email if SendGrid is configured, otherwise log
+    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_API_KEY !== 'dummy-key') {
+      try {
+        console.log('📤 Sending admin notification email...');
+        const result = await transporter.sendMail(msg);
+        console.log('✅ Admin notification sent successfully');
+
+        res.json({ 
+          success: true, 
+          message: 'Admin notification sent successfully' 
+        });
+      } catch (error) {
+        console.log('❌ Failed to send admin notification:', error.message);
+        return res.status(500).json({ 
+          error: 'Failed to send admin notification email',
+          details: error.message
+        });
+      }
+    } else {
+      console.log('📧 Admin notification email would be sent to:', adminEmail);
+      console.log('📄 Payment details:', { userEmail, amount, method, paymentMethodName });
+      res.json({ 
+        success: true, 
+        message: 'Admin notification sent successfully (development mode)' 
+      });
+    }
+
+  } catch (error) {
+    console.error('Admin notification error:', error);
+    res.status(500).json({ 
+      error: 'Failed to send admin notification' 
+    });
+  }
+});
+
 // Password reset endpoint
 app.post('/api/reset-password', async (req, res) => {
   try {
