@@ -449,50 +449,179 @@ function MainApp() {
 
       const currentPermission = window.Notification.permission;
       
-      // Show prompt if permission is default (not yet decided)
-      if (currentPermission === 'default') {
-        // Show custom notification permission modal every time until user decides
-        const userWantsNotifications = window.confirm(
-          '🔔 Enable Notifications?\n\n' +
-          'Get instant alerts when:\n' +
-          '• Your account balance increases\n' +
-          '• Deposits are confirmed\n' +
-          '• Withdrawals are processed\n\n' +
-          'Click OK to enable notifications, or Cancel to skip.'
-        );
+      // Check if this is a new user (first login)
+      const isNewUser = !localStorage.getItem(`hasLoggedInBefore_${user.uid}`);
+      const hasAskedForNotifications = localStorage.getItem(`notificationPromptShown_${user.uid}`);
+      
+      // Show prompt for new users or if permission is default and we haven't asked before
+      if (currentPermission === 'default' && (isNewUser || !hasAskedForNotifications)) {
+        // Mark that we've shown the prompt
+        localStorage.setItem(`notificationPromptShown_${user.uid}`, 'true');
+        localStorage.setItem(`hasLoggedInBefore_${user.uid}`, 'true');
+        
+        // Create a more attractive notification permission modal
+        const modalHtml = `
+          <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          ">
+            <div style="
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border-radius: 20px;
+              padding: 30px;
+              max-width: 400px;
+              text-align: center;
+              box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+              color: white;
+            ">
+              <div style="font-size: 60px; margin-bottom: 20px;">🔔</div>
+              <h2 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 600;">
+                ${isNewUser ? 'Welcome to Eloncrypto!' : 'Enable Notifications?'}
+              </h2>
+              <p style="margin: 15px 0; font-size: 16px; line-height: 1.5; opacity: 0.9;">
+                ${isNewUser ? 'Get notified about your trading success!' : 'Stay updated with your account activity'}
+              </p>
+              <div style="margin: 20px 0; text-align: left;">
+                <div style="margin: 8px 0; font-size: 14px;">
+                  💰 Balance increases & profit alerts
+                </div>
+                <div style="margin: 8px 0; font-size: 14px;">
+                  ✅ Deposit confirmations
+                </div>
+                <div style="margin: 8px 0; font-size: 14px;">
+                  💸 Withdrawal processing updates
+                </div>
+                <div style="margin: 8px 0; font-size: 14px;">
+                  📈 Trading opportunities
+                </div>
+              </div>
+              <div style="margin-top: 25px;">
+                <button id="allowNotifications" style="
+                  background: #4CAF50;
+                  color: white;
+                  border: none;
+                  padding: 12px 24px;
+                  border-radius: 25px;
+                  font-size: 16px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  margin: 0 8px;
+                  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                  transition: all 0.3s ease;
+                ">
+                  🎉 Allow Notifications
+                </button>
+                <button id="skipNotifications" style="
+                  background: rgba(255, 255, 255, 0.2);
+                  color: white;
+                  border: 1px solid rgba(255, 255, 255, 0.3);
+                  padding: 12px 24px;
+                  border-radius: 25px;
+                  font-size: 16px;
+                  cursor: pointer;
+                  margin: 0 8px;
+                  transition: all 0.3s ease;
+                ">
+                  Maybe Later
+                </button>
+              </div>
+              ${isNewUser ? '<p style="font-size: 12px; opacity: 0.7; margin-top: 15px;">You can change this setting anytime in your profile</p>' : ''}
+            </div>
+          </div>
+        `;
 
-        if (userWantsNotifications) {
-          const permission = await window.Notification.requestPermission();
-          setNotificationPermission(permission);
-          localStorage.setItem('notificationPermission', permission);
+        // Create and show the modal
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = modalHtml;
+        document.body.appendChild(modalContainer);
 
-          if (permission === 'granted') {
-            showNotification(
-              '🎉 Notifications Enabled!', 
-              'You will now receive alerts for balance updates and deposits. Welcome to Eloncrypto!', 
-              'success'
-            );
-          } else {
-            alert('You can enable notifications later in your profile settings.');
+        // Handle button clicks
+        const allowBtn = modalContainer.querySelector('#allowNotifications');
+        const skipBtn = modalContainer.querySelector('#skipNotifications');
+
+        allowBtn.addEventListener('click', async () => {
+          document.body.removeChild(modalContainer);
+          
+          try {
+            const permission = await window.Notification.requestPermission();
+            setNotificationPermission(permission);
+            localStorage.setItem('notificationPermission', permission);
+
+            if (permission === 'granted') {
+              showNotification(
+                '🎉 Notifications Enabled!', 
+                `Welcome to Eloncrypto! You'll now receive alerts about your account activity and profit updates.`, 
+                'success'
+              );
+              
+              // Send a welcome notification for new users
+              if (isNewUser) {
+                setTimeout(() => {
+                  showNotification(
+                    '💰 Ready to Make Profits!', 
+                    'Your account is set up! Start trading and watch your profits grow with real-time notifications.', 
+                    'success'
+                  );
+                }, 3000);
+              }
+            } else {
+              alert('Notifications were blocked. You can enable them later in your browser settings or profile.');
+            }
+          } catch (error) {
+            console.warn('Failed to request notification permission:', error);
+            alert('Could not enable notifications. Please check your browser settings.');
           }
-        } else {
-          // User declined, but don't mark as asked so they'll be prompted again next login
-          console.log('User declined notifications this time');
-        }
+        });
+
+        skipBtn.addEventListener('click', () => {
+          document.body.removeChild(modalContainer);
+          console.log('User skipped notification permission');
+          
+          if (isNewUser) {
+            // Show a subtle reminder for new users who skip
+            setTimeout(() => {
+              alert('💡 Tip: Enable notifications in your profile settings to never miss profit updates!');
+            }, 2000);
+          }
+        });
+
       } else if (currentPermission === 'granted') {
         // Send a welcome notification if already granted
         const hasSeenWelcomeNotification = localStorage.getItem(`welcomeNotificationSent_${user.uid}`);
-        if (!hasSeenWelcomeNotification) {
+        if (!hasSeenWelcomeNotification || isNewUser) {
           showNotification(
             '🚀 Welcome to Eloncrypto!', 
-            'Notifications are enabled. You will receive alerts for balance updates and deposits.', 
+            'Notifications are enabled. You will receive alerts for balance updates and profit increases.', 
             'success'
           );
           localStorage.setItem(`welcomeNotificationSent_${user.uid}`, 'true');
+          
+          if (isNewUser) {
+            localStorage.setItem(`hasLoggedInBefore_${user.uid}`, 'true');
+            setTimeout(() => {
+              showNotification(
+                '💰 Start Trading Now!', 
+                'Your account is ready! Make your first deposit and watch your profits multiply.', 
+                'success'
+              );
+            }, 4000);
+          }
         }
       } else if (currentPermission === 'denied') {
         // Don't show the prompt if user has permanently denied notifications
         console.log('Notifications are blocked by user');
+        if (isNewUser) {
+          localStorage.setItem(`hasLoggedInBefore_${user.uid}`, 'true');
+        }
       }
     } catch (error) {
       console.warn('Error requesting notification permission on login:', error);
@@ -765,14 +894,36 @@ function MainApp() {
       // Only send notification if balance increased and this isn't the initial load
       if (balance > previousBalance && previousBalance > 0) {
         const increase = balance - previousBalance;
+        const profitPercentage = ((increase / previousBalance) * 100).toFixed(1);
         
-        // Send notification for balance increase
+        // Send multiple notifications for balance increase and profit
         if (notificationPermission === 'granted') {
+          // Main balance update notification
           showNotification(
-            '💰 Balance Updated!',
-            `Your account balance increased by $${increase.toLocaleString()}. New balance: $${balance.toLocaleString()}`,
+            '🎉 Profit Alert!',
+            `Congratulations! Your account balance increased by $${increase.toLocaleString()} (${profitPercentage}% profit)`,
             'success'
           );
+          
+          // Follow-up notification about new balance
+          setTimeout(() => {
+            showNotification(
+              '💰 New Balance Update',
+              `Your total balance is now $${balance.toLocaleString()}. Keep trading to maximize your profits!`,
+              'success'
+            );
+          }, 3000);
+          
+          // Motivational notification for significant increases
+          if (increase >= 1000) {
+            setTimeout(() => {
+              showNotification(
+                '🚀 Massive Profit Achievement!',
+                `Amazing! You just made $${increase.toLocaleString()} profit. You're on your way to financial freedom!`,
+                'success'
+              );
+            }, 6000);
+          }
         }
         
         // Also send admin notification about the balance update
@@ -1624,12 +1775,21 @@ function MainApp() {
 
       alert(`✅ Payment confirmed! $${amount} added to ${payment.userEmail}'s balance.`);
       
-      // Send multiple notifications to the user
+      // Send enhanced notifications to the user
       sendMultipleNotifications(
-        '💰 Deposit Confirmed!',
-        `Your deposit of $${amount} has been confirmed and added to your account balance.`,
-        5
+        '🎉 Deposit Confirmed - Ready to Profit!',
+        `Your $${amount} deposit is confirmed! Start trading now and watch your money multiply with Eloncrypto.`,
+        3
       );
+      
+      // Send additional profit-focused notifications
+      setTimeout(() => {
+        sendMultipleNotifications(
+          '💰 Your Profit Journey Begins!',
+          `$${amount} is now in your account. Our traders typically see 300-500% returns. Start trading now!`,
+          2
+        );
+      }, 10000);
       
       // Reload users list to show updated balance
       loadAllUsers();
