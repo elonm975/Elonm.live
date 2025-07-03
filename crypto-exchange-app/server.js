@@ -29,11 +29,14 @@ const verifyEmailService = async () => {
       console.log('📧 Emails will be sent from: noreply@elonm.live');
       return true;
     } catch (error) {
-      console.log('❌ Email service connection failed:', error.message);
+      console.log('⚠️ Email service connection failed - running in development mode');
+      console.log('💡 To enable emails: Set SENDGRID_API_KEY environment variable');
+      console.log('📝 Error details:', error.message);
       return false;
     }
   } else {
-    console.log('⚠️ No SendGrid API key found - running in development mode');
+    console.log('📧 Email service: Development mode (no SendGrid API key configured)');
+    console.log('💡 Password resets will be simulated');
     return false;
   }
 };

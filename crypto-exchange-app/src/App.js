@@ -93,6 +93,8 @@ function MainApp() {
   const [showTrade, setShowTrade] = useState(false);
   const [activeAssetTab, setActiveAssetTab] = useState('spot');
   const [bitcoinPrice, setBitcoinPrice] = useState(0);
+  const [networkStatus, setNetworkStatus] = useState('online'); // 'online', 'offline', 'error'
+  const [lastDataUpdate, setLastDataUpdate] = useState(null);
 
   // Navigation and UI state - moved before early returns
   const [activeTab, setActiveTab] = useState('home');
@@ -799,63 +801,90 @@ function MainApp() {
 
   const fetchCryptoData = async () => {
     try {
-      // Fetch spot data from CoinGecko - increased to 250 coins
-      const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h');
-      const data = response.data.map(coin => ({
-        id: coin.id,
-        name: coin.name,
-        symbol: coin.symbol.toUpperCase(),
-        price: coin.current_price,
-        change: coin.price_change_percentage_24h || 0,
-        market_cap: coin.market_cap,
-        volume: coin.total_volume,
-        rank: coin.market_cap_rank,
-        image: coin.image
-      }));
-      setCryptoData(data);
-
-      // Extract Bitcoin price for deposit conversion
-      const bitcoin = response.data.find(coin => coin.id === 'bitcoin');
-      if (bitcoin) {
-        setBitcoinPrice(bitcoin.current_price);
-      }
-
-      // Fetch futures data from Binance with live updates
+      // Try to fetch spot data from CoinGecko with timeout and error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
       try {
-        const futuresResponse = await axios.get('https://fapi.binance.com/fapi/v1/ticker/24hr');
-        const futuresFormatted = futuresResponse.data
-          .filter(item => item.symbol.endsWith('USDT'))
-          .slice(0, 100) // Increased to 100 futures pairs
-          .map((item, index) => ({
-            id: item.symbol.toLowerCase(),
-            name: item.symbol.replace('USDT', ''),
-            symbol: item.symbol,
-            price: parseFloat(item.lastPrice),
-            change: parseFloat(item.priceChangePercent),
-            volume: parseFloat(item.volume),
-            rank: index + 1,
-            image: `https://cryptoicons.org/api/icon/${item.symbol.replace('USDT', '').toLowerCase()}/32`,
-            openInterest: parseFloat(item.openInterest || 0),
+        const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h', {
+          signal: controller.signal,
+          timeout: 5000
+        });
+        clearTimeout(timeoutId);
+        
+        const data = response.data.map(coin => ({
+          id: coin.id,
+          name: coin.name,
+          symbol: coin.symbol.toUpperCase(),
+          price: coin.current_price,
+          change: coin.price_change_percentage_24h || 0,
+          market_cap: coin.market_cap,
+          volume: coin.total_volume,
+          rank: coin.market_cap_rank,
+          image: coin.image
+        }));
+        setCryptoData(data);
+        setNetworkStatus('online');
+        setLastDataUpdate(new Date());
+        console.log('✅ Successfully fetched live crypto data from CoinGecko');
+
+        // Extract Bitcoin price for deposit conversion
+        const bitcoin = response.data.find(coin => coin.id === 'bitcoin');
+        if (bitcoin) {
+          setBitcoinPrice(bitcoin.current_price);
+        }
+
+        // Try to fetch futures data from Binance
+        try {
+          const futuresController = new AbortController();
+          const futuresTimeoutId = setTimeout(() => futuresController.abort(), 3000);
+          
+          const futuresResponse = await axios.get('https://fapi.binance.com/fapi/v1/ticker/24hr', {
+            signal: futuresController.signal,
+            timeout: 3000
+          });
+          clearTimeout(futuresTimeoutId);
+          
+          const futuresFormatted = futuresResponse.data
+            .filter(item => item.symbol.endsWith('USDT'))
+            .slice(0, 100)
+            .map((item, index) => ({
+              id: item.symbol.toLowerCase(),
+              name: item.symbol.replace('USDT', ''),
+              symbol: item.symbol,
+              price: parseFloat(item.lastPrice),
+              change: parseFloat(item.priceChangePercent),
+              volume: parseFloat(item.volume),
+              rank: index + 1,
+              image: `https://cryptoicons.org/api/icon/${item.symbol.replace('USDT', '').toLowerCase()}/32`,
+              openInterest: parseFloat(item.openInterest || 0),
+              fundingRate: Math.random() * 0.01 - 0.005,
+              lastUpdated: new Date()
+            }));
+          setFuturesData(futuresFormatted);
+          console.log('✅ Successfully fetched live futures data from Binance');
+        } catch (futuresError) {
+          console.log('⚠️ Binance API not accessible, using mock futures data');
+          const mockFutures = data.slice(0, 100).map((coin, index) => ({
+            ...coin,
+            symbol: coin.symbol + 'USDT',
+            price: coin.price * (1 + (Math.random() - 0.5) * 0.02),
+            change: coin.change + (Math.random() - 0.5) * 5,
+            openInterest: Math.random() * 1000000000,
             fundingRate: Math.random() * 0.01 - 0.005,
             lastUpdated: new Date()
           }));
-        setFuturesData(futuresFormatted);
-      } catch (futuresError) {
-        console.log('Binance futures API not accessible, using enhanced mock data');
-        // Enhanced fallback mock futures data with more variety
-        const mockFutures = data.slice(0, 100).map((coin, index) => ({
-          ...coin,
-          symbol: coin.symbol + 'USDT',
-          price: coin.price * (1 + (Math.random() - 0.5) * 0.02),
-          change: coin.change + (Math.random() - 0.5) * 5,
-          openInterest: Math.random() * 1000000000,
-          fundingRate: Math.random() * 0.01 - 0.005,
-          lastUpdated: new Date()
-        }));
-        setFuturesData(mockFutures);
+          setFuturesData(mockFutures);
+        }
+        return; // Exit early if CoinGecko worked
+      } catch (apiError) {
+        clearTimeout(timeoutId);
+        console.log('⚠️ CoinGecko API not accessible, using comprehensive fallback data');
       }
-    } catch (error) {
-      console.error('Failed to fetch crypto data:', error);
+      
+      // Fallback to enhanced mock data if API fails
+      console.log('🔄 Loading enhanced fallback cryptocurrency data...');
+      setNetworkStatus('offline');
       // Enhanced fallback with 250+ cryptocurrencies
       const fallbackCryptos = [];
       const cryptoNames = [
@@ -3964,7 +3993,7 @@ function ResetPassword() {
 function App() {
   return (
     <ErrorBoundary>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<MainApp />} />
           <Route path="/reset-password" element={<ResetPassword />} />
