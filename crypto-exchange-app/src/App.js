@@ -937,6 +937,66 @@ function MainApp() {
         lastUpdated: new Date()
       }));
       setFuturesData(fallbackFutures);
+    } catch (error) {
+      console.error('Failed to fetch crypto data:', error);
+      setNetworkStatus('error');
+    }
+      
+      // Fallback to enhanced mock data if API fails
+      console.log('🔄 Loading enhanced fallback cryptocurrency data...');
+      setNetworkStatus('offline');
+      // Enhanced fallback with 250+ cryptocurrencies
+      const fallbackCryptos = [];
+      const cryptoNames = [
+        'Bitcoin', 'Ethereum', 'Cardano', 'Solana', 'Polkadot', 'Chainlink', 'Litecoin', 'Bitcoin Cash',
+        'Stellar', 'Dogecoin', 'VeChain', 'TRON', 'EOS', 'Monero', 'Tezos', 'Cosmos', 'Neo', 'IOTA',
+        'Dash', 'Zcash', 'Qtum', 'Ontology', 'Zilliqa', 'Waves', 'Decred', 'DigiByte', 'Ravencoin',
+        'Horizen', 'Komodo', 'Verge', 'Stratis', 'Lisk', 'Ark', 'Nano', 'Basic Attention Token',
+        'OmiseGO', '0x', 'Augur', 'Golem', 'Status', 'Bancor', 'Kyber Network', 'Loopring', 'Enjin Coin',
+        'Compound', 'Maker', 'Uniswap', 'Aave', 'SushiSwap', 'Yearn Finance', 'Curve', 'Synthetix',
+        'Alpha Finance', 'dYdX', 'Perpetual Protocol', 'Injective Protocol', 'Mirror Protocol', 'Anchor',
+        'Terra Luna', 'UST', 'Avalanche', 'Fantom', 'Polygon', 'Harmony', 'Near Protocol', 'Elrond',
+        'Algorand', 'Hedera', 'Internet Computer', 'Filecoin', 'The Graph', 'Render Token', 'Ocean Protocol'
+      ];
+
+      for (let i = 0; i < 250; i++) {
+        const nameIndex = i % cryptoNames.length;
+        const baseName = cryptoNames[nameIndex];
+        const name = i < cryptoNames.length ? baseName : `${baseName} ${Math.floor(i / cryptoNames.length) + 1}`;
+
+        fallbackCryptos.push({
+          id: `crypto-${i + 1}`,
+          name: name,
+          symbol: name.replace(/\s+/g, '').toUpperCase().substring(0, 5),
+          price: Math.random() * 50000 + 10,
+          change: (Math.random() - 0.5) * 20,
+          rank: i + 1,
+          image: `https://cryptoicons.org/api/icon/${cryptoNames[nameIndex % cryptoNames.length].toLowerCase().replace(/\s+/g, '-')}/32`,
+          volume: Math.random() * 1000000000,
+          market_cap: Math.random() * 100000000000
+        });
+      }
+      setCryptoData(fallbackCryptos);
+
+      // Set fallback Bitcoin price
+      const bitcoinCrypto = fallbackCryptos.find(crypto => crypto.name === 'Bitcoin');
+      if (bitcoinCrypto) {
+        setBitcoinPrice(bitcoinCrypto.price);
+      } else {
+        setBitcoinPrice(45000); // Fallback Bitcoin price
+      }
+
+      // Create enhanced futures fallback
+      const fallbackFutures = fallbackCryptos.slice(0, 100).map((coin, index) => ({
+        ...coin,
+        symbol: coin.symbol + 'USDT',
+        price: coin.price * (1 + (Math.random() - 0.5) * 0.05),
+        change: coin.change + (Math.random() - 0.5) * 8,
+        openInterest: Math.random() * 2000000000,
+        fundingRate: Math.random() * 0.02 - 0.01,
+        lastUpdated: new Date()
+      }));
+      setFuturesData(fallbackFutures);
     }
   };
 
