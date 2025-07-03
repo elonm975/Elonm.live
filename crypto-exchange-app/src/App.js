@@ -940,7 +940,6 @@ function MainApp() {
     } catch (error) {
       console.error('Failed to fetch crypto data:', error);
       setNetworkStatus('error');
-    }
       
       // Fallback to enhanced mock data if API fails
       console.log('🔄 Loading enhanced fallback cryptocurrency data...');
