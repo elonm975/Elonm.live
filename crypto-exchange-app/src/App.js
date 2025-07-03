@@ -3033,16 +3033,7 @@ function MainApp() {
                       })}
                       className="withdraw-input"
                     />
-                    <input
-                      type="text"
-                      placeholder="SWIFT Code (for international transfers)"
-                      value={withdrawAccountDetails.swiftCode}
-                      onChange={(e) => setWithdrawAccountDetails({
-                        ...withdrawAccountDetails,
-                        swiftCode: e.target.value
-                      })}
-                      className="withdraw-input"
-                    />
+                    
                   </div>
                 </div>
 
