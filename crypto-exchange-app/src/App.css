@@ -235,9 +235,10 @@
 }
 
 .logo-icon {
-  font-size: 40px;
-  color: white;
-  font-weight: bold;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: brightness(1.1);
 }
 
 .login-header h1 {
