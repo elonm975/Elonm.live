@@ -731,6 +731,74 @@
   margin: 0 auto;
 }
 
+.header-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.animated-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  border-radius: 12px;
+  animation: headerLogoFloat 3s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-logo::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: headerLogoShine 4s linear infinite;
+}
+
+.header-logo-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(1.2);
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes headerLogoFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+  }
+  25% {
+    transform: translateY(-3px) rotate(2deg);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0deg);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+  }
+  75% {
+    transform: translateY(-3px) rotate(-2deg);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.5);
+  }
+}
+
+@keyframes headerLogoShine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(30deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(30deg);
+  }
+}
+
 .app-header h1 {
   margin: 0;
   font-size: 20px;
@@ -738,6 +806,16 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: headerTextGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes headerTextGlow {
+  0% {
+    text-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  }
+  100% {
+    text-shadow: 0 0 15px rgba(76, 175, 80, 0.6), 0 0 25px rgba(33, 150, 243, 0.4);
+  }
 }
 
 .balance-display {

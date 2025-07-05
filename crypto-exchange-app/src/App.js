@@ -2846,7 +2846,12 @@ function MainApp() {
     <div className="App">
       <div className="header">
         <div className="header-content">
-          <h1>Eloncrypto</h1>
+          <div className="header-logo-container">
+            <div className="animated-logo">
+              <img src="/elonm-icon.png" alt="Eloncrypto" className="header-logo-icon" />
+            </div>
+            <h1>Eloncrypto</h1>
+          </div>
           <div className="balance-display">
             ${balance.toLocaleString()}
           </div>
