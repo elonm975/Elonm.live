@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Composer Pro</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <div class="main-container">
+            <div class="animated-background">
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+                <div class="floating-shape shape-4"></div>
+                <div class="floating-shape shape-5"></div>
+                <div class="floating-shape shape-6"></div>
+                
+                <div class="gradient-orb orb-1"></div>
+                <div class="gradient-orb orb-2"></div>
+                <div class="gradient-orb orb-3"></div>
+            </div>
+
+            <div class="content-container">
+                <div class="header-section">
+                    <div class="logo-container">
+                        <div class="app-logo">
+                            <span class="logo-icon">✉️</span>
+                        </div>
+                        <h1>Email Composer Pro</h1>
+                        <p class="tagline">Professional Email Address Generator</p>
+                    </div>
+                </div>
+
+                <div class="composer-card">
+                    <div class="composer-header">
+                        <h2>Compose New Email Address</h2>
+                        <p class="composer-subtitle">Create professional email addresses instantly</p>
+                    </div>
+
+                    <div class="composer-form">
+                        <div class="form-section">
+                            <label class="form-label">First Name</label>
+                            <input type="text" id="firstName" class="modern-input" placeholder="Enter first name">
+                        </div>
+
+                        <div class="form-section">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" id="lastName" class="modern-input" placeholder="Enter last name">
+                        </div>
+
+                        <div class="form-section">
+                            <label class="form-label">Domain</label>
+                            <select id="domain" class="modern-select">
+                                <option value="gmail.com">gmail.com</option>
+                                <option value="outlook.com">outlook.com</option>
+                                <option value="yahoo.com">yahoo.com</option>
+                                <option value="company.com">company.com</option>
+                                <option value="custom">Custom Domain</option>
+                            </select>
+                        </div>
+
+                        <div class="form-section" id="customDomainSection" style="display: none;">
+                            <label class="form-label">Custom Domain</label>
+                            <input type="text" id="customDomain" class="modern-input" placeholder="Enter custom domain">
+                        </div>
+
+                        <div class="form-section">
+                            <label class="form-label">Email Format</label>
+                            <div class="format-options">
+                                <label class="radio-option">
+                                    <input type="radio" name="format" value="firstname.lastname" checked>
+                                    <span class="radio-label">firstname.lastname</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="format" value="firstnamelastname">
+                                    <span class="radio-label">firstnamelastname</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="format" value="first.initial">
+                                    <span class="radio-label">firstname.l</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="format" value="initial.lastname">
+                                    <span class="radio-label">f.lastname</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="generate-btn" onclick="generateEmail()">
+                            <span class="btn-icon">⚡</span>
+                            Generate Email
+                        </button>
+                    </div>
+
+                    <div class="results-section" id="resultsSection" style="display: none;">
+                        <h3>Generated Email Address</h3>
+                        <div class="email-result">
+                            <input type="text" id="generatedEmail" class="result-input" readonly>
+                            <button class="copy-btn" onclick="copyEmail()">
+                                <span class="copy-icon">📋</span>
+                                Copy
+                            </button>
+                        </div>
+                        
+                        <div class="alternative-suggestions" id="alternatives">
+                            <h4>Alternative Suggestions</h4>
+                            <div class="suggestions-list" id="suggestionsList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-section">
+                    <h3>Features</h3>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon">🎯</div>
+                            <h4>Professional Formats</h4>
+                            <p>Multiple email format options for professional use</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h4>Instant Generation</h4>
+                            <p>Generate email addresses instantly with one click</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📋</div>
+                            <h4>Easy Copy</h4>
+                            <p>Copy generated emails to clipboard with one click</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎨</div>
+                            <h4>Custom Domains</h4>
+                            <p>Support for custom domains and company emails</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
