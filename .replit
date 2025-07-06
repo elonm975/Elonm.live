@@ -151,3 +151,12 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd email-composer && python3 -m http.server 5000 --bind 0.0.0.0"
+
+[[workflows.workflow]]
+name = "Email Pro Server"
+author = 44246512
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd email-composer && npm install express nodemailer cors && node server.js"

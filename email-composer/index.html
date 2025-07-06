@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Composer Pro</title>
+    <title>Email Pro - Compose & Send</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -27,116 +27,172 @@
                 <div class="header-section">
                     <div class="logo-container">
                         <div class="app-logo">
-                            <span class="logo-icon">✉️</span>
+                            <span class="logo-icon">📧</span>
                         </div>
-                        <h1>Email Composer Pro</h1>
-                        <p class="tagline">Professional Email Address Generator</p>
+                        <h1>Email Pro</h1>
+                        <p class="tagline">Professional Email Management System</p>
                     </div>
                 </div>
 
-                <div class="composer-card">
-                    <div class="composer-header">
-                        <h2>Compose New Email Address</h2>
-                        <p class="composer-subtitle">Create professional email addresses instantly</p>
-                    </div>
+                <!-- Navigation Tabs -->
+                <div class="nav-tabs">
+                    <button class="tab-btn active" onclick="showTab('compose')">
+                        <span class="tab-icon">✍️</span>
+                        Compose
+                    </button>
+                    <button class="tab-btn" onclick="showTab('inbox')">
+                        <span class="tab-icon">📥</span>
+                        Inbox
+                    </button>
+                    <button class="tab-btn" onclick="showTab('sent')">
+                        <span class="tab-icon">📤</span>
+                        Sent
+                    </button>
+                    <button class="tab-btn" onclick="showTab('generator')">
+                        <span class="tab-icon">⚡</span>
+                        Generator
+                    </button>
+                </div>
 
-                    <div class="composer-form">
-                        <div class="form-section">
-                            <label class="form-label">First Name</label>
-                            <input type="text" id="firstName" class="modern-input" placeholder="Enter first name">
+                <!-- Compose Email Tab -->
+                <div id="compose-tab" class="tab-content active">
+                    <div class="composer-card">
+                        <div class="composer-header">
+                            <h2>Compose New Email</h2>
+                            <p class="composer-subtitle">Send professional emails instantly</p>
                         </div>
 
-                        <div class="form-section">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" id="lastName" class="modern-input" placeholder="Enter last name">
-                        </div>
-
-                        <div class="form-section">
-                            <label class="form-label">Domain</label>
-                            <select id="domain" class="modern-select">
-                                <option value="gmail.com">gmail.com</option>
-                                <option value="outlook.com">outlook.com</option>
-                                <option value="yahoo.com">yahoo.com</option>
-                                <option value="company.com">company.com</option>
-                                <option value="custom">Custom Domain</option>
-                            </select>
-                        </div>
-
-                        <div class="form-section" id="customDomainSection" style="display: none;">
-                            <label class="form-label">Custom Domain</label>
-                            <input type="text" id="customDomain" class="modern-input" placeholder="Enter custom domain">
-                        </div>
-
-                        <div class="form-section">
-                            <label class="form-label">Email Format</label>
-                            <div class="format-options">
-                                <label class="radio-option">
-                                    <input type="radio" name="format" value="firstname.lastname" checked>
-                                    <span class="radio-label">firstname.lastname</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="format" value="firstnamelastname">
-                                    <span class="radio-label">firstnamelastname</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="format" value="first.initial">
-                                    <span class="radio-label">firstname.l</span>
-                                </label>
-                                <label class="radio-option">
-                                    <input type="radio" name="format" value="initial.lastname">
-                                    <span class="radio-label">f.lastname</span>
-                                </label>
+                        <div class="email-form">
+                            <div class="form-row">
+                                <div class="form-section">
+                                    <label class="form-label">From</label>
+                                    <input type="email" id="fromEmail" class="modern-input" placeholder="your.email@gmail.com">
+                                </div>
+                                <div class="form-section">
+                                    <label class="form-label">From Name</label>
+                                    <input type="text" id="fromName" class="modern-input" placeholder="Your Name">
+                                </div>
                             </div>
-                        </div>
 
-                        <button class="generate-btn" onclick="generateEmail()">
-                            <span class="btn-icon">⚡</span>
-                            Generate Email
-                        </button>
-                    </div>
+                            <div class="form-section">
+                                <label class="form-label">To</label>
+                                <input type="email" id="toEmail" class="modern-input" placeholder="recipient@example.com">
+                            </div>
 
-                    <div class="results-section" id="resultsSection" style="display: none;">
-                        <h3>Generated Email Address</h3>
-                        <div class="email-result">
-                            <input type="text" id="generatedEmail" class="result-input" readonly>
-                            <button class="copy-btn" onclick="copyEmail()">
-                                <span class="copy-icon">📋</span>
-                                Copy
+                            <div class="form-section">
+                                <label class="form-label">Subject</label>
+                                <input type="text" id="subject" class="modern-input" placeholder="Email subject">
+                            </div>
+
+                            <div class="form-section">
+                                <label class="form-label">Message</label>
+                                <textarea id="message" class="modern-textarea" rows="8" placeholder="Write your message here..."></textarea>
+                            </div>
+
+                            <button class="send-btn" onclick="sendEmail()">
+                                <span class="btn-icon">🚀</span>
+                                Send Email
                             </button>
                         </div>
-                        
-                        <div class="alternative-suggestions" id="alternatives">
-                            <h4>Alternative Suggestions</h4>
-                            <div class="suggestions-list" id="suggestionsList"></div>
+                    </div>
+                </div>
+
+                <!-- Inbox Tab -->
+                <div id="inbox-tab" class="tab-content">
+                    <div class="email-list-card">
+                        <div class="list-header">
+                            <h2>Inbox</h2>
+                            <button class="refresh-btn" onclick="refreshInbox()">
+                                <span class="refresh-icon">🔄</span>
+                                Refresh
+                            </button>
+                        </div>
+                        <div id="inbox-list" class="email-list">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <h3>No emails yet</h3>
+                                <p>Your received emails will appear here</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="features-section">
-                    <h3>Features</h3>
-                    <div class="features-grid">
-                        <div class="feature-card">
-                            <div class="feature-icon">🎯</div>
-                            <h4>Professional Formats</h4>
-                            <p>Multiple email format options for professional use</p>
+                <!-- Sent Tab -->
+                <div id="sent-tab" class="tab-content">
+                    <div class="email-list-card">
+                        <div class="list-header">
+                            <h2>Sent Messages</h2>
+                            <button class="refresh-btn" onclick="refreshSent()">
+                                <span class="refresh-icon">🔄</span>
+                                Refresh
+                            </button>
                         </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⚡</div>
-                            <h4>Instant Generation</h4>
-                            <p>Generate email addresses instantly with one click</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">📋</div>
-                            <h4>Easy Copy</h4>
-                            <p>Copy generated emails to clipboard with one click</p>
-                        </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎨</div>
-                            <h4>Custom Domains</h4>
-                            <p>Support for custom domains and company emails</p>
+                        <div id="sent-list" class="email-list">
+                            <div class="empty-state">
+                                <div class="empty-icon">📤</div>
+                                <h3>No sent emails</h3>
+                                <p>Your sent emails will appear here</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Email Generator Tab -->
+                <div id="generator-tab" class="tab-content">
+                    <div class="composer-card">
+                        <div class="composer-header">
+                            <h2>Email Address Generator</h2>
+                            <p class="composer-subtitle">Generate professional email addresses</p>
+                        </div>
+
+                        <div class="composer-form">
+                            <div class="form-section">
+                                <label class="form-label">First Name</label>
+                                <input type="text" id="genFirstName" class="modern-input" placeholder="Enter first name">
+                            </div>
+
+                            <div class="form-section">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" id="genLastName" class="modern-input" placeholder="Enter last name">
+                            </div>
+
+                            <div class="form-section">
+                                <label class="form-label">Domain</label>
+                                <select id="genDomain" class="modern-select">
+                                    <option value="gmail.com">gmail.com</option>
+                                    <option value="outlook.com">outlook.com</option>
+                                    <option value="yahoo.com">yahoo.com</option>
+                                    <option value="company.com">company.com</option>
+                                    <option value="custom">Custom Domain</option>
+                                </select>
+                            </div>
+
+                            <div class="form-section" id="genCustomDomainSection" style="display: none;">
+                                <label class="form-label">Custom Domain</label>
+                                <input type="text" id="genCustomDomain" class="modern-input" placeholder="Enter custom domain">
+                            </div>
+
+                            <button class="generate-btn" onclick="generateEmailAddress()">
+                                <span class="btn-icon">⚡</span>
+                                Generate Email
+                            </button>
+                        </div>
+
+                        <div class="results-section" id="genResultsSection" style="display: none;">
+                            <h3>Generated Email Address</h3>
+                            <div class="email-result">
+                                <input type="text" id="generatedEmailAddress" class="result-input" readonly>
+                                <button class="copy-btn" onclick="copyGeneratedEmail()">
+                                    <span class="copy-icon">📋</span>
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="status-message" class="status-message" style="display: none;"></div>
             </div>
         </div>
     </div>
