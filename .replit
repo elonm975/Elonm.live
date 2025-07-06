@@ -138,3 +138,12 @@ args = "cd crypto-exchange-app && node server.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd crypto-exchange-app && npm start"
+
+[[workflows.workflow]]
+name = "Email Composer Server"
+author = 44246512
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd email-composer && python3 -m http.server 5000 --bind 0.0.0.0"
